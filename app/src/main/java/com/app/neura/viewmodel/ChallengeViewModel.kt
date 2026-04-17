@@ -1,6 +1,7 @@
 package com.app.neura.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.repository.ChallengeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,17 +12,23 @@ data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
     val selectedOptionIndex: Int? = null,
     val hasAnswered: Boolean = false,
-    val isCorrect: Boolean = false
+    val isCorrect: Boolean = false,
+    val challengeIndex: Int = 0,
+    val totalChallenges: Int = 0
 )
 
-class ChallengeViewModel : ViewModel() {
+class ChallengeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ChallengeRepository()
-    private val challenges = repository.getChallenges()
+    private val repository = ChallengeRepository(application.applicationContext)
+    private val challenges = repository.getChallenges().shuffled()
     private var currentIndex = 0
 
     private val _uiState = MutableStateFlow(
-        ChallengeUiState(currentChallenge = challenges.firstOrNull())
+        ChallengeUiState(
+            currentChallenge = challenges.firstOrNull(),
+            challengeIndex = 1,
+            totalChallenges = challenges.size
+        )
     )
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
 
@@ -38,8 +45,11 @@ class ChallengeViewModel : ViewModel() {
 
     fun nextChallenge() {
         currentIndex = (currentIndex + 1) % challenges.size
+
         _uiState.value = ChallengeUiState(
-            currentChallenge = challenges[currentIndex]
+            currentChallenge = challenges[currentIndex],
+            challengeIndex = currentIndex + 1,
+            totalChallenges = challenges.size
         )
     }
 }

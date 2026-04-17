@@ -40,14 +40,17 @@ fun ChallengeScreen(
             verticalArrangement = Arrangement.Top
         ) {
             Text(
-                text = "Neura",
+                text = "${uiState.challengeIndex} / ${uiState.totalChallenges}",
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = challenge.type.name.lowercase().replaceFirstChar { it.uppercase() },
+                text = when (challenge.type) {
+                    com.app.neura.data.model.ChallengeType.LOGIC -> "Logic"
+                    com.app.neura.data.model.ChallengeType.LATERAL -> "Lateral"
+                },
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -111,7 +114,7 @@ fun ChallengeScreen(
                     onClick = { viewModel.nextChallenge() },
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Prossima challenge")
+                    Text("Continue")
                 }
             }
         }
