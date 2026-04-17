@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.app.neura.data.model.CreateChallengeForm
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import com.app.neura.data.model.ChallengeDifficulty
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -111,7 +112,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
         val isValid = form.question.trim().isNotEmpty() &&
                 options.all { it.isNotEmpty() } &&
-                form.explanation.trim().isNotEmpty()
+                form.explanation.trim().isNotEmpty() &&
+                form.authorName.trim().isNotEmpty()
 
         if (!isValid) {
             return false
@@ -127,7 +129,9 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             correctIndex = form.correctIndex,
             explanation = form.explanation.trim(),
             type = form.type,
-            isUserCreated = true
+            isUserCreated = true,
+            difficulty = form.difficulty,
+            authorName = form.authorName.trim()
         )
 
         repository.addUserChallenge(challenge)
@@ -165,5 +169,42 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         } catch (_: Exception) {
             false
         }
+    }
+
+    fun getUserChallengeById(challengeId: Int): Challenge? {
+        return repository.getUserChallenges().firstOrNull { it.id == challengeId }
+    }
+
+    fun updateChallenge(challengeId: Int, form: CreateChallengeForm): Boolean {
+        val existing = getUserChallengeById(challengeId) ?: return false
+
+        val options = listOf(
+            form.option1.trim(),
+            form.option2.trim(),
+            form.option3.trim(),
+            form.option4.trim()
+        )
+
+        val isValid = form.question.trim().isNotEmpty() &&
+                options.all { it.isNotEmpty() } &&
+                form.explanation.trim().isNotEmpty() &&
+                form.authorName.trim().isNotEmpty()
+
+        if (!isValid) {
+            return false
+        }
+
+        val updated = existing.copy(
+            question = form.question.trim(),
+            options = options,
+            correctIndex = form.correctIndex,
+            explanation = form.explanation.trim(),
+            type = form.type,
+            difficulty = form.difficulty,
+            authorName = form.authorName.trim()
+        )
+
+        repository.updateUserChallenge(updated)
+        return true
     }
 }

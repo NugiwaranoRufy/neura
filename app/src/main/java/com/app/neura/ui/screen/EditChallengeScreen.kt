@@ -3,7 +3,6 @@ package com.app.neura.ui.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -28,30 +26,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.app.neura.data.model.Challenge
+import com.app.neura.data.model.ChallengeDifficulty
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.CreateChallengeForm
 import com.app.neura.viewmodel.ChallengeViewModel
-import com.app.neura.data.model.ChallengeDifficulty
 
 @Composable
-fun CreateChallengeScreen(
+fun EditChallengeScreen(
+    challenge: Challenge,
     viewModel: ChallengeViewModel,
     onSaved: () -> Unit,
     onBack: () -> Unit
 ) {
-    var question by remember { mutableStateOf("") }
-    var option1 by remember { mutableStateOf("") }
-    var option2 by remember { mutableStateOf("") }
-    var option3 by remember { mutableStateOf("") }
-    var option4 by remember { mutableStateOf("") }
-    var explanation by remember { mutableStateOf("") }
-    var correctIndex by remember { mutableIntStateOf(0) }
-    var type by remember { mutableStateOf(ChallengeType.LOGIC) }
+    var question by remember { mutableStateOf(challenge.question) }
+    var option1 by remember { mutableStateOf(challenge.options.getOrElse(0) { "" }) }
+    var option2 by remember { mutableStateOf(challenge.options.getOrElse(1) { "" }) }
+    var option3 by remember { mutableStateOf(challenge.options.getOrElse(2) { "" }) }
+    var option4 by remember { mutableStateOf(challenge.options.getOrElse(3) { "" }) }
+    var explanation by remember { mutableStateOf(challenge.explanation) }
+    var correctIndex by remember { mutableIntStateOf(challenge.correctIndex) }
+    var type by remember { mutableStateOf(challenge.type) }
+    var difficulty by remember { mutableStateOf(challenge.difficulty) }
+    var authorName by remember { mutableStateOf(challenge.authorName) }
     var errorText by remember { mutableStateOf<String?>(null) }
-    var difficulty by remember { mutableStateOf(ChallengeDifficulty.EASY) }
-    var authorName by remember { mutableStateOf("You") }
-
-    val optionLabels = listOf("Option 1", "Option 2", "Option 3", "Option 4")
 
     Scaffold(
         modifier = Modifier
@@ -76,12 +74,12 @@ fun CreateChallengeScreen(
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        Spacer(modifier = Modifier.padding(top = 8.dp))
                     }
 
                     Button(
                         onClick = {
-                            val success = viewModel.createChallenge(
+                            val success = viewModel.updateChallenge(
+                                challenge.id,
                                 CreateChallengeForm(
                                     question = question,
                                     option1 = option1,
@@ -105,14 +103,14 @@ fun CreateChallengeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Save challenge")
+                        Text("Save changes")
                     }
-
-                    Spacer(modifier = Modifier.padding(top = 8.dp))
 
                     OutlinedButton(
                         onClick = onBack,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text("Back")
@@ -133,19 +131,12 @@ fun CreateChallengeScreen(
         ) {
             item {
                 Text(
-                    text = "Create challenge",
+                    text = "Edit challenge",
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
 
             item {
-                OutlinedTextField(
-                    value = question,
-                    onValueChange = { question = it },
-                    label = { Text("Question") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
                 OutlinedTextField(
                     value = authorName,
                     onValueChange = { authorName = it },
@@ -156,68 +147,42 @@ fun CreateChallengeScreen(
 
             item {
                 OutlinedTextField(
-                    value = option1,
-                    onValueChange = { option1 = it },
-                    label = { Text("Option 1") },
+                    value = question,
+                    onValueChange = { question = it },
+                    label = { Text("Question") },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
             item {
-                OutlinedTextField(
-                    value = option2,
-                    onValueChange = { option2 = it },
-                    label = { Text("Option 2") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = option1, onValueChange = { option1 = it }, label = { Text("Option 1") }, modifier = Modifier.fillMaxWidth())
+            }
+            item {
+                OutlinedTextField(value = option2, onValueChange = { option2 = it }, label = { Text("Option 2") }, modifier = Modifier.fillMaxWidth())
+            }
+            item {
+                OutlinedTextField(value = option3, onValueChange = { option3 = it }, label = { Text("Option 3") }, modifier = Modifier.fillMaxWidth())
+            }
+            item {
+                OutlinedTextField(value = option4, onValueChange = { option4 = it }, label = { Text("Option 4") }, modifier = Modifier.fillMaxWidth())
             }
 
             item {
-                OutlinedTextField(
-                    value = option3,
-                    onValueChange = { option3 = it },
-                    label = { Text("Option 3") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Text("Correct answer", style = MaterialTheme.typography.titleMedium)
             }
 
-            item {
-                OutlinedTextField(
-                    value = option4,
-                    onValueChange = { option4 = it },
-                    label = { Text("Option 4") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Text(
-                    text = "Correct answer",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            items(optionLabels.indices.toList()) { index ->
+            items(4) { index ->
                 OutlinedButton(
                     onClick = { correctIndex = index },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(
-                        text = if (correctIndex == index) {
-                            "• ${optionLabels[index]}"
-                        } else {
-                            optionLabels[index]
-                        }
-                    )
+                    Text(if (correctIndex == index) "• Option ${index + 1}" else "Option ${index + 1}")
                 }
             }
 
             item {
-                Text(
-                    text = "Type",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text("Type", style = MaterialTheme.typography.titleMedium)
             }
 
             item {
@@ -241,11 +206,10 @@ fun CreateChallengeScreen(
             }
 
             item {
-                Text(
-                    text = "Difficulty",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text("Difficulty", style = MaterialTheme.typography.titleMedium)
+            }
 
+            item {
                 OutlinedButton(
                     onClick = { difficulty = ChallengeDifficulty.EASY },
                     modifier = Modifier.fillMaxWidth(),
@@ -253,7 +217,9 @@ fun CreateChallengeScreen(
                 ) {
                     Text(if (difficulty == ChallengeDifficulty.EASY) "• Easy" else "Easy")
                 }
+            }
 
+            item {
                 OutlinedButton(
                     onClick = { difficulty = ChallengeDifficulty.MEDIUM },
                     modifier = Modifier.fillMaxWidth(),
@@ -261,7 +227,9 @@ fun CreateChallengeScreen(
                 ) {
                     Text(if (difficulty == ChallengeDifficulty.MEDIUM) "• Medium" else "Medium")
                 }
+            }
 
+            item {
                 OutlinedButton(
                     onClick = { difficulty = ChallengeDifficulty.HARD },
                     modifier = Modifier.fillMaxWidth(),
@@ -269,7 +237,9 @@ fun CreateChallengeScreen(
                 ) {
                     Text(if (difficulty == ChallengeDifficulty.HARD) "• Hard" else "Hard")
                 }
+            }
 
+            item {
                 OutlinedTextField(
                     value = explanation,
                     onValueChange = { explanation = it },

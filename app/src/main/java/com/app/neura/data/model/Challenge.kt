@@ -10,11 +10,21 @@ data class Challenge(
     val correctIndex: Int,
     val explanation: String,
     val type: ChallengeType,
-    val isUserCreated: Boolean = false
+    val isUserCreated: Boolean = false,
+    val difficulty: ChallengeDifficulty = ChallengeDifficulty.EASY,
+    val createdAt: Long = System.currentTimeMillis(),
+    val authorName: String = "You"
 )
 
 @Serializable
 enum class ChallengeType {
     LOGIC,
     LATERAL
+}
+
+@Serializable
+enum class ChallengeDifficulty {
+    EASY,
+    MEDIUM,
+    HARD
 }

@@ -26,6 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.app.neura.ui.screen.TransferChallengesScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.app.neura.ui.screen.EditChallengeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,6 +148,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             },
+                            onEditChallenge = { challengeId ->
+                                navController.navigate(NeuraDestinations.EditChallenge.createRoute(challengeId))
+                            },
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -160,6 +166,27 @@ class MainActivity : ComponentActivity() {
                             },
                             onImport = {
                                 importLauncher.launch(arrayOf("application/json"))
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = NeuraDestinations.EditChallenge.route,
+                        arguments = listOf(
+                            navArgument("challengeId") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val challengeId = backStackEntry.arguments?.getInt("challengeId") ?: return@composable
+                        val challenge = challengeViewModel.getUserChallengeById(challengeId) ?: return@composable
+
+                        EditChallengeScreen(
+                            challenge = challenge,
+                            viewModel = challengeViewModel,
+                            onSaved = {
+                                navController.popBackStack()
                             },
                             onBack = {
                                 navController.popBackStack()

@@ -8,5 +8,7 @@ data class CreateChallengeForm(
     val option4: String = "",
     val correctIndex: Int = 0,
     val explanation: String = "",
-    val type: ChallengeType = ChallengeType.LOGIC
+    val type: ChallengeType = ChallengeType.LOGIC,
+    val difficulty: ChallengeDifficulty = ChallengeDifficulty.EASY,
+    val authorName: String = "You"
 )

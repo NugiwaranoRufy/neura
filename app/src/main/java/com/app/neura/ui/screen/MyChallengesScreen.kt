@@ -28,6 +28,7 @@ import com.app.neura.data.model.ChallengeType
 fun MyChallengesScreen(
     challenges: List<Challenge>,
     onDeleteChallenge: (Int) -> Unit,
+    onEditChallenge: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     Surface(
@@ -71,7 +72,8 @@ fun MyChallengesScreen(
                     items(challenges, key = { it.id }) { challenge ->
                         ChallengeManageCard(
                             challenge = challenge,
-                            onDelete = { onDeleteChallenge(challenge.id) }
+                            onDelete = { onDeleteChallenge(challenge.id) },
+                            onEdit = { onEditChallenge(challenge.id) }
                         )
                     }
                 }
@@ -93,7 +95,8 @@ fun MyChallengesScreen(
 @Composable
 private fun ChallengeManageCard(
     challenge: Challenge,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -121,6 +124,18 @@ private fun ChallengeManageCard(
             Spacer(modifier = Modifier.padding(top = 8.dp))
 
             Text(
+                text = "Difficulty: ${challenge.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = "Author: ${challenge.authorName}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            Text(
                 text = "Correct answer: ${challenge.options[challenge.correctIndex]}",
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -128,8 +143,16 @@ private fun ChallengeManageCard(
             Spacer(modifier = Modifier.padding(top = 16.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                OutlinedButton(
+                    onClick = onEdit,
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text("Edit")
+                }
+
                 Button(
                     onClick = onDelete,
                     shape = RoundedCornerShape(14.dp)

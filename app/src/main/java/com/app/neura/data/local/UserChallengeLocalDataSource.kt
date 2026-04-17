@@ -58,4 +58,11 @@ class UserChallengeLocalDataSource(
         val updated = getUserChallenges().filterNot { it.id == challengeId }
         saveUserChallenges(updated)
     }
+
+    fun updateUserChallenge(updatedChallenge: Challenge) {
+        val updatedList = getUserChallenges().map { challenge ->
+            if (challenge.id == updatedChallenge.id) updatedChallenge else challenge
+        }
+        saveUserChallenges(updatedList)
+    }
 }

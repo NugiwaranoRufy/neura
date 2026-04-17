@@ -55,4 +55,8 @@ class ChallengeRepository(
 
         userDataSource.saveUserChallenges(current + normalizedImported)
     }
+
+    fun updateUserChallenge(challenge: Challenge) {
+        userDataSource.updateUserChallenge(challenge)
+    }
 }
