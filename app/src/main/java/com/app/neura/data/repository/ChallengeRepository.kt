@@ -35,4 +35,24 @@ class ChallengeRepository(
     fun deleteUserChallenge(challengeId: Int) {
         userDataSource.deleteUserChallenge(challengeId)
     }
+
+    fun replaceUserChallenges(challenges: List<Challenge>) {
+        userDataSource.saveUserChallenges(challenges)
+    }
+
+    fun mergeUserChallenges(imported: List<Challenge>) {
+        val current = getUserChallenges()
+        val maxId = (getAllChallenges().maxOfOrNull { it.id } ?: 0)
+
+        var nextId = maxId + 1
+
+        val normalizedImported = imported.map { challenge ->
+            challenge.copy(
+                id = nextId++,
+                isUserCreated = true
+            )
+        }
+
+        userDataSource.saveUserChallenges(current + normalizedImported)
+    }
 }

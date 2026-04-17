@@ -30,6 +30,7 @@ fun HomeScreen(
     onStartSession: (GameSessionConfig) -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
+    onOpenTransfer: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -150,6 +151,16 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("My challenges")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenTransfer,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Import / Export")
             }
         }
     }

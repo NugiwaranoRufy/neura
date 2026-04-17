@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.app.neura.data.model.CreateChallengeForm
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -34,6 +36,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
 
+    private val exportJson = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
     fun startSession(config: GameSessionConfig) {
         val all = repository.getChallengesByType(config.type).shuffled()
         sessionChallenges = all.take(config.totalQuestions)
@@ -138,5 +144,26 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteUserChallenge(challengeId: Int) {
         repository.deleteUserChallenge(challengeId)
+    }
+
+    fun exportUserChallengesToJson(): String {
+        val userChallenges = repository.getUserChallenges()
+        return exportJson.encodeToString(
+            ListSerializer(Challenge.serializer()),
+            userChallenges
+        )
+    }
+
+    fun importUserChallengesFromJson(jsonContent: String): Boolean {
+        return try {
+            val imported = exportJson.decodeFromString(
+                ListSerializer(Challenge.serializer()),
+                jsonContent
+            )
+            repository.mergeUserChallenges(imported)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 }

@@ -6,4 +6,6 @@ sealed class NeuraDestinations(val route: String) {
     data object Result : NeuraDestinations("result")
     data object Create : NeuraDestinations("create")
     data object MyChallenges : NeuraDestinations("my_challenges")
+
+    data object Transfer : NeuraDestinations("transfer")
 }
