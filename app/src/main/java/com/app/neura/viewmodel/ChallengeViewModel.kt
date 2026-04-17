@@ -3,6 +3,7 @@ package com.app.neura.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.app.neura.data.model.Challenge
+import com.app.neura.data.model.ChallengePack
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.GameSessionConfig
 import com.app.neura.data.repository.ChallengeRepository
@@ -206,5 +207,56 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
         repository.updateUserChallenge(updated)
         return true
+    }
+
+    fun exportChallengePackToJson(
+        title: String,
+        description: String,
+        authorName: String,
+        challengeIds: List<Int>
+    ): String? {
+        val selectedChallenges = repository.getUserChallenges()
+            .filter { it.id in challengeIds }
+
+        if (
+            title.trim().isEmpty() ||
+            description.trim().isEmpty() ||
+            authorName.trim().isEmpty() ||
+            selectedChallenges.isEmpty()
+        ) {
+            return null
+        }
+
+        val pack = ChallengePack(
+            title = title.trim(),
+            description = description.trim(),
+            authorName = authorName.trim(),
+            challenges = selectedChallenges
+        )
+
+        return exportJson.encodeToString(
+            ChallengePack.serializer(),
+            pack
+        )
+    }
+
+    fun previewChallengePack(jsonContent: String): ChallengePack? {
+        return try {
+            exportJson.decodeFromString(
+                ChallengePack.serializer(),
+                jsonContent
+            )
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun importChallengePack(pack: ChallengePack): Boolean {
+        return try {
+            repository.mergeUserChallenges(pack.challenges)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 }

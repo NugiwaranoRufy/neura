@@ -1,0 +1,13 @@
+package com.app.neura.data.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ChallengePack(
+    val title: String,
+    val description: String,
+    val authorName: String,
+    val version: Int = 1,
+    val createdAt: Long = System.currentTimeMillis(),
+    val challenges: List<Challenge>
+)

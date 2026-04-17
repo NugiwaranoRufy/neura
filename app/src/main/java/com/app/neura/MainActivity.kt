@@ -29,6 +29,9 @@ import com.app.neura.ui.screen.TransferChallengesScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.app.neura.ui.screen.EditChallengeScreen
+import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.screen.ExportPackScreen
+import com.app.neura.ui.screen.ImportPackPreviewScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +44,10 @@ class MainActivity : ComponentActivity() {
                 val uiState by challengeViewModel.uiState.collectAsState()
 
                 var importStatus by remember { mutableStateOf<String?>(null) }
+
+                var importedPackPreview by remember { mutableStateOf<ChallengePack?>(null) }
+
+                var pendingPackExportContent by remember { mutableStateOf<String?>(null) }
 
                 val exportLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.CreateDocument("application/json")
@@ -70,6 +77,38 @@ class MainActivity : ComponentActivity() {
                                 "Import failed. Invalid file."
                             }
                         }
+                    }
+                }
+
+                val importPackLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocument()
+                ) { uri: Uri? ->
+                    if (uri != null) {
+                        val content = contentResolver.openInputStream(uri)
+                            ?.bufferedReader()
+                            ?.use { it.readText() }
+
+                        if (content != null) {
+                            val preview = challengeViewModel.previewChallengePack(content)
+                            if (preview != null) {
+                                importedPackPreview = preview
+                                navController.navigate(NeuraDestinations.ImportPackPreview.route)
+                            } else {
+                                importStatus = "Invalid pack file."
+                            }
+                        }
+                    }
+                }
+
+                val packExportLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.CreateDocument("application/json")
+                ) { uri: Uri? ->
+                    if (uri != null && pendingPackExportContent != null) {
+                        contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(pendingPackExportContent!!.toByteArray())
+                        }
+                        importStatus = "Pack export completed."
+                        pendingPackExportContent = null
                     }
                 }
 
@@ -167,6 +206,12 @@ class MainActivity : ComponentActivity() {
                             onImport = {
                                 importLauncher.launch(arrayOf("application/json"))
                             },
+                            onExportPack = {
+                                navController.navigate(NeuraDestinations.ExportPack.route)
+                            },
+                            onImportPack = {
+                                importPackLauncher.launch(arrayOf("application/json"))
+                            },
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -192,6 +237,55 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             }
                         )
+                    }
+
+                    composable(NeuraDestinations.ExportPack.route) {
+                        ExportPackScreen(
+                            challenges = challengeViewModel.getUserChallenges(),
+                            onExport = { title, description, authorName, challengeIds ->
+                                val json = challengeViewModel.exportChallengePackToJson(
+                                    title = title,
+                                    description = description,
+                                    authorName = authorName,
+                                    challengeIds = challengeIds
+                                )
+
+                                if (json != null) {
+                                    pendingPackExportContent = json
+                                    packExportLauncher.launch("neura_pack.json")
+                                }
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.ImportPackPreview.route) {
+                        val pack = importedPackPreview
+                        if (pack != null) {
+                            ImportPackPreviewScreen(
+                                pack = pack,
+                                onImport = {
+                                    val success = challengeViewModel.importChallengePack(pack)
+                                    importStatus = if (success) {
+                                        "Pack import completed."
+                                    } else {
+                                        "Pack import failed."
+                                    }
+                                    importedPackPreview = null
+                                    navController.navigate(NeuraDestinations.Transfer.route) {
+                                        popUpTo(NeuraDestinations.Transfer.route) {
+                                            inclusive = true
+                                        }
+                                    }
+                                },
+                                onBack = {
+                                    importedPackPreview = null
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
                     }
                 }
             }

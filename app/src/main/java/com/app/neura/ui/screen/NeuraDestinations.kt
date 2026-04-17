@@ -10,4 +10,6 @@ sealed class NeuraDestinations(val route: String) {
     data object EditChallenge : NeuraDestinations("edit_challenge/{challengeId}") {
         fun createRoute(challengeId: Int) = "edit_challenge/$challengeId"
     }
+    data object ExportPack : NeuraDestinations("export_pack")
+    data object ImportPackPreview : NeuraDestinations("import_pack_preview")
 }

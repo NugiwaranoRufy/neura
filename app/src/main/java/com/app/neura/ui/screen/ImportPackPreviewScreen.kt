@@ -18,15 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.app.neura.data.model.ChallengePack
 
 @Composable
-fun TransferChallengesScreen(
-    userChallengeCount: Int,
-    importStatus: String?,
-    onExport: () -> Unit,
+fun ImportPackPreviewScreen(
+    pack: ChallengePack,
     onImport: () -> Unit,
-    onExportPack: () -> Unit,
-    onImportPack: () -> Unit,
     onBack: () -> Unit
 ) {
     Surface(
@@ -42,74 +39,56 @@ fun TransferChallengesScreen(
             verticalArrangement = Arrangement.Top
         ) {
             Text(
-                text = "Import / Export",
+                text = "Import pack",
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Your created challenges: $userChallengeCount",
+                text = "Title: ${pack.title}",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Description: ${pack.description}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Author: ${pack.authorName}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Challenges: ${pack.challenges.size}",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = onExport,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Export my challenges")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedButton(
                 onClick = onImport,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Import challenges")
+                Text("Import this pack")
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onExportPack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Export pack")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = onImportPack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Import pack")
-            }
-
-            if (importStatus != null) {
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    text = importStatus,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedButton(
                 onClick = onBack,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Back")
+                Text("Cancel")
             }
         }
     }
