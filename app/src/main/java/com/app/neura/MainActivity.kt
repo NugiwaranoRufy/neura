@@ -32,10 +32,20 @@ import com.app.neura.ui.screen.EditChallengeScreen
 import com.app.neura.data.model.ChallengePack
 import com.app.neura.ui.screen.ExportPackScreen
 import com.app.neura.ui.screen.ImportPackPreviewScreen
+import androidx.navigation.navArgument
+import com.app.neura.ui.screen.MyPacksScreen
+import com.app.neura.ui.screen.PackDetailsScreen
+import android.content.Intent
+import androidx.compose.runtime.LaunchedEffect
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val incomingUri: Uri? = if (intent?.action == Intent.ACTION_VIEW) {
+            intent.data
+        } else {
+            null
+        }
 
         setContent {
             NeuraTheme {
@@ -48,6 +58,8 @@ class MainActivity : ComponentActivity() {
                 var importedPackPreview by remember { mutableStateOf<ChallengePack?>(null) }
 
                 var pendingPackExportContent by remember { mutableStateOf<String?>(null) }
+
+                var initialIncomingPackHandled by remember { mutableStateOf(false) }
 
                 val exportLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.CreateDocument("application/json")
@@ -112,6 +124,29 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                LaunchedEffect(incomingUri, initialIncomingPackHandled) {
+                    if (!initialIncomingPackHandled && incomingUri != null) {
+                        val content = contentResolver.openInputStream(incomingUri)
+                            ?.bufferedReader()
+                            ?.use { it.readText() }
+
+                        if (content != null) {
+                            val preview = challengeViewModel.previewChallengePack(content)
+                            if (preview != null) {
+                                importedPackPreview = preview
+                                importStatus = null
+                                initialIncomingPackHandled = true
+                                navController.navigate(NeuraDestinations.ImportPackPreview.route)
+                            } else {
+                                importStatus = "Invalid pack file."
+                                initialIncomingPackHandled = true
+                            }
+                        } else {
+                            initialIncomingPackHandled = true
+                        }
+                    }
+                }
+
                 NavHost(
                     navController = navController,
                     startDestination = NeuraDestinations.Home.route
@@ -131,6 +166,9 @@ class MainActivity : ComponentActivity() {
                             onOpenTransfer = {
                                 importStatus = null
                                 navController.navigate(NeuraDestinations.Transfer.route)
+                            },
+                            onOpenMyPacks = {
+                                navController.navigate(NeuraDestinations.MyPacks.route)
                             },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
@@ -286,6 +324,47 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                    }
+
+                    composable(NeuraDestinations.MyPacks.route) {
+                        MyPacksScreen(
+                            packs = challengeViewModel.getPacks(),
+                            onOpenPack = { createdAt ->
+                                navController.navigate(NeuraDestinations.PackDetails.createRoute(createdAt))
+                            },
+                            onDeletePack = { createdAt ->
+                                challengeViewModel.deletePack(createdAt)
+                                navController.navigate(NeuraDestinations.MyPacks.route) {
+                                    popUpTo(NeuraDestinations.MyPacks.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = NeuraDestinations.PackDetails.route,
+                        arguments = listOf(
+                            navArgument("createdAt") { type = NavType.LongType }
+                        )
+                    ) { backStackEntry ->
+                        val createdAt = backStackEntry.arguments?.getLong("createdAt") ?: return@composable
+                        val pack = challengeViewModel.getPackByCreatedAt(createdAt) ?: return@composable
+
+                        PackDetailsScreen(
+                            pack = pack,
+                            onPlayPack = {
+                                challengeViewModel.startSessionFromPack(pack)
+                                navController.navigate(NeuraDestinations.Challenge.route)
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
                     }
                 }
             }

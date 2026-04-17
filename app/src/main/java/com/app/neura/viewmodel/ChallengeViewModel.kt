@@ -254,9 +254,47 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     fun importChallengePack(pack: ChallengePack): Boolean {
         return try {
             repository.mergeUserChallenges(pack.challenges)
+            repository.addPack(pack)
             true
         } catch (_: Exception) {
             false
         }
+    }
+
+    fun savePackToLibrary(pack: ChallengePack) {
+        repository.addPack(pack)
+    }
+
+    fun getPacks(): List<ChallengePack> {
+        return repository.getPacks().sortedByDescending { it.createdAt }
+    }
+
+    fun getPackByCreatedAt(createdAt: Long): ChallengePack? {
+        return repository.getPacks().firstOrNull { it.createdAt == createdAt }
+    }
+
+    fun deletePack(createdAt: Long) {
+        repository.deletePack(createdAt)
+    }
+
+    fun startSessionFromPack(pack: ChallengePack, totalQuestions: Int? = null) {
+        val all = pack.challenges.shuffled()
+        sessionChallenges = if (totalQuestions != null) {
+            all.take(totalQuestions)
+        } else {
+            all
+        }
+
+        currentIndex = 0
+        currentScore = 0
+
+        _uiState.value = ChallengeUiState(
+            currentChallenge = sessionChallenges.firstOrNull(),
+            currentQuestionNumber = if (sessionChallenges.isNotEmpty()) 1 else 0,
+            totalQuestions = sessionChallenges.size,
+            score = 0,
+            sessionCompleted = sessionChallenges.isEmpty(),
+            sessionType = sessionChallenges.firstOrNull()?.type
+        )
     }
 }

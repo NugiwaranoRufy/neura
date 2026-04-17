@@ -5,12 +5,16 @@ import com.app.neura.data.local.AssetChallengeDataSource
 import com.app.neura.data.local.UserChallengeLocalDataSource
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.model.ChallengeType
+import com.app.neura.data.local.PackLocalDataSource
+import com.app.neura.data.model.ChallengePack
 
 class ChallengeRepository(
     context: Context
 ) {
     private val assetDataSource = AssetChallengeDataSource(context)
     private val userDataSource = UserChallengeLocalDataSource(context)
+
+    private val packDataSource = PackLocalDataSource(context)
 
     fun getBuiltInChallenges(): List<Challenge> {
         return assetDataSource.loadChallenges()
@@ -58,5 +62,17 @@ class ChallengeRepository(
 
     fun updateUserChallenge(challenge: Challenge) {
         userDataSource.updateUserChallenge(challenge)
+    }
+
+    fun getPacks(): List<ChallengePack> {
+        return packDataSource.getPacks()
+    }
+
+    fun addPack(pack: ChallengePack) {
+        packDataSource.addPack(pack)
+    }
+
+    fun deletePack(createdAt: Long) {
+        packDataSource.deletePack(createdAt)
     }
 }

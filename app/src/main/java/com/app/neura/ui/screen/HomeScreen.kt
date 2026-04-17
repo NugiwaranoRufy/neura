@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +35,7 @@ fun HomeScreen(
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
+    onOpenMyPacks: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -40,6 +45,9 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .safeDrawingPadding()
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.Top
         ) {
@@ -70,6 +78,7 @@ fun HomeScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("Category", style = MaterialTheme.typography.titleMedium)
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedButton(
@@ -100,6 +109,7 @@ fun HomeScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("Session length", style = MaterialTheme.typography.titleMedium)
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     listOf(3, 5).forEach { count ->
@@ -162,6 +172,18 @@ fun HomeScreen(
             ) {
                 Text("Import / Export")
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenMyPacks,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("My packs")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
