@@ -20,19 +20,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.app.neura.data.model.ChallengeType
 import com.app.neura.viewmodel.ChallengeViewModel
 
 @Composable
 fun ChallengeScreen(
     viewModel: ChallengeViewModel,
+    onSessionCompleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.sessionCompleted) {
+        onSessionCompleted()
+        return
+    }
+
     val challenge = uiState.currentChallenge ?: return
 
-    Surface(
-        modifier = modifier.fillMaxSize()
-    ) {
+    Surface(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -40,16 +46,23 @@ fun ChallengeScreen(
             verticalArrangement = Arrangement.Top
         ) {
             Text(
-                text = "${uiState.challengeIndex} / ${uiState.totalChallenges}",
+                text = "Neura",
                 style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
+                text = "${uiState.currentQuestionNumber} / ${uiState.totalQuestions}",
+                style = MaterialTheme.typography.labelMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
                 text = when (challenge.type) {
-                    com.app.neura.data.model.ChallengeType.LOGIC -> "Logic"
-                    com.app.neura.data.model.ChallengeType.LATERAL -> "Lateral"
+                    ChallengeType.LOGIC -> "Logic"
+                    ChallengeType.LATERAL -> "Lateral"
                 },
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
@@ -61,9 +74,7 @@ fun ChallengeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         text = challenge.question,
                         style = MaterialTheme.typography.titleMedium
@@ -93,7 +104,7 @@ fun ChallengeScreen(
 
             if (uiState.hasAnswered) {
                 Text(
-                    text = if (uiState.isCorrect) "Corretto" else "Non corretto",
+                    text = if (uiState.isCorrect) "Correct" else "Not correct",
                     style = MaterialTheme.typography.titleMedium,
                     color = if (uiState.isCorrect)
                         MaterialTheme.colorScheme.primary
@@ -106,6 +117,13 @@ fun ChallengeScreen(
                 Text(
                     text = challenge.explanation,
                     style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Score: ${uiState.score}",
+                    style = MaterialTheme.typography.labelLarge
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))

@@ -9,7 +9,8 @@ data class Challenge(
     val options: List<String>,
     val correctIndex: Int,
     val explanation: String,
-    val type: ChallengeType
+    val type: ChallengeType,
+    val isUserCreated: Boolean = false
 )
 
 @Serializable

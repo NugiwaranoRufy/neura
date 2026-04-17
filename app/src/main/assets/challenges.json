@@ -1,54 +1,99 @@
 [
   {
     "id": 1,
-    "question": "Hai 3 interruttori e una lampadina in una stanza chiusa. Puoi entrare nella stanza una sola volta. Come scopri quale interruttore controlla la lampadina?",
-    "options": [
-      "Accendo e spengo gli interruttori a caso",
-      "Accendo un interruttore, aspetto, lo spengo, accendo un altro e poi entro",
-      "Entro due volte nella stanza",
-      "Non è possibile saperlo"
-    ],
-    "correctIndex": 1,
-    "explanation": "Accendi il primo interruttore per qualche minuto, poi spegnilo e accendi il secondo. Entrando, se la lampadina è accesa è il secondo; se è spenta ma calda è il primo; se è spenta e fredda è il terzo.",
-    "type": "LOGIC"
+    "type": "LOGIC",
+    "question": "What comes next: 2, 4, 8, 16, ?",
+    "options": ["18", "24", "32", "30"],
+    "correctIndex": 2,
+    "explanation": "Each number is doubled. 16 × 2 = 32."
   },
   {
     "id": 2,
-    "question": "Un padre e un figlio hanno in totale 66 anni. Il padre ha l'età del figlio invertita. Quanti anni ha il figlio?",
-    "options": [
-      "12",
-      "15",
-      "24",
-      "33"
-    ],
+    "type": "LOGIC",
+    "question": "Find the missing number: 5, 10, 20, 40, ?",
+    "options": ["60", "80", "100", "120"],
     "correctIndex": 1,
-    "explanation": "Le coppie invertite plausibili sono 12/21, 15/51, 24/42. Solo 15 + 51 = 66.",
-    "type": "LOGIC"
+    "explanation": "Each number is multiplied by 2. 40 × 2 = 80."
   },
   {
     "id": 3,
-    "question": "Più ne togli, più diventa grande. Cos'è?",
-    "options": [
-      "Un buco",
-      "Un numero",
-      "Una scatola",
-      "Una strada"
-    ],
-    "correctIndex": 0,
-    "explanation": "Un buco: togliendo materiale, il buco aumenta.",
-    "type": "LATERAL"
+    "type": "LOGIC",
+    "question": "Which number is different: 3, 5, 7, 9, 11?",
+    "options": ["3", "5", "9", "11"],
+    "correctIndex": 2,
+    "explanation": "All numbers are prime except 9."
   },
   {
     "id": 4,
-    "question": "Una donna ha 4 figlie, e ogni figlia ha un fratello. Quanti figli ha in totale?",
-    "options": [
-      "5",
-      "8",
-      "4",
-      "6"
-    ],
+    "type": "LOGIC",
+    "question": "What is 3 + 3 × 3?",
+    "options": ["18", "12", "9", "15"],
+    "correctIndex": 1,
+    "explanation": "Multiplication first: 3 × 3 = 9, then +3 = 12."
+  },
+  {
+    "id": 5,
+    "type": "LOGIC",
+    "question": "If A=1, B=2, C=3, what is D?",
+    "options": ["3", "4", "5", "6"],
+    "correctIndex": 1,
+    "explanation": "Alphabet position: D is the 4th letter."
+  },
+  {
+    "id": 6,
+    "type": "LOGIC",
+    "question": "Which is heavier: 1kg of iron or 1kg of cotton?",
+    "options": ["Iron", "Cotton", "Same", "Depends"],
+    "correctIndex": 2,
+    "explanation": "Both weigh exactly 1kg."
+  },
+
+  {
+    "id": 7,
+    "type": "LATERAL",
+    "question": "A man lives on the 10th floor but takes the elevator only to the 7th when alone. Why?",
+    "options": ["He likes stairs", "He is short", "Elevator broken", "He is tired"],
+    "correctIndex": 1,
+    "explanation": "He can't reach the 10th floor button because he is short."
+  },
+  {
+    "id": 8,
+    "type": "LATERAL",
+    "question": "What has keys but can't open locks?",
+    "options": ["Keyboard", "Map", "Safe", "Code"],
     "correctIndex": 0,
-    "explanation": "Le 4 figlie condividono lo stesso fratello: 4 + 1 = 5.",
-    "type": "LATERAL"
+    "explanation": "A keyboard has keys but doesn't open locks."
+  },
+  {
+    "id": 9,
+    "type": "LATERAL",
+    "question": "What gets wetter the more it dries?",
+    "options": ["Water", "Rain", "Towel", "Sponge"],
+    "correctIndex": 2,
+    "explanation": "A towel gets wetter as it dries things."
+  },
+  {
+    "id": 10,
+    "type": "LATERAL",
+    "question": "You see a boat filled with people, yet there isn’t a single person on board. Why?",
+    "options": ["They jumped", "They are ghosts", "All are married", "It's empty"],
+    "correctIndex": 2,
+    "explanation": "There is no 'single' person because everyone is married."
+  },
+  {
+    "id": 11,
+    "type": "LATERAL",
+    "question": "What has a head, a tail, but no body?",
+    "options": ["Snake", "Coin", "Comet", "Lizard"],
+    "correctIndex": 1,
+    "explanation": "A coin has a head and a tail."
+  },
+  {
+    "id": 12,
+    "type": "LATERAL",
+    "question": "The more you take, the more you leave behind. What are they?",
+    "options": ["Steps", "Time", "Money", "Breath"],
+    "correctIndex": 0,
+    "explanation": "Footsteps: the more you take, the more you leave behind."
   }
 ]
