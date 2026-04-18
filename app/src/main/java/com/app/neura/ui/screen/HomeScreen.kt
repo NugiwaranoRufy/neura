@@ -39,6 +39,7 @@ fun HomeScreen(
     onOpenDiscover: () -> Unit,
     onOpenFavorites: () -> Unit,
     onOpenPlayLater: () -> Unit,
+    onOpenProfile: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -214,6 +215,16 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("Play later")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenProfile,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Profile")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

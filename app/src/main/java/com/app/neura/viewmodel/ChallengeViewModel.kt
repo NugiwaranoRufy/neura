@@ -18,6 +18,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.app.neura.data.model.UserProfile
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -53,6 +54,13 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         prettyPrint = true
         ignoreUnknownKeys = true
     }
+
+    val userProfile = repository.getUserProfile()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            UserProfile()
+        )
     fun startSession(config: GameSessionConfig) {
         val all = repository.getChallengesByType(config.type).shuffled()
         sessionChallenges = all.take(config.totalQuestions)
@@ -143,7 +151,11 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             type = form.type,
             isUserCreated = true,
             difficulty = form.difficulty,
-            authorName = form.authorName.trim(),
+            authorName = if (form.authorName.trim().isNotEmpty()) {
+                form.authorName.trim()
+            } else {
+                userProfile.value.displayName
+            },
             tags = form.tags
         )
 
@@ -214,7 +226,11 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             explanation = form.explanation.trim(),
             type = form.type,
             difficulty = form.difficulty,
-            authorName = form.authorName.trim(),
+            authorName = if (form.authorName.trim().isNotEmpty()) {
+                form.authorName.trim()
+            } else {
+                userProfile.value.displayName
+            },
             tags = form.tags
         )
 
@@ -244,7 +260,11 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         val pack = ChallengePack(
             title = title.trim(),
             description = description.trim(),
-            authorName = authorName.trim(),
+            authorName = if (authorName.trim().isNotEmpty()) {
+                authorName.trim()
+            } else {
+                userProfile.value.displayName
+            },
             challenges = selectedChallenges,
             tags = tags
         )
@@ -361,5 +381,19 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     fun getPlayLaterPacks(): List<ChallengePack> {
         val ids = playLaterPackIds.value
         return repository.getPacks().filter { it.localId in ids }
+    }
+
+    fun saveUserProfile(profile: UserProfile) {
+        viewModelScope.launch {
+            repository.saveUserProfile(profile)
+        }
+    }
+
+    fun getCreatedChallengesCount(): Int {
+        return repository.getUserChallenges().size
+    }
+
+    fun getSavedPacksCount(): Int {
+        return repository.getPacks().size
     }
 }

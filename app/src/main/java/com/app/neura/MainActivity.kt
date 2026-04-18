@@ -42,6 +42,7 @@ import com.app.neura.ui.screen.DiscoverScreen
 import com.app.neura.ui.screen.FeaturedPackDetailsScreen
 import com.app.neura.ui.screen.FavoritesScreen
 import com.app.neura.ui.screen.PlayLaterScreen
+import com.app.neura.ui.screen.ProfileScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,6 +185,9 @@ class MainActivity : ComponentActivity() {
                             onOpenPlayLater = {
                                 navController.navigate(NeuraDestinations.PlayLater.route)
                             },
+                            onOpenProfile = {
+                                navController.navigate(NeuraDestinations.Profile.route)
+                            },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
@@ -219,6 +223,7 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.Create.route) {
                         CreateChallengeScreen(
                             viewModel = challengeViewModel,
+                            defaultAuthorName = challengeViewModel.userProfile.collectAsState().value.displayName,
                             onSaved = {
                                 navController.popBackStack()
                             },
@@ -296,6 +301,7 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.ExportPack.route) {
                         ExportPackScreen(
                             challenges = challengeViewModel.getUserChallenges(),
+                            defaultAuthorName = challengeViewModel.userProfile.collectAsState().value.displayName,
                             onExport = { title, description, authorName, challengeIds, tags ->
                                 val json = challengeViewModel.exportChallengePackToJson(
                                     title = title,
@@ -309,7 +315,6 @@ class MainActivity : ComponentActivity() {
                                     pendingPackExportContent = json
                                     packExportLauncher.launch("neura_pack.json")
                                 }
-
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -452,6 +457,23 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+                    composable(NeuraDestinations.Profile.route) {
+                        val profile = challengeViewModel.userProfile.collectAsState().value
+
+                        ProfileScreen(
+                            profile = profile,
+                            createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
+                            savedPacksCount = challengeViewModel.getSavedPacksCount(),
+                            onSave = { updatedProfile ->
+                                challengeViewModel.saveUserProfile(updatedProfile)
+                                navController.popBackStack()
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
                 }
             }
         }

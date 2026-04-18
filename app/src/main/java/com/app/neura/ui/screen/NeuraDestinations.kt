@@ -24,4 +24,5 @@ sealed class NeuraDestinations(val route: String) {
 
     data object Favorites : NeuraDestinations("favorites")
     data object PlayLater : NeuraDestinations("play_later")
+    data object Profile : NeuraDestinations("profile")
 }

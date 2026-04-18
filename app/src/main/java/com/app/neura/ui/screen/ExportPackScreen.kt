@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateListOf
 @Composable
 fun ExportPackScreen(
     challenges: List<Challenge>,
+    defaultAuthorName: String,
     onExport: (
         title: String,
         description: String,
@@ -46,7 +47,7 @@ fun ExportPackScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var authorName by remember { mutableStateOf("You") }
+    var authorName by remember { mutableStateOf(defaultAuthorName) }
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val selectedIds = remember { mutableStateListOf<Int>() }

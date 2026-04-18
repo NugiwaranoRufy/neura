@@ -10,6 +10,7 @@ import com.app.neura.data.model.ChallengePack
 import com.app.neura.data.local.FeaturedPackDataSource
 import com.app.neura.data.local.UserPreferencesDataSource
 import kotlinx.coroutines.flow.Flow
+import com.app.neura.data.model.UserProfile
 
 class ChallengeRepository(
     context: Context
@@ -108,4 +109,12 @@ class ChallengeRepository(
     suspend fun togglePlayLaterPack(localId: Long) {
         userPreferencesDataSource.togglePlayLaterPack(localId)
     }
+    fun getUserProfile(): Flow<UserProfile> {
+        return userPreferencesDataSource.userProfile
+    }
+
+    suspend fun saveUserProfile(profile: UserProfile) {
+        userPreferencesDataSource.saveUserProfile(profile)
+    }
+
 }

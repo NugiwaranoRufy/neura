@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateListOf
 @Composable
 fun CreateChallengeScreen(
     viewModel: ChallengeViewModel,
+    defaultAuthorName: String,
     onSaved: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -52,7 +53,7 @@ fun CreateChallengeScreen(
     var type by remember { mutableStateOf(ChallengeType.LOGIC) }
     var errorText by remember { mutableStateOf<String?>(null) }
     var difficulty by remember { mutableStateOf(ChallengeDifficulty.EASY) }
-    var authorName by remember { mutableStateOf("You") }
+    var authorName by remember { mutableStateOf(defaultAuthorName) }
     val selectedTags = remember { mutableStateListOf<String>() }
     val optionLabels = listOf("Option 1", "Option 2", "Option 3", "Option 4")
 
