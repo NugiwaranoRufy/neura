@@ -31,6 +31,8 @@ import com.app.neura.data.model.ChallengeDifficulty
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.CreateChallengeForm
 import com.app.neura.viewmodel.ChallengeViewModel
+import com.app.neura.data.model.TagCatalog
+import androidx.compose.runtime.mutableStateListOf
 
 @Composable
 fun EditChallengeScreen(
@@ -50,6 +52,7 @@ fun EditChallengeScreen(
     var difficulty by remember { mutableStateOf(challenge.difficulty) }
     var authorName by remember { mutableStateOf(challenge.authorName) }
     var errorText by remember { mutableStateOf<String?>(null) }
+    val selectedTags = remember { mutableStateListOf<String>().apply { addAll(challenge.tags) } }
 
     Scaffold(
         modifier = Modifier
@@ -90,7 +93,8 @@ fun EditChallengeScreen(
                                     explanation = explanation,
                                     type = type,
                                     difficulty = difficulty,
-                                    authorName = authorName
+                                    authorName = authorName,
+                                    tags = selectedTags.toList()
                                 )
                             )
 
@@ -236,6 +240,28 @@ fun EditChallengeScreen(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(if (difficulty == ChallengeDifficulty.HARD) "• Hard" else "Hard")
+                }
+            }
+
+            item {
+                Text("Tags", style = MaterialTheme.typography.titleMedium)
+            }
+
+            items(TagCatalog.challengeTags.size) { index ->
+                val tag = TagCatalog.challengeTags[index]
+
+                OutlinedButton(
+                    onClick = {
+                        if (selectedTags.contains(tag)) {
+                            selectedTags.remove(tag)
+                        } else {
+                            selectedTags.add(tag)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (selectedTags.contains(tag)) "• $tag" else tag)
                 }
             }
 

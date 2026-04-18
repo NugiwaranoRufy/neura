@@ -9,5 +9,7 @@ data class ChallengePack(
     val authorName: String,
     val version: Int = 1,
     val createdAt: Long = System.currentTimeMillis(),
-    val challenges: List<Challenge>
+    val challenges: List<Challenge>,
+    val tags: List<String> = emptyList(),
+    val localId: Long = System.nanoTime()
 )

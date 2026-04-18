@@ -29,11 +29,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.Challenge
+import com.app.neura.data.model.TagCatalog
+import androidx.compose.runtime.mutableStateListOf
 
 @Composable
 fun ExportPackScreen(
     challenges: List<Challenge>,
-    onExport: (title: String, description: String, authorName: String, challengeIds: List<Int>) -> Unit,
+    onExport: (
+        title: String,
+        description: String,
+        authorName: String,
+        challengeIds: List<Int>,
+        tags: List<String>
+    ) -> Unit,
     onBack: () -> Unit
 ) {
     var title by remember { mutableStateOf("") }
@@ -42,6 +50,7 @@ fun ExportPackScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
 
     val selectedIds = remember { mutableStateListOf<Int>() }
+    val selectedPackTags = remember { mutableStateListOf<String>() }
 
     Scaffold(
         modifier = Modifier
@@ -78,7 +87,7 @@ fun ExportPackScreen(
                             ) {
                                 errorText = "Fill all fields and select at least one challenge."
                             } else {
-                                onExport(title, description, authorName, selectedIds.toList())
+                                onExport(title, description, authorName, selectedIds.toList(), selectedPackTags.toList())
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -142,6 +151,29 @@ fun ExportPackScreen(
                     label = { Text("Author name") },
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+
+            item {
+                Text(
+                    text = "Pack tags",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            items(TagCatalog.packTags, key = { it }) { tag ->
+                OutlinedButton(
+                    onClick = {
+                        if (selectedPackTags.contains(tag)) {
+                            selectedPackTags.remove(tag)
+                        } else {
+                            selectedPackTags.add(tag)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (selectedPackTags.contains(tag)) "• $tag" else tag)
+                }
             }
 
             item {

@@ -1,9 +1,8 @@
 package com.app.neura.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -32,8 +31,12 @@ import com.app.neura.ui.screen.filter.PackSortOption
 @Composable
 fun MyPacksScreen(
     packs: List<ChallengePack>,
+    favoritePackIds: Set<Long>,
+    playLaterPackIds: Set<Long>,
     onOpenPack: (Long) -> Unit,
     onDeletePack: (Long) -> Unit,
+    onToggleFavorite: (Long) -> Unit,
+    onTogglePlayLater: (Long) -> Unit,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -58,127 +61,139 @@ fun MyPacksScreen(
             .safeDrawingPadding()
             .navigationBarsPadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "My packs",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            item {
+                Text(
+                    text = "My packs",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
 
-            Spacer(modifier = Modifier.padding(top = 12.dp))
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search packs") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                label = { Text("Search packs") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            item {
+                Text("Sort by", style = MaterialTheme.typography.titleMedium)
+            }
 
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            Text("Sort by", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(onClick = { sortOption = PackSortOption.NEWEST }) {
-                    Text(if (sortOption == PackSortOption.NEWEST) "• Newest" else "Newest")
-                }
-                OutlinedButton(onClick = { sortOption = PackSortOption.OLDEST }) {
-                    Text(if (sortOption == PackSortOption.OLDEST) "• Oldest" else "Oldest")
-                }
-                OutlinedButton(onClick = { sortOption = PackSortOption.TITLE }) {
-                    Text(if (sortOption == PackSortOption.TITLE) "• Title" else "Title")
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = { sortOption = PackSortOption.NEWEST }) {
+                        Text(if (sortOption == PackSortOption.NEWEST) "• Newest" else "Newest")
+                    }
+                    OutlinedButton(onClick = { sortOption = PackSortOption.OLDEST }) {
+                        Text(if (sortOption == PackSortOption.OLDEST) "• Oldest" else "Oldest")
+                    }
+                    OutlinedButton(onClick = { sortOption = PackSortOption.TITLE }) {
+                        Text(if (sortOption == PackSortOption.TITLE) "• Title" else "Title")
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.padding(top = 16.dp))
+            item {
+                Text(
+                    text = "Results: ${filteredPacks.size}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
 
             if (filteredPacks.isEmpty()) {
-                Text(
-                    text = "No packs found.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.padding(top = 24.dp))
-
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
+                item {
+                    Text(
+                        text = "No packs found.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredPacks, key = { it.createdAt }) { pack ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp)
+                items(filteredPacks, key = { it.localId }) { pack ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        androidx.compose.foundation.layout.Column(
+                            modifier = Modifier.padding(20.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(20.dp)
+                            Text(
+                                text = pack.title,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text(
+                                text = pack.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+
+                            Text(
+                                text = "Author: ${pack.authorName}",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+
+                            Text(
+                                text = "Challenges: ${pack.challenges.size}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+
+                            if (pack.tags.isNotEmpty()) {
+                                Text(
+                                    text = "Tags: ${pack.tags.joinToString()}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Text(
-                                    text = pack.title,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-
-                                Spacer(modifier = Modifier.padding(top = 8.dp))
-
-                                Text(
-                                    text = pack.description,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-
-                                Spacer(modifier = Modifier.padding(top = 8.dp))
-
-                                Text(
-                                    text = "Author: ${pack.authorName}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-
-                                Text(
-                                    text = "Challenges: ${pack.challenges.size}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-
-                                Spacer(modifier = Modifier.padding(top = 16.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                OutlinedButton(
+                                    onClick = { onOpenPack(pack.localId) },
+                                    shape = RoundedCornerShape(14.dp)
                                 ) {
-                                    OutlinedButton(
-                                        onClick = { onOpenPack(pack.createdAt) },
-                                        shape = RoundedCornerShape(14.dp)
-                                    ) {
-                                        Text("Open")
-                                    }
+                                    Text("Open")
+                                }
 
-                                    Button(
-                                        onClick = { onDeletePack(pack.createdAt) },
-                                        shape = RoundedCornerShape(14.dp)
-                                    ) {
-                                        Text("Delete")
-                                    }
+                                Button(
+                                    onClick = { onDeletePack(pack.localId) },
+                                    shape = RoundedCornerShape(14.dp)
+                                ) {
+                                    Text("Delete")
+                                }
+                                OutlinedButton(
+                                    onClick = { onToggleFavorite(pack.localId) },
+                                    shape = RoundedCornerShape(14.dp)
+                                ) {
+                                    Text(if (favoritePackIds.contains(pack.localId)) "★ Favorite" else "☆ Favorite")
+                                }
+
+                                OutlinedButton(
+                                    onClick = { onTogglePlayLater(pack.localId) },
+                                    shape = RoundedCornerShape(14.dp)
+                                ) {
+                                    Text(if (playLaterPackIds.contains(pack.localId)) "• Play later" else "Play later")
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.padding(top = 12.dp))
-
+            item {
                 OutlinedButton(
                     onClick = onBack,
                     modifier = Modifier.fillMaxWidth(),

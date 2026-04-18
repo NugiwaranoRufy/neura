@@ -39,6 +39,7 @@
       "isUserCreated": false,
       "difficulty": "MEDIUM",
       "createdAt": 1710000001003,
+      "tags": ["beginner", "logic", "brain-training"],
       "authorName": "Neura"
     }
   ]

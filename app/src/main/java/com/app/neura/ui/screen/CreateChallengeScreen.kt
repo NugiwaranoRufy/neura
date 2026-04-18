@@ -32,6 +32,9 @@ import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.CreateChallengeForm
 import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.data.model.ChallengeDifficulty
+import com.app.neura.data.model.TagCatalog
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.runtime.mutableStateListOf
 
 @Composable
 fun CreateChallengeScreen(
@@ -50,7 +53,7 @@ fun CreateChallengeScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
     var difficulty by remember { mutableStateOf(ChallengeDifficulty.EASY) }
     var authorName by remember { mutableStateOf("You") }
-
+    val selectedTags = remember { mutableStateListOf<String>() }
     val optionLabels = listOf("Option 1", "Option 2", "Option 3", "Option 4")
 
     Scaffold(
@@ -92,7 +95,8 @@ fun CreateChallengeScreen(
                                     explanation = explanation,
                                     type = type,
                                     difficulty = difficulty,
-                                    authorName = authorName
+                                    authorName = authorName,
+                                    tags = selectedTags.toList()
                                 )
                             )
 
@@ -268,6 +272,31 @@ fun CreateChallengeScreen(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(if (difficulty == ChallengeDifficulty.HARD) "• Hard" else "Hard")
+                }
+
+                Text(
+                    text = "Tags",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                TagCatalog.challengeTags.forEach { tag ->
+                    OutlinedButton(
+                        onClick = {
+                            if (selectedTags.contains(tag)) {
+                                selectedTags.remove(tag)
+                            } else {
+                                selectedTags.add(tag)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(
+                            if (selectedTags.contains(tag)) "• $tag" else tag
+                        )
+                    }
                 }
 
                 OutlinedTextField(

@@ -8,6 +8,8 @@ import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.local.PackLocalDataSource
 import com.app.neura.data.model.ChallengePack
 import com.app.neura.data.local.FeaturedPackDataSource
+import com.app.neura.data.local.UserPreferencesDataSource
+import kotlinx.coroutines.flow.Flow
 
 class ChallengeRepository(
     context: Context
@@ -17,6 +19,7 @@ class ChallengeRepository(
 
     private val packDataSource = PackLocalDataSource(context)
     private val featuredPackDataSource = FeaturedPackDataSource(context)
+    private val userPreferencesDataSource = UserPreferencesDataSource(context)
 
     fun getBuiltInChallenges(): List<Challenge> {
         return assetDataSource.loadChallenges()
@@ -74,11 +77,35 @@ class ChallengeRepository(
         packDataSource.addPack(pack)
     }
 
-    fun deletePack(createdAt: Long) {
-        packDataSource.deletePack(createdAt)
+    fun deletePack(localId: Long) {
+        packDataSource.deletePack(localId)
     }
 
     fun getFeaturedPacks(): List<ChallengePack> {
         return featuredPackDataSource.getFeaturedPacks()
+    }
+
+    fun getFavoritePackIds(): Flow<Set<Long>> {
+        return userPreferencesDataSource.favoritePackIds
+    }
+
+    fun getFavoriteChallengeIds(): Flow<Set<Long>> {
+        return userPreferencesDataSource.favoriteChallengeIds
+    }
+
+    fun getPlayLaterPackIds(): Flow<Set<Long>> {
+        return userPreferencesDataSource.playLaterPackIds
+    }
+
+    suspend fun toggleFavoritePack(localId: Long) {
+        userPreferencesDataSource.toggleFavoritePack(localId)
+    }
+
+    suspend fun toggleFavoriteChallenge(challengeId: Long) {
+        userPreferencesDataSource.toggleFavoriteChallenge(challengeId)
+    }
+
+    suspend fun togglePlayLaterPack(localId: Long) {
+        userPreferencesDataSource.togglePlayLaterPack(localId)
     }
 }

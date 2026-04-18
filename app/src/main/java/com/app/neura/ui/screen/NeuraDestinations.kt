@@ -13,12 +13,15 @@ sealed class NeuraDestinations(val route: String) {
     data object ExportPack : NeuraDestinations("export_pack")
     data object ImportPackPreview : NeuraDestinations("import_pack_preview")
     data object MyPacks : NeuraDestinations("my_packs")
-    data object PackDetails : NeuraDestinations("pack_details/{createdAt}") {
-        fun createRoute(createdAt: Long) = "pack_details/$createdAt"
+    data object PackDetails : NeuraDestinations("pack_details/{localId}") {
+        fun createRoute(localId: Long) = "pack_details/$localId"
     }
 
     data object Discover : NeuraDestinations("discover")
     data object FeaturedPackDetails : NeuraDestinations("featured_pack_details/{createdAt}") {
         fun createRoute(createdAt: Long) = "featured_pack_details/$createdAt"
     }
+
+    data object Favorites : NeuraDestinations("favorites")
+    data object PlayLater : NeuraDestinations("play_later")
 }

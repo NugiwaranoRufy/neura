@@ -14,6 +14,10 @@ import com.app.neura.data.model.CreateChallengeForm
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import com.app.neura.data.model.ChallengeDifficulty
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -37,7 +41,14 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
+    val favoritePackIds = repository.getFavoritePackIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
+    val favoriteChallengeIds = repository.getFavoriteChallengeIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    val playLaterPackIds = repository.getPlayLaterPackIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
     private val exportJson = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -132,7 +143,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             type = form.type,
             isUserCreated = true,
             difficulty = form.difficulty,
-            authorName = form.authorName.trim()
+            authorName = form.authorName.trim(),
+            tags = form.tags
         )
 
         repository.addUserChallenge(challenge)
@@ -202,7 +214,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             explanation = form.explanation.trim(),
             type = form.type,
             difficulty = form.difficulty,
-            authorName = form.authorName.trim()
+            authorName = form.authorName.trim(),
+            tags = form.tags
         )
 
         repository.updateUserChallenge(updated)
@@ -213,7 +226,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         title: String,
         description: String,
         authorName: String,
-        challengeIds: List<Int>
+        challengeIds: List<Int>,
+        tags: List<String>
     ): String? {
         val selectedChallenges = repository.getUserChallenges()
             .filter { it.id in challengeIds }
@@ -231,7 +245,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             title = title.trim(),
             description = description.trim(),
             authorName = authorName.trim(),
-            challenges = selectedChallenges
+            challenges = selectedChallenges,
+            tags = tags
         )
 
         return exportJson.encodeToString(
@@ -273,8 +288,12 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         return repository.getPacks().firstOrNull { it.createdAt == createdAt }
     }
 
-    fun deletePack(createdAt: Long) {
-        repository.deletePack(createdAt)
+    fun getPackByLocalId(localId: Long): ChallengePack? {
+        return repository.getPacks().firstOrNull { it.localId == localId }
+    }
+
+    fun deletePack(localId: Long) {
+        repository.deletePack(localId)
     }
 
     fun startSessionFromPack(pack: ChallengePack, totalQuestions: Int? = null) {
@@ -314,5 +333,33 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         } catch (_: Exception) {
             false
         }
+    }
+
+    fun toggleFavoritePack(localId: Long) {
+        viewModelScope.launch {
+            repository.toggleFavoritePack(localId)
+        }
+    }
+
+    fun toggleFavoriteChallenge(challengeId: Int) {
+        viewModelScope.launch {
+            repository.toggleFavoriteChallenge(challengeId.toLong())
+        }
+    }
+
+    fun togglePlayLaterPack(localId: Long) {
+        viewModelScope.launch {
+            repository.togglePlayLaterPack(localId)
+        }
+    }
+
+    fun getFavoritePacks(): List<ChallengePack> {
+        val ids = favoritePackIds.value
+        return repository.getPacks().filter { it.localId in ids }
+    }
+
+    fun getPlayLaterPacks(): List<ChallengePack> {
+        val ids = playLaterPackIds.value
+        return repository.getPacks().filter { it.localId in ids }
     }
 }

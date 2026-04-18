@@ -13,7 +13,8 @@ data class Challenge(
     val isUserCreated: Boolean = false,
     val difficulty: ChallengeDifficulty = ChallengeDifficulty.EASY,
     val createdAt: Long = System.currentTimeMillis(),
-    val authorName: String = "You"
+    val authorName: String = "You",
+    val tags: List<String> = emptyList()
 )
 
 @Serializable

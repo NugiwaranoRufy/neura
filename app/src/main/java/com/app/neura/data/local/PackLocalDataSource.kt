@@ -50,12 +50,17 @@ class PackLocalDataSource(
 
     fun addPack(pack: ChallengePack) {
         val current = getPacks().toMutableList()
-        current.add(pack)
+
+        val normalizedPack = pack.copy(
+            localId = System.nanoTime()
+        )
+
+        current.add(normalizedPack)
         savePacks(current)
     }
 
-    fun deletePack(createdAt: Long) {
-        val updated = getPacks().filterNot { it.createdAt == createdAt }
+    fun deletePack(localId: Long) {
+        val updated = getPacks().filterNot { it.localId == localId }
         savePacks(updated)
     }
 }

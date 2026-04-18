@@ -39,6 +39,7 @@
       "isUserCreated": false,
       "difficulty": "MEDIUM",
       "createdAt": 1710000002003,
+      "tags": ["beginner", "lateral", "short-session"],
       "authorName": "Neura"
     }
   ]

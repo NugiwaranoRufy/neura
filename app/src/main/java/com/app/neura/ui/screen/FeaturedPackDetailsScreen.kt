@@ -99,6 +99,13 @@ fun FeaturedPackDetailsScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
 
+                            if (pack.tags.isNotEmpty()) {
+                                Text(
+                                    text = "Tags: ${pack.tags.joinToString()}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
                             Text(
                                 text = "Difficulty: ${challenge.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}",
                                 style = MaterialTheme.typography.bodySmall

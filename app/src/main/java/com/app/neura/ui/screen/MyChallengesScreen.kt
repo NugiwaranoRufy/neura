@@ -1,9 +1,7 @@
 package com.app.neura.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -29,19 +27,23 @@ import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.model.ChallengeDifficulty
 import com.app.neura.data.model.ChallengeType
+import com.app.neura.data.model.TagCatalog
 import com.app.neura.ui.screen.filter.ChallengeTypeFilter
 import com.app.neura.ui.screen.filter.DifficultyFilter
 
 @Composable
 fun MyChallengesScreen(
     challenges: List<Challenge>,
+    favoriteChallengeIds: Set<Long>,
     onDeleteChallenge: (Int) -> Unit,
     onEditChallenge: (Int) -> Unit,
+    onToggleFavorite: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     var typeFilter by remember { mutableStateOf(ChallengeTypeFilter.ALL) }
     var difficultyFilter by remember { mutableStateOf(DifficultyFilter.ALL) }
+    var tagFilter by remember { mutableStateOf("ALL") }
 
     val filteredChallenges = challenges.filter { challenge ->
         val matchesQuery =
@@ -61,7 +63,12 @@ fun MyChallengesScreen(
             DifficultyFilter.HARD -> challenge.difficulty == ChallengeDifficulty.HARD
         }
 
-        matchesQuery && matchesType && matchesDifficulty
+        val matchesTag = when (tagFilter) {
+            "ALL" -> true
+            else -> challenge.tags.contains(tagFilter)
+        }
+
+        matchesQuery && matchesType && matchesDifficulty && matchesTag
     }
 
     Surface(
@@ -70,103 +77,127 @@ fun MyChallengesScreen(
             .safeDrawingPadding()
             .navigationBarsPadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp)
         ) {
-            Text(
-                text = "My challenges",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                label = { Text("Search challenges") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            Text("Type", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.ALL }) {
-                    Text(if (typeFilter == ChallengeTypeFilter.ALL) "• All" else "All")
-                }
-                OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LOGIC }) {
-                    Text(if (typeFilter == ChallengeTypeFilter.LOGIC) "• Logic" else "Logic")
-                }
-                OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LATERAL }) {
-                    Text(if (typeFilter == ChallengeTypeFilter.LATERAL) "• Lateral" else "Lateral")
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            Text("Difficulty", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.ALL }) {
-                    Text(if (difficultyFilter == DifficultyFilter.ALL) "• All" else "All")
-                }
-                OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.EASY }) {
-                    Text(if (difficultyFilter == DifficultyFilter.EASY) "• Easy" else "Easy")
-                }
-                OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.MEDIUM }) {
-                    Text(if (difficultyFilter == DifficultyFilter.MEDIUM) "• Medium" else "Medium")
-                }
-                OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.HARD }) {
-                    Text(if (difficultyFilter == DifficultyFilter.HARD) "• Hard" else "Hard")
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(top = 16.dp))
-
-            if (filteredChallenges.isEmpty()) {
+            item {
                 Text(
-                    text = "No challenges found.",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "My challenges",
+                    style = MaterialTheme.typography.headlineMedium
                 )
+            }
 
-                Spacer(modifier = Modifier.padding(top = 24.dp))
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search challenges") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
+            item {
+                Text("Type", style = MaterialTheme.typography.titleMedium)
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.ALL }) {
+                        Text(if (typeFilter == ChallengeTypeFilter.ALL) "• All" else "All")
+                    }
+                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LOGIC }) {
+                        Text(if (typeFilter == ChallengeTypeFilter.LOGIC) "• Logic" else "Logic")
+                    }
+                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LATERAL }) {
+                        Text(if (typeFilter == ChallengeTypeFilter.LATERAL) "• Lateral" else "Lateral")
+                    }
+                }
+            }
+
+            item {
+                Text("Difficulty", style = MaterialTheme.typography.titleMedium)
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.ALL }) {
+                        Text(if (difficultyFilter == DifficultyFilter.ALL) "• All" else "All")
+                    }
+                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.EASY }) {
+                        Text(if (difficultyFilter == DifficultyFilter.EASY) "• Easy" else "Easy")
+                    }
+                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.MEDIUM }) {
+                        Text(if (difficultyFilter == DifficultyFilter.MEDIUM) "• Medium" else "Medium")
+                    }
+                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.HARD }) {
+                        Text(if (difficultyFilter == DifficultyFilter.HARD) "• Hard" else "Hard")
+                    }
+                }
+            }
+
+            item {
+                Text("Tag", style = MaterialTheme.typography.titleMedium)
+            }
+
+            item {
                 OutlinedButton(
-                    onClick = onBack,
+                    onClick = { tagFilter = "ALL" },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Back")
+                    Text(if (tagFilter == "ALL") "• All" else "All")
+                }
+            }
+
+            items(TagCatalog.challengeTags, key = { it }) { tag ->
+                OutlinedButton(
+                    onClick = { tagFilter = tag },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(if (tagFilter == tag) "• $tag" else tag)
+                }
+            }
+
+            item {
+                Text(
+                    text = "Results: ${filteredChallenges.size}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+
+            if (filteredChallenges.isEmpty()) {
+                item {
+                    Text(
+                        text = "No challenges found.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredChallenges, key = { it.id }) { challenge ->
-                        ChallengeManageCard(
-                            challenge = challenge,
-                            onDelete = { onDeleteChallenge(challenge.id) },
-                            onEdit = { onEditChallenge(challenge.id) }
-                        )
+                items(filteredChallenges, key = { it.id }) { challenge ->
+                    ChallengeManageCard(
+                        challenge = challenge,
+                        onDelete = { onDeleteChallenge(challenge.id) },
+                        onEdit = { onEditChallenge(challenge.id) }
+                    )
+                    OutlinedButton(
+                        onClick = { onToggleFavorite(challenge.id) },
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(if (favoriteChallengeIds.contains(challenge.id.toLong())) "★ Favorite" else "☆ Favorite")
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.padding(top = 12.dp))
-
+            item {
                 OutlinedButton(
                     onClick = onBack,
                     modifier = Modifier.fillMaxWidth(),
@@ -189,7 +220,7 @@ private fun ChallengeManageCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp)
     ) {
-        Column(
+        androidx.compose.foundation.layout.Column(
             modifier = Modifier.padding(20.dp)
         ) {
             Text(
@@ -201,18 +232,16 @@ private fun ChallengeManageCard(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-
             Text(
                 text = challenge.question,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 8.dp)
             )
-
-            Spacer(modifier = Modifier.padding(top = 8.dp))
 
             Text(
                 text = "Difficulty: ${challenge.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
             )
 
             Text(
@@ -220,15 +249,23 @@ private fun ChallengeManageCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
+            if (challenge.tags.isNotEmpty()) {
+                Text(
+                    text = "Tags: ${challenge.tags.joinToString()}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
             Text(
                 text = "Correct answer: ${challenge.options[challenge.correctIndex]}",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 4.dp)
             )
 
-            Spacer(modifier = Modifier.padding(top = 16.dp))
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(

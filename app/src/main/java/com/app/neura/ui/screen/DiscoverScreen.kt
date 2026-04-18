@@ -1,9 +1,8 @@
 package com.app.neura.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -56,58 +55,69 @@ fun DiscoverScreen(
             .safeDrawingPadding()
             .navigationBarsPadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Discover",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            item {
+                Text(
+                    text = "Discover",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
 
-            Spacer(modifier = Modifier.padding(top = 12.dp))
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search packs") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                label = { Text("Search packs") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            item {
+                Text("Sort by", style = MaterialTheme.typography.titleMedium)
+            }
 
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            Text("Sort by", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.padding(top = 8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(onClick = { sortOption = PackSortOption.NEWEST }) {
-                    Text(if (sortOption == PackSortOption.NEWEST) "• Newest" else "Newest")
-                }
-                OutlinedButton(onClick = { sortOption = PackSortOption.OLDEST }) {
-                    Text(if (sortOption == PackSortOption.OLDEST) "• Oldest" else "Oldest")
-                }
-                OutlinedButton(onClick = { sortOption = PackSortOption.TITLE }) {
-                    Text(if (sortOption == PackSortOption.TITLE) "• Title" else "Title")
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = { sortOption = PackSortOption.NEWEST }) {
+                        Text(if (sortOption == PackSortOption.NEWEST) "• Newest" else "Newest")
+                    }
+                    OutlinedButton(onClick = { sortOption = PackSortOption.OLDEST }) {
+                        Text(if (sortOption == PackSortOption.OLDEST) "• Oldest" else "Oldest")
+                    }
+                    OutlinedButton(onClick = { sortOption = PackSortOption.TITLE }) {
+                        Text(if (sortOption == PackSortOption.TITLE) "• Title" else "Title")
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.padding(top = 16.dp))
+            item {
+                Text(
+                    text = "Results: ${filteredPacks.size}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            if (filteredPacks.isEmpty()) {
+                item {
+                    Text(
+                        text = "No packs found.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
                 items(filteredPacks, key = { it.createdAt }) { pack ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Column(
+                        androidx.compose.foundation.layout.Column(
                             modifier = Modifier.padding(20.dp)
                         ) {
                             Text(
@@ -115,18 +125,16 @@ fun DiscoverScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            Spacer(modifier = Modifier.padding(top = 8.dp))
-
                             Text(
                                 text = pack.description,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 8.dp)
                             )
-
-                            Spacer(modifier = Modifier.padding(top = 8.dp))
 
                             Text(
                                 text = "Author: ${pack.authorName}",
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(top = 8.dp)
                             )
 
                             Text(
@@ -134,11 +142,17 @@ fun DiscoverScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
 
-                            Spacer(modifier = Modifier.padding(top = 16.dp))
+                            if (pack.tags.isNotEmpty()) {
+                                Text(
+                                    text = "Tags: ${pack.tags.joinToString()}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
 
                             OutlinedButton(
                                 onClick = { onOpenPack(pack.createdAt) },
-                                shape = RoundedCornerShape(14.dp)
+                                shape = RoundedCornerShape(14.dp),
+                                modifier = Modifier.padding(top = 16.dp)
                             ) {
                                 Text("Open")
                             }
@@ -147,14 +161,14 @@ fun DiscoverScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.padding(top = 12.dp))
-
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Back")
+            item {
+                OutlinedButton(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Back")
+                }
             }
         }
     }

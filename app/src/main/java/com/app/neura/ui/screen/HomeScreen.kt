@@ -37,6 +37,8 @@ fun HomeScreen(
     onOpenTransfer: () -> Unit,
     onOpenMyPacks: () -> Unit,
     onOpenDiscover: () -> Unit,
+    onOpenFavorites: () -> Unit,
+    onOpenPlayLater: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -192,6 +194,26 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("Discover")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenFavorites,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Favorites")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenPlayLater,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Play later")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

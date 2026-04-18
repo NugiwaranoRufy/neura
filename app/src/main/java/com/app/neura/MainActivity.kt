@@ -40,6 +40,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.navArgument
 import com.app.neura.ui.screen.DiscoverScreen
 import com.app.neura.ui.screen.FeaturedPackDetailsScreen
+import com.app.neura.ui.screen.FavoritesScreen
+import com.app.neura.ui.screen.PlayLaterScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -176,6 +178,12 @@ class MainActivity : ComponentActivity() {
                             onOpenDiscover = {
                                 navController.navigate(NeuraDestinations.Discover.route)
                             },
+                            onOpenFavorites = {
+                                navController.navigate(NeuraDestinations.Favorites.route)
+                            },
+                            onOpenPlayLater = {
+                                navController.navigate(NeuraDestinations.PlayLater.route)
+                            },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
@@ -223,16 +231,18 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.MyChallenges.route) {
                         MyChallengesScreen(
                             challenges = challengeViewModel.getUserChallenges(),
+                            favoriteChallengeIds = challengeViewModel.favoriteChallengeIds.collectAsState().value,
                             onDeleteChallenge = { challengeId ->
                                 challengeViewModel.deleteUserChallenge(challengeId)
                                 navController.navigate(NeuraDestinations.MyChallenges.route) {
-                                    popUpTo(NeuraDestinations.MyChallenges.route) {
-                                        inclusive = true
-                                    }
+                                    popUpTo(NeuraDestinations.MyChallenges.route) { inclusive = true }
                                 }
                             },
                             onEditChallenge = { challengeId ->
                                 navController.navigate(NeuraDestinations.EditChallenge.createRoute(challengeId))
+                            },
+                            onToggleFavorite = { challengeId ->
+                                challengeViewModel.toggleFavoriteChallenge(challengeId)
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -286,18 +296,20 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.ExportPack.route) {
                         ExportPackScreen(
                             challenges = challengeViewModel.getUserChallenges(),
-                            onExport = { title, description, authorName, challengeIds ->
+                            onExport = { title, description, authorName, challengeIds, tags ->
                                 val json = challengeViewModel.exportChallengePackToJson(
                                     title = title,
                                     description = description,
                                     authorName = authorName,
-                                    challengeIds = challengeIds
+                                    challengeIds = challengeIds,
+                                    tags = tags
                                 )
 
                                 if (json != null) {
                                     pendingPackExportContent = json
                                     packExportLauncher.launch("neura_pack.json")
                                 }
+
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -335,16 +347,22 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.MyPacks.route) {
                         MyPacksScreen(
                             packs = challengeViewModel.getPacks(),
-                            onOpenPack = { createdAt ->
-                                navController.navigate(NeuraDestinations.PackDetails.createRoute(createdAt))
+                            favoritePackIds = challengeViewModel.favoritePackIds.collectAsState().value,
+                            playLaterPackIds = challengeViewModel.playLaterPackIds.collectAsState().value,
+                            onOpenPack = { localId ->
+                                navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
                             },
-                            onDeletePack = { createdAt ->
-                                challengeViewModel.deletePack(createdAt)
+                            onDeletePack = { localId ->
+                                challengeViewModel.deletePack(localId)
                                 navController.navigate(NeuraDestinations.MyPacks.route) {
-                                    popUpTo(NeuraDestinations.MyPacks.route) {
-                                        inclusive = true
-                                    }
+                                    popUpTo(NeuraDestinations.MyPacks.route) { inclusive = true }
                                 }
+                            },
+                            onToggleFavorite = { localId ->
+                                challengeViewModel.toggleFavoritePack(localId)
+                            },
+                            onTogglePlayLater = { localId ->
+                                challengeViewModel.togglePlayLaterPack(localId)
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -355,11 +373,11 @@ class MainActivity : ComponentActivity() {
                     composable(
                         route = NeuraDestinations.PackDetails.route,
                         arguments = listOf(
-                            navArgument("createdAt") { type = NavType.LongType }
+                            navArgument("localId") { type = NavType.LongType }
                         )
                     ) { backStackEntry ->
-                        val createdAt = backStackEntry.arguments?.getLong("createdAt") ?: return@composable
-                        val pack = challengeViewModel.getPackByCreatedAt(createdAt) ?: return@composable
+                        val localId = backStackEntry.arguments?.getLong("localId") ?: return@composable
+                        val pack = challengeViewModel.getPackByLocalId(localId) ?: return@composable
 
                         PackDetailsScreen(
                             pack = pack,
@@ -404,6 +422,30 @@ class MainActivity : ComponentActivity() {
                                     "Import failed."
                                 }
                                 navController.navigate(NeuraDestinations.MyPacks.route)
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.Favorites.route) {
+                        FavoritesScreen(
+                            packs = challengeViewModel.getFavoritePacks(),
+                            onOpenPack = { localId ->
+                                navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.PlayLater.route) {
+                        PlayLaterScreen(
+                            packs = challengeViewModel.getPlayLaterPacks(),
+                            onOpenPack = { localId ->
+                                navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
                             },
                             onBack = {
                                 navController.popBackStack()
