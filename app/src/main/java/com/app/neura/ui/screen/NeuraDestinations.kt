@@ -16,4 +16,9 @@ sealed class NeuraDestinations(val route: String) {
     data object PackDetails : NeuraDestinations("pack_details/{createdAt}") {
         fun createRoute(createdAt: Long) = "pack_details/$createdAt"
     }
+
+    data object Discover : NeuraDestinations("discover")
+    data object FeaturedPackDetails : NeuraDestinations("featured_pack_details/{createdAt}") {
+        fun createRoute(createdAt: Long) = "featured_pack_details/$createdAt"
+    }
 }

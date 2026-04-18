@@ -1,0 +1,45 @@
+{
+  "title": "Logic Starter Pack",
+  "description": "A clean introduction to short logic challenges.",
+  "authorName": "Neura",
+  "version": 1,
+  "createdAt": 1710000000001,
+  "challenges": [
+    {
+      "id": 1001,
+      "question": "What comes next: 2, 4, 8, 16, ?",
+      "options": ["18", "24", "32", "30"],
+      "correctIndex": 2,
+      "explanation": "Each number is doubled. 16 × 2 = 32.",
+      "type": "LOGIC",
+      "isUserCreated": false,
+      "difficulty": "EASY",
+      "createdAt": 1710000001001,
+      "authorName": "Neura"
+    },
+    {
+      "id": 1002,
+      "question": "Find the missing number: 5, 10, 20, 40, ?",
+      "options": ["60", "80", "100", "120"],
+      "correctIndex": 1,
+      "explanation": "Each number is multiplied by 2. 40 × 2 = 80.",
+      "type": "LOGIC",
+      "isUserCreated": false,
+      "difficulty": "EASY",
+      "createdAt": 1710000001002,
+      "authorName": "Neura"
+    },
+    {
+      "id": 1003,
+      "question": "Which number is different: 3, 5, 7, 9, 11?",
+      "options": ["3", "5", "9", "11"],
+      "correctIndex": 2,
+      "explanation": "All numbers are prime except 9.",
+      "type": "LOGIC",
+      "isUserCreated": false,
+      "difficulty": "MEDIUM",
+      "createdAt": 1710000001003,
+      "authorName": "Neura"
+    }
+  ]
+}

@@ -297,4 +297,22 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             sessionType = sessionChallenges.firstOrNull()?.type
         )
     }
+
+    fun getFeaturedPacks(): List<ChallengePack> {
+        return repository.getFeaturedPacks()
+    }
+
+    fun getFeaturedPackByCreatedAt(createdAt: Long): ChallengePack? {
+        return repository.getFeaturedPacks().firstOrNull { it.createdAt == createdAt }
+    }
+
+    fun importFeaturedPack(pack: ChallengePack): Boolean {
+        return try {
+            repository.addPack(pack)
+            repository.mergeUserChallenges(pack.challenges)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
 }

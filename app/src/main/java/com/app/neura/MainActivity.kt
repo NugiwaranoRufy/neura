@@ -37,6 +37,9 @@ import com.app.neura.ui.screen.MyPacksScreen
 import com.app.neura.ui.screen.PackDetailsScreen
 import android.content.Intent
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.navArgument
+import com.app.neura.ui.screen.DiscoverScreen
+import com.app.neura.ui.screen.FeaturedPackDetailsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,6 +172,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenMyPacks = {
                                 navController.navigate(NeuraDestinations.MyPacks.route)
+                            },
+                            onOpenDiscover = {
+                                navController.navigate(NeuraDestinations.Discover.route)
                             },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
@@ -360,6 +366,44 @@ class MainActivity : ComponentActivity() {
                             onPlayPack = {
                                 challengeViewModel.startSessionFromPack(pack)
                                 navController.navigate(NeuraDestinations.Challenge.route)
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.Discover.route) {
+                        DiscoverScreen(
+                            packs = challengeViewModel.getFeaturedPacks(),
+                            onOpenPack = { createdAt ->
+                                navController.navigate(NeuraDestinations.FeaturedPackDetails.createRoute(createdAt))
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = NeuraDestinations.FeaturedPackDetails.route,
+                        arguments = listOf(
+                            navArgument("createdAt") { type = NavType.LongType }
+                        )
+                    ) { backStackEntry ->
+                        val createdAt = backStackEntry.arguments?.getLong("createdAt") ?: return@composable
+                        val pack = challengeViewModel.getFeaturedPackByCreatedAt(createdAt) ?: return@composable
+
+                        FeaturedPackDetailsScreen(
+                            pack = pack,
+                            onImportPack = {
+                                val success = challengeViewModel.importFeaturedPack(pack)
+                                importStatus = if (success) {
+                                    "Featured pack imported."
+                                } else {
+                                    "Import failed."
+                                }
+                                navController.navigate(NeuraDestinations.MyPacks.route)
                             },
                             onBack = {
                                 navController.popBackStack()

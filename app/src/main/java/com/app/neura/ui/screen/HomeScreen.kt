@@ -36,6 +36,7 @@ fun HomeScreen(
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
     onOpenMyPacks: () -> Unit,
+    onOpenDiscover: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -181,6 +182,16 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("My packs")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenDiscover,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Discover")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

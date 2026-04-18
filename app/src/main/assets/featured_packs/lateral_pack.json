@@ -1,0 +1,45 @@
+{
+  "title": "Lateral Thinking Pack",
+  "description": "Short riddles and lateral twists for quick sessions.",
+  "authorName": "Neura",
+  "version": 1,
+  "createdAt": 1710000000002,
+  "challenges": [
+    {
+      "id": 2001,
+      "question": "What has keys but can't open locks?",
+      "options": ["Keyboard", "Map", "Safe", "Code"],
+      "correctIndex": 0,
+      "explanation": "A keyboard has keys but doesn't open locks.",
+      "type": "LATERAL",
+      "isUserCreated": false,
+      "difficulty": "EASY",
+      "createdAt": 1710000002001,
+      "authorName": "Neura"
+    },
+    {
+      "id": 2002,
+      "question": "What gets wetter the more it dries?",
+      "options": ["Water", "Rain", "Towel", "Sponge"],
+      "correctIndex": 2,
+      "explanation": "A towel gets wetter as it dries things.",
+      "type": "LATERAL",
+      "isUserCreated": false,
+      "difficulty": "EASY",
+      "createdAt": 1710000002002,
+      "authorName": "Neura"
+    },
+    {
+      "id": 2003,
+      "question": "What has a head, a tail, but no body?",
+      "options": ["Snake", "Coin", "Comet", "Lizard"],
+      "correctIndex": 1,
+      "explanation": "A coin has a head and a tail.",
+      "type": "LATERAL",
+      "isUserCreated": false,
+      "difficulty": "MEDIUM",
+      "createdAt": 1710000002003,
+      "authorName": "Neura"
+    }
+  ]
+}
