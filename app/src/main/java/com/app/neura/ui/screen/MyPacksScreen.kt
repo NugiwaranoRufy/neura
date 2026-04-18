@@ -16,12 +16,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.screen.filter.PackSortOption
 
 @Composable
 fun MyPacksScreen(
@@ -30,6 +36,22 @@ fun MyPacksScreen(
     onDeletePack: (Long) -> Unit,
     onBack: () -> Unit
 ) {
+    var query by remember { mutableStateOf("") }
+    var sortOption by remember { mutableStateOf(PackSortOption.NEWEST) }
+
+    val filteredPacks = packs
+        .filter {
+            it.title.contains(query, ignoreCase = true) ||
+                    it.authorName.contains(query, ignoreCase = true)
+        }
+        .let { list ->
+            when (sortOption) {
+                PackSortOption.NEWEST -> list.sortedByDescending { it.createdAt }
+                PackSortOption.OLDEST -> list.sortedBy { it.createdAt }
+                PackSortOption.TITLE -> list.sortedBy { it.title.lowercase() }
+            }
+        }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -48,9 +70,39 @@ fun MyPacksScreen(
 
             Spacer(modifier = Modifier.padding(top = 12.dp))
 
-            if (packs.isEmpty()) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text("Search packs") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.padding(top = 12.dp))
+
+            Text("Sort by", style = MaterialTheme.typography.titleMedium)
+
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(onClick = { sortOption = PackSortOption.NEWEST }) {
+                    Text(if (sortOption == PackSortOption.NEWEST) "• Newest" else "Newest")
+                }
+                OutlinedButton(onClick = { sortOption = PackSortOption.OLDEST }) {
+                    Text(if (sortOption == PackSortOption.OLDEST) "• Oldest" else "Oldest")
+                }
+                OutlinedButton(onClick = { sortOption = PackSortOption.TITLE }) {
+                    Text(if (sortOption == PackSortOption.TITLE) "• Title" else "Title")
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(top = 16.dp))
+
+            if (filteredPacks.isEmpty()) {
                 Text(
-                    text = "You haven't imported or created any packs yet.",
+                    text = "No packs found.",
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -68,7 +120,7 @@ fun MyPacksScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(packs, key = { it.createdAt }) { pack ->
+                    items(filteredPacks, key = { it.createdAt }) { pack ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(20.dp)
