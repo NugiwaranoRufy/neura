@@ -1,5 +1,6 @@
 package com.app.neura.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +39,7 @@ fun MyChallengesScreen(
     onDeleteChallenge: (Int) -> Unit,
     onEditChallenge: (Int) -> Unit,
     onToggleFavorite: (Int) -> Unit,
+    onOpenAuthor: (String) -> Unit,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -186,7 +188,8 @@ fun MyChallengesScreen(
                     ChallengeManageCard(
                         challenge = challenge,
                         onDelete = { onDeleteChallenge(challenge.id) },
-                        onEdit = { onEditChallenge(challenge.id) }
+                        onEdit = { onEditChallenge(challenge.id) },
+                        onOpenAuthor = { onOpenAuthor(challenge.authorName) }
                     )
                     OutlinedButton(
                         onClick = { onToggleFavorite(challenge.id) },
@@ -214,7 +217,8 @@ fun MyChallengesScreen(
 private fun ChallengeManageCard(
     challenge: Challenge,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onOpenAuthor: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -246,7 +250,11 @@ private fun ChallengeManageCard(
 
             Text(
                 text = "Author: ${challenge.authorName}",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable { onOpenAuthor() },
+                color = MaterialTheme.colorScheme.primary
             )
 
             if (challenge.tags.isNotEmpty()) {

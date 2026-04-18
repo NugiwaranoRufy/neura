@@ -25,4 +25,7 @@ sealed class NeuraDestinations(val route: String) {
     data object Favorites : NeuraDestinations("favorites")
     data object PlayLater : NeuraDestinations("play_later")
     data object Profile : NeuraDestinations("profile")
+    data object AuthorDetails : NeuraDestinations("author_details/{authorName}") {
+        fun createRoute(authorName: String) = "author_details/$authorName"
+    }
 }

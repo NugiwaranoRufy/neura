@@ -1,5 +1,6 @@
 package com.app.neura.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import com.app.neura.data.model.ChallengePack
 fun FeaturedPackDetailsScreen(
     pack: ChallengePack,
     onImportPack: () -> Unit,
+    onOpenAuthor: () -> Unit,
     onBack: () -> Unit
 ) {
     Surface(
@@ -54,7 +56,9 @@ fun FeaturedPackDetailsScreen(
 
             Text(
                 text = "Author: ${pack.authorName}",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.clickable { onOpenAuthor() },
+                color = MaterialTheme.colorScheme.primary
             )
 
             Text(

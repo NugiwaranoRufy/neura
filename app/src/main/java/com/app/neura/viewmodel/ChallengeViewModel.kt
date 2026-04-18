@@ -396,4 +396,24 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     fun getSavedPacksCount(): Int {
         return repository.getPacks().size
     }
+    fun getChallengesByAuthor(authorName: String): List<Challenge> {
+        return repository.getAllChallenges()
+            .filter { it.authorName.equals(authorName, ignoreCase = true) }
+            .sortedByDescending { it.createdAt }
+    }
+
+    fun getPacksByAuthor(authorName: String): List<ChallengePack> {
+        val localPacks = repository.getPacks()
+        val featuredPacks = repository.getFeaturedPacks()
+
+        return (localPacks + featuredPacks)
+            .filter { it.authorName.equals(authorName, ignoreCase = true) }
+            .distinctBy { "${it.title}_${it.authorName}_${it.createdAt}" }
+            .sortedByDescending { it.createdAt }
+    }
+
+    fun isLocalProfileAuthor(authorName: String): Boolean {
+        return userProfile.value.displayName.equals(authorName, ignoreCase = true)
+    }
+
 }

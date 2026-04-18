@@ -1,5 +1,6 @@
 package com.app.neura.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import com.app.neura.ui.screen.filter.PackSortOption
 fun DiscoverScreen(
     packs: List<ChallengePack>,
     onOpenPack: (Long) -> Unit,
+    onOpenAuthor: (String) -> Unit,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -134,7 +136,10 @@ fun DiscoverScreen(
                             Text(
                                 text = "Author: ${pack.authorName}",
                                 style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .clickable { onOpenAuthor(pack.authorName) },
+                                color = MaterialTheme.colorScheme.primary
                             )
 
                             Text(

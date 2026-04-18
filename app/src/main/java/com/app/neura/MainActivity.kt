@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import com.app.neura.ui.screen.CreateChallengeScreen
 import com.app.neura.ui.screen.MyChallengesScreen
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +42,8 @@ import com.app.neura.ui.screen.FeaturedPackDetailsScreen
 import com.app.neura.ui.screen.FavoritesScreen
 import com.app.neura.ui.screen.PlayLaterScreen
 import com.app.neura.ui.screen.ProfileScreen
+import android.net.Uri
+import com.app.neura.ui.screen.AuthorDetailsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,6 +189,7 @@ class MainActivity : ComponentActivity() {
                             onOpenProfile = {
                                 navController.navigate(NeuraDestinations.Profile.route)
                             },
+
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
@@ -248,6 +250,11 @@ class MainActivity : ComponentActivity() {
                             },
                             onToggleFavorite = { challengeId ->
                                 challengeViewModel.toggleFavoriteChallenge(challengeId)
+                            },
+                            onOpenAuthor = { authorName ->
+                                navController.navigate(
+                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(authorName))
+                                )
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -369,6 +376,11 @@ class MainActivity : ComponentActivity() {
                             onTogglePlayLater = { localId ->
                                 challengeViewModel.togglePlayLaterPack(localId)
                             },
+                            onOpenAuthor = { authorName ->
+                                navController.navigate(
+                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(authorName))
+                                )
+                            },
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -390,6 +402,11 @@ class MainActivity : ComponentActivity() {
                                 challengeViewModel.startSessionFromPack(pack)
                                 navController.navigate(NeuraDestinations.Challenge.route)
                             },
+                            onOpenAuthor = {
+                                navController.navigate(
+                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(pack.authorName))
+                                )
+                            },
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -401,6 +418,11 @@ class MainActivity : ComponentActivity() {
                             packs = challengeViewModel.getFeaturedPacks(),
                             onOpenPack = { createdAt ->
                                 navController.navigate(NeuraDestinations.FeaturedPackDetails.createRoute(createdAt))
+                            },
+                            onOpenAuthor = { authorName ->
+                                navController.navigate(
+                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(authorName))
+                                )
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -427,6 +449,11 @@ class MainActivity : ComponentActivity() {
                                     "Import failed."
                                 }
                                 navController.navigate(NeuraDestinations.MyPacks.route)
+                            },
+                            onOpenAuthor = {
+                                navController.navigate(
+                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(pack.authorName))
+                                )
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -474,6 +501,31 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable(
+                        route = NeuraDestinations.AuthorDetails.route,
+                        arguments = listOf(
+                            navArgument("authorName") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val encodedAuthorName = backStackEntry.arguments?.getString("authorName") ?: return@composable
+                        val authorName = Uri.decode(encodedAuthorName)
+
+                        val isLocalProfile = challengeViewModel.isLocalProfileAuthor(authorName)
+                        val profile = if (isLocalProfile) challengeViewModel.userProfile.collectAsState().value else null
+
+                        AuthorDetailsScreen(
+                            authorName = authorName,
+                            profile = profile,
+                            challenges = challengeViewModel.getChallengesByAuthor(authorName),
+                            packs = challengeViewModel.getPacksByAuthor(authorName),
+                            onOpenPack = { localId ->
+                                navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
                 }
             }
         }

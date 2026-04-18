@@ -1,5 +1,6 @@
 package com.app.neura.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ fun MyPacksScreen(
     onDeletePack: (Long) -> Unit,
     onToggleFavorite: (Long) -> Unit,
     onTogglePlayLater: (Long) -> Unit,
+    onOpenAuthor: (String) -> Unit,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -140,7 +142,10 @@ fun MyPacksScreen(
                             Text(
                                 text = "Author: ${pack.authorName}",
                                 style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .clickable { onOpenAuthor(pack.authorName) },
+                                color = MaterialTheme.colorScheme.primary
                             )
 
                             Text(
