@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.app.neura.data.model.UserProfile
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -39,7 +42,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private var sessionChallenges: List<Challenge> = emptyList()
     private var currentIndex = 0
     private var currentScore = 0
-
+    private var roomUserChallengesCache by mutableStateOf<List<Challenge>>(emptyList())
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
     val favoritePackIds = repository.getFavoritePackIds()
@@ -139,8 +142,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             return false
         }
 
-        val allChallenges = repository.getAllChallenges()
-        val nextId = (allChallenges.maxOfOrNull { it.id } ?: 0) + 1
+        val nextId = (roomUserChallengesCache.maxOfOrNull { it.id } ?: 0) + 1
 
         val challenge = Challenge(
             id = nextId,
@@ -159,24 +161,30 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             tags = form.tags
         )
 
-        repository.addUserChallenge(challenge)
+        viewModelScope.launch {
+            repository.insertUserChallengeToRoom(challenge)
+            refreshRoomUserChallenges()
+        }
         return true
     }
 
     fun getUserChallengeCount(): Int {
-        return repository.getUserChallenges().size
+        return roomUserChallengesCache.size
     }
 
     fun getUserChallenges(): List<Challenge> {
-        return repository.getUserChallenges().sortedByDescending { it.id }
+        return roomUserChallengesCache.sortedByDescending { it.createdAt }
     }
 
     fun deleteUserChallenge(challengeId: Int) {
-        repository.deleteUserChallenge(challengeId)
+        viewModelScope.launch {
+            repository.deleteUserChallengeFromRoom(challengeId)
+            refreshRoomUserChallenges()
+        }
     }
 
     fun exportUserChallengesToJson(): String {
-        val userChallenges = repository.getUserChallenges()
+        val userChallenges = roomUserChallengesCache
         return exportJson.encodeToString(
             ListSerializer(Challenge.serializer()),
             userChallenges
@@ -189,7 +197,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                 ListSerializer(Challenge.serializer()),
                 jsonContent
             )
-            repository.mergeUserChallenges(imported)
+            viewModelScope.launch {
+                repository.replaceUserChallengesInRoom(imported)
+                refreshRoomUserChallenges()
+            }
             true
         } catch (_: Exception) {
             false
@@ -197,7 +208,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getUserChallengeById(challengeId: Int): Challenge? {
-        return repository.getUserChallenges().firstOrNull { it.id == challengeId }
+        return roomUserChallengesCache.firstOrNull { it.id == challengeId }
     }
 
     fun updateChallenge(challengeId: Int, form: CreateChallengeForm): Boolean {
@@ -234,7 +245,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             tags = form.tags
         )
 
-        repository.updateUserChallenge(updated)
+        viewModelScope.launch {
+            repository.insertUserChallengeToRoom(updated)
+            refreshRoomUserChallenges()
+        }
         return true
     }
 
@@ -245,7 +259,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         challengeIds: List<Int>,
         tags: List<String>
     ): String? {
-        val selectedChallenges = repository.getUserChallenges()
+        val selectedChallenges = roomUserChallengesCache
             .filter { it.id in challengeIds }
 
         if (
@@ -288,7 +302,12 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun importChallengePack(pack: ChallengePack): Boolean {
         return try {
-            repository.mergeUserChallenges(pack.challenges)
+            viewModelScope.launch {
+                repository.replaceUserChallengesInRoom(
+                    (roomUserChallengesCache + pack.challenges).distinctBy { it.id }
+                )
+                refreshRoomUserChallenges()
+            }
             repository.addPack(pack)
             true
         } catch (_: Exception) {
@@ -348,7 +367,12 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     fun importFeaturedPack(pack: ChallengePack): Boolean {
         return try {
             repository.addPack(pack)
-            repository.mergeUserChallenges(pack.challenges)
+            viewModelScope.launch {
+                repository.replaceUserChallengesInRoom(
+                    (roomUserChallengesCache + pack.challenges).distinctBy { it.id }
+                )
+                refreshRoomUserChallenges()
+            }
             true
         } catch (_: Exception) {
             false
@@ -390,14 +414,14 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getCreatedChallengesCount(): Int {
-        return repository.getUserChallenges().size
+        return roomUserChallengesCache.size
     }
 
     fun getSavedPacksCount(): Int {
         return repository.getPacks().size
     }
     fun getChallengesByAuthor(authorName: String): List<Challenge> {
-        return repository.getAllChallenges()
+        return roomUserChallengesCache
             .filter { it.authorName.equals(authorName, ignoreCase = true) }
             .sortedByDescending { it.createdAt }
     }
@@ -414,6 +438,67 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun isLocalProfileAuthor(authorName: String): Boolean {
         return userProfile.value.displayName.equals(authorName, ignoreCase = true)
+    }
+
+    fun initializeUserChallengesRoomIfNeeded() {
+        viewModelScope.launch {
+            repository.seedUserChallengesToRoomIfEmpty()
+            refreshRoomUserChallenges()
+        }
+    }
+
+    private suspend fun refreshRoomUserChallenges() {
+        roomUserChallengesCache = repository.getUserChallengesFromRoom()
+    }
+
+    fun publishChallenge(challengeId: Int) {
+        val existing = roomUserChallengesCache.firstOrNull { it.id == challengeId } ?: return
+
+        val updated = existing.copy(
+            editorialStatus = com.app.neura.data.model.EditorialStatus.PUBLISHED,
+            visibilityStatus = com.app.neura.data.model.VisibilityStatus.PUBLIC_READY,
+            publishedAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+
+        viewModelScope.launch {
+            repository.insertUserChallengeToRoom(updated)
+            refreshRoomUserChallenges()
+        }
+    }
+
+    fun moveChallengeToDraft(challengeId: Int) {
+        val existing = roomUserChallengesCache.firstOrNull { it.id == challengeId } ?: return
+
+        val updated = existing.copy(
+            editorialStatus = com.app.neura.data.model.EditorialStatus.DRAFT,
+            visibilityStatus = com.app.neura.data.model.VisibilityStatus.PRIVATE,
+            publishedAt = null,
+            updatedAt = System.currentTimeMillis()
+        )
+
+        viewModelScope.launch {
+            repository.insertUserChallengeToRoom(updated)
+            refreshRoomUserChallenges()
+        }
+    }
+
+    fun getDraftChallenges(): List<Challenge> {
+        return roomUserChallengesCache
+            .filter { it.editorialStatus == com.app.neura.data.model.EditorialStatus.DRAFT }
+            .sortedByDescending { it.createdAt }
+    }
+
+    fun getPublishedChallenges(): List<Challenge> {
+        return roomUserChallengesCache
+            .filter { it.editorialStatus == com.app.neura.data.model.EditorialStatus.PUBLISHED }
+            .sortedByDescending { it.createdAt }
+    }
+
+    fun isPackAlreadyImported(pack: ChallengePack): Boolean {
+        return repository.getPacks().any {
+            it.title == pack.title && it.authorName == pack.authorName
+        }
     }
 
 }

@@ -40,6 +40,7 @@ fun HomeScreen(
     onOpenFavorites: () -> Unit,
     onOpenPlayLater: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenRoomDebug: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -227,7 +228,19 @@ fun HomeScreen(
                 Text("Profile")
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenRoomDebug,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Room debug")
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
+
         }
+
     }
 }

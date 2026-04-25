@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.app.neura.data.model.UserProfile
+import androidx.datastore.preferences.core.booleanPreferencesKey
 
 private val Context.userPrefsDataStore by preferencesDataStore(name = "user_prefs")
 
@@ -22,6 +23,7 @@ class UserPreferencesDataSource(
     private val usernameKey = stringPreferencesKey("profile_username")
     private val bioKey = stringPreferencesKey("profile_bio")
     private val favoriteTagKey = stringPreferencesKey("profile_favorite_tag")
+    private val roomSeedCompletedKey = booleanPreferencesKey("room_seed_completed")
     val favoritePackIds: Flow<Set<Long>> =
         context.userPrefsDataStore.data.map { prefs ->
             prefs[favoritePackIdsKey]
@@ -115,4 +117,15 @@ class UserPreferencesDataSource(
             prefs[favoriteTagKey] = profile.favoriteTag
         }
     }
+    val roomSeedCompleted: Flow<Boolean> =
+        context.userPrefsDataStore.data.map { prefs ->
+            prefs[roomSeedCompletedKey] ?: false
+        }
+
+    suspend fun markRoomSeedCompleted() {
+        context.userPrefsDataStore.edit { prefs ->
+            prefs[roomSeedCompletedKey] = true
+        }
+    }
+
 }

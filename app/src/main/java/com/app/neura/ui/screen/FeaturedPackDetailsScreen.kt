@@ -25,6 +25,7 @@ import com.app.neura.data.model.ChallengePack
 @Composable
 fun FeaturedPackDetailsScreen(
     pack: ChallengePack,
+    isImported: Boolean,
     onImportPack: () -> Unit,
     onOpenAuthor: () -> Unit,
     onBack: () -> Unit
@@ -40,6 +41,12 @@ fun FeaturedPackDetailsScreen(
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
+            Text(
+                text = "★ Featured",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelLarge
+            )
+
             Text(
                 text = pack.title,
                 style = MaterialTheme.typography.headlineMedium
@@ -70,10 +77,11 @@ fun FeaturedPackDetailsScreen(
 
             Button(
                 onClick = onImportPack,
+                enabled = !isImported,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Import this pack")
+                Text(if (isImported) "Imported" else "Import this pack")
             }
 
             Spacer(modifier = Modifier.padding(top = 16.dp))
@@ -82,7 +90,7 @@ fun FeaturedPackDetailsScreen(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(pack.challenges, key = { it.id }) { challenge ->
+                items(pack.challenges.take(3), key = { it.id }) { challenge ->
                     Surface(
                         tonalElevation = 1.dp,
                         shape = RoundedCornerShape(18.dp),
@@ -115,6 +123,15 @@ fun FeaturedPackDetailsScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
+                    }
+                }
+
+                if (pack.challenges.size > 3) {
+                    item {
+                        Text(
+                            text = "+${pack.challenges.size - 3} more...",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }

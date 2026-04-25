@@ -25,12 +25,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.model.ChallengeDifficulty
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.TagCatalog
 import com.app.neura.ui.screen.filter.ChallengeTypeFilter
 import com.app.neura.ui.screen.filter.DifficultyFilter
+import com.app.neura.data.model.EditorialStatus
+import com.app.neura.data.model.VisibilityStatus
+
+enum class MyChallengesFilter {
+    ALL,
+    DRAFT,
+    PUBLISHED
+}
 
 @Composable
 fun MyChallengesScreen(
@@ -39,6 +48,8 @@ fun MyChallengesScreen(
     onDeleteChallenge: (Int) -> Unit,
     onEditChallenge: (Int) -> Unit,
     onToggleFavorite: (Int) -> Unit,
+    onPublishChallenge: (Int) -> Unit,
+    onMoveChallengeToDraft: (Int) -> Unit,
     onOpenAuthor: (String) -> Unit,
     onBack: () -> Unit
 ) {
@@ -46,8 +57,16 @@ fun MyChallengesScreen(
     var typeFilter by remember { mutableStateOf(ChallengeTypeFilter.ALL) }
     var difficultyFilter by remember { mutableStateOf(DifficultyFilter.ALL) }
     var tagFilter by remember { mutableStateOf("ALL") }
+    var filter by remember { mutableStateOf(MyChallengesFilter.ALL) }
+
 
     val filteredChallenges = challenges.filter { challenge ->
+        val matchesEditorialStatus = when (filter) {
+            MyChallengesFilter.ALL -> true
+            MyChallengesFilter.DRAFT -> challenge.editorialStatus == EditorialStatus.DRAFT
+            MyChallengesFilter.PUBLISHED -> challenge.editorialStatus == EditorialStatus.PUBLISHED
+        }
+
         val matchesQuery =
             challenge.question.contains(query, ignoreCase = true) ||
                     challenge.authorName.contains(query, ignoreCase = true)
@@ -70,7 +89,7 @@ fun MyChallengesScreen(
             else -> challenge.tags.contains(tagFilter)
         }
 
-        matchesQuery && matchesType && matchesDifficulty && matchesTag
+        matchesEditorialStatus && matchesQuery && matchesType && matchesDifficulty && matchesTag
     }
 
     Surface(
@@ -98,6 +117,27 @@ fun MyChallengesScreen(
                     label = { Text("Search challenges") },
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+
+            item {
+                Text("Status", style = MaterialTheme.typography.titleMedium)
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(onClick = { filter = MyChallengesFilter.ALL }) {
+                        Text(if (filter == MyChallengesFilter.ALL) "• All" else "All")
+                    }
+                    OutlinedButton(onClick = { filter = MyChallengesFilter.DRAFT }) {
+                        Text(if (filter == MyChallengesFilter.DRAFT) "• Draft" else "Draft")
+                    }
+                    OutlinedButton(onClick = { filter = MyChallengesFilter.PUBLISHED }) {
+                        Text(if (filter == MyChallengesFilter.PUBLISHED) "• Published" else "Published")
+                    }
+                }
             }
 
             item {
@@ -189,6 +229,8 @@ fun MyChallengesScreen(
                         challenge = challenge,
                         onDelete = { onDeleteChallenge(challenge.id) },
                         onEdit = { onEditChallenge(challenge.id) },
+                        onPublish = { onPublishChallenge(challenge.id) },
+                        onMoveToDraft = { onMoveChallengeToDraft(challenge.id) },
                         onOpenAuthor = { onOpenAuthor(challenge.authorName) }
                     )
                     OutlinedButton(
@@ -218,6 +260,8 @@ private fun ChallengeManageCard(
     challenge: Challenge,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
+    onPublish: () -> Unit,
+    onMoveToDraft: () -> Unit,
     onOpenAuthor: () -> Unit
 ) {
     Card(
@@ -247,6 +291,24 @@ private fun ChallengeManageCard(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp)
             )
+
+            Text(
+                text = when (challenge.editorialStatus) {
+                    EditorialStatus.DRAFT -> "Status: Draft"
+                    EditorialStatus.PUBLISHED -> "Status: Published"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Text(
+                text = when (challenge.visibilityStatus) {
+                    VisibilityStatus.PRIVATE -> "Visibility: Private"
+                    VisibilityStatus.PUBLIC_READY -> "Visibility: Public-ready"
+                },
+                style = MaterialTheme.typography.bodySmall
+            )
+
 
             Text(
                 text = "Author: ${challenge.authorName}",
@@ -288,6 +350,25 @@ private fun ChallengeManageCard(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text("Delete")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        if (challenge.editorialStatus == EditorialStatus.DRAFT) {
+                            onPublish()
+                        } else {
+                            onMoveToDraft()
+                        }
+                    },
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        if (challenge.editorialStatus == EditorialStatus.DRAFT) {
+                            "Publish"
+                        } else {
+                            "Draft"
+                        }
+                    )
                 }
             }
         }

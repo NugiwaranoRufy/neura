@@ -44,6 +44,10 @@ import com.app.neura.ui.screen.PlayLaterScreen
 import com.app.neura.ui.screen.ProfileScreen
 import android.net.Uri
 import com.app.neura.ui.screen.AuthorDetailsScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.neura.ui.screen.RoomDebugScreen
+import com.app.neura.viewmodel.RoomDebugViewModel
+import com.app.neura.ui.screen.FeaturedPacksScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +62,9 @@ class MainActivity : ComponentActivity() {
             NeuraTheme {
                 val navController = rememberNavController()
                 val challengeViewModel: ChallengeViewModel = viewModel()
+                LaunchedEffect(Unit) {
+                    challengeViewModel.initializeUserChallengesRoomIfNeeded()
+                }
                 val uiState by challengeViewModel.uiState.collectAsState()
 
                 var importStatus by remember { mutableStateOf<String?>(null) }
@@ -189,7 +196,9 @@ class MainActivity : ComponentActivity() {
                             onOpenProfile = {
                                 navController.navigate(NeuraDestinations.Profile.route)
                             },
-
+                            onOpenRoomDebug = {
+                                navController.navigate(NeuraDestinations.RoomDebug.route)
+                            },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
@@ -255,6 +264,12 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(
                                     NeuraDestinations.AuthorDetails.createRoute(Uri.encode(authorName))
                                 )
+                            },
+                            onPublishChallenge = { id ->
+                                challengeViewModel.publishChallenge(id)
+                            },
+                            onMoveChallengeToDraft = { id ->
+                                challengeViewModel.moveChallengeToDraft(id)
                             },
                             onBack = {
                                 navController.popBackStack()
@@ -414,14 +429,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(NeuraDestinations.Discover.route) {
-                        DiscoverScreen(
+                        FeaturedPacksScreen(
                             packs = challengeViewModel.getFeaturedPacks(),
-                            onOpenPack = { createdAt ->
-                                navController.navigate(NeuraDestinations.FeaturedPackDetails.createRoute(createdAt))
-                            },
-                            onOpenAuthor = { authorName ->
+                            onOpenPack = { pack ->
                                 navController.navigate(
-                                    NeuraDestinations.AuthorDetails.createRoute(Uri.encode(authorName))
+                                    NeuraDestinations.FeaturedPackDetails.createRoute(pack.createdAt)
                                 )
                             },
                             onBack = {
@@ -441,6 +453,7 @@ class MainActivity : ComponentActivity() {
 
                         FeaturedPackDetailsScreen(
                             pack = pack,
+                            isImported = challengeViewModel.isPackAlreadyImported(pack),
                             onImportPack = {
                                 val success = challengeViewModel.importFeaturedPack(pack)
                                 importStatus = if (success) {
@@ -521,6 +534,17 @@ class MainActivity : ComponentActivity() {
                             onOpenPack = { localId ->
                                 navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
                             },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.RoomDebug.route) {
+                        val roomDebugViewModel: RoomDebugViewModel = viewModel()
+
+                        RoomDebugScreen(
+                            viewModel = roomDebugViewModel,
                             onBack = {
                                 navController.popBackStack()
                             }

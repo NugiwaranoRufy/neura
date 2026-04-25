@@ -1,91 +1,73 @@
 package com.app.neura.data.repository
 
 import android.content.Context
-import com.app.neura.data.local.AssetChallengeDataSource
-import com.app.neura.data.local.UserChallengeLocalDataSource
-import com.app.neura.data.model.Challenge
-import com.app.neura.data.model.ChallengeType
+import com.app.neura.data.local.NeuraDatabase
 import com.app.neura.data.local.PackLocalDataSource
-import com.app.neura.data.model.ChallengePack
-import com.app.neura.data.local.FeaturedPackDataSource
+import com.app.neura.data.local.UserChallengeLocalDataSource
 import com.app.neura.data.local.UserPreferencesDataSource
-import kotlinx.coroutines.flow.Flow
+import com.app.neura.data.model.Challenge
+import com.app.neura.data.model.ChallengePack
+import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.UserProfile
+import kotlinx.coroutines.flow.Flow
+import com.app.neura.data.local.FeaturedPackDataSource
 
 class ChallengeRepository(
     context: Context
 ) {
-    private val assetDataSource = AssetChallengeDataSource(context)
-    private val userDataSource = UserChallengeLocalDataSource(context)
-
+    private val challengeDataSource = UserChallengeLocalDataSource(context)
     private val packDataSource = PackLocalDataSource(context)
-    private val featuredPackDataSource = FeaturedPackDataSource(context)
     private val userPreferencesDataSource = UserPreferencesDataSource(context)
 
-    fun getBuiltInChallenges(): List<Challenge> {
-        return assetDataSource.loadChallenges()
-    }
+    private val database = NeuraDatabase.getInstance(context)
+    private val roomRepository = RoomCatalogRepository(database)
 
+    private val featuredPackDataSource = FeaturedPackDataSource(context)
+
+    // Legacy user challenges only
     fun getUserChallenges(): List<Challenge> {
-        return userDataSource.getUserChallenges()
-    }
-
-    fun getAllChallenges(): List<Challenge> {
-        return getBuiltInChallenges() + getUserChallenges()
+        return challengeDataSource.getUserChallenges()
     }
 
     fun getChallengesByType(type: ChallengeType): List<Challenge> {
-        return getAllChallenges().filter { it.type == type }
+        return challengeDataSource.getUserChallenges().filter { it.type == type }
+    }
+
+    fun mergeUserChallenges(challenges: List<Challenge>) {
+        challengeDataSource.saveUserChallenges(challenges)
     }
 
     fun addUserChallenge(challenge: Challenge) {
-        userDataSource.addUserChallenge(challenge)
-    }
-
-    fun deleteUserChallenge(challengeId: Int) {
-        userDataSource.deleteUserChallenge(challengeId)
-    }
-
-    fun replaceUserChallenges(challenges: List<Challenge>) {
-        userDataSource.saveUserChallenges(challenges)
-    }
-
-    fun mergeUserChallenges(imported: List<Challenge>) {
-        val current = getUserChallenges()
-        val maxId = (getAllChallenges().maxOfOrNull { it.id } ?: 0)
-
-        var nextId = maxId + 1
-
-        val normalizedImported = imported.map { challenge ->
-            challenge.copy(
-                id = nextId++,
-                isUserCreated = true
-            )
-        }
-
-        userDataSource.saveUserChallenges(current + normalizedImported)
+        challengeDataSource.addUserChallenge(challenge)
     }
 
     fun updateUserChallenge(challenge: Challenge) {
-        userDataSource.updateUserChallenge(challenge)
+        challengeDataSource.updateUserChallenge(challenge)
     }
 
+    fun deleteUserChallenge(challengeId: Int) {
+        challengeDataSource.deleteUserChallenge(challengeId)
+    }
+
+    // Legacy packs only
     fun getPacks(): List<ChallengePack> {
         return packDataSource.getPacks()
     }
 
     fun addPack(pack: ChallengePack) {
-        packDataSource.addPack(pack)
+        val exists = getPacks().any {
+            it.title == pack.title && it.authorName == pack.authorName
+        }
+        if (!exists) {
+            packDataSource.addPack(pack)
+        }
     }
 
     fun deletePack(localId: Long) {
         packDataSource.deletePack(localId)
     }
 
-    fun getFeaturedPacks(): List<ChallengePack> {
-        return featuredPackDataSource.getFeaturedPacks()
-    }
-
+    // Preferences / profile
     fun getFavoritePackIds(): Flow<Set<Long>> {
         return userPreferencesDataSource.favoritePackIds
     }
@@ -109,6 +91,7 @@ class ChallengeRepository(
     suspend fun togglePlayLaterPack(localId: Long) {
         userPreferencesDataSource.togglePlayLaterPack(localId)
     }
+
     fun getUserProfile(): Flow<UserProfile> {
         return userPreferencesDataSource.userProfile
     }
@@ -117,4 +100,49 @@ class ChallengeRepository(
         userPreferencesDataSource.saveUserProfile(profile)
     }
 
+    fun isRoomSeedCompleted(): Flow<Boolean> {
+        return userPreferencesDataSource.roomSeedCompleted
+    }
+
+    suspend fun markRoomSeedCompleted() {
+        userPreferencesDataSource.markRoomSeedCompleted()
+    }
+
+    // Room bridge for user-created challenges
+    suspend fun getUserChallengesFromRoom(): List<Challenge> {
+        return roomRepository.getUserChallenges()
+    }
+
+    suspend fun getAllRoomChallenges(): List<Challenge> {
+        return roomRepository.getAllChallenges()
+    }
+
+    suspend fun insertUserChallengeToRoom(challenge: Challenge) {
+        roomRepository.insertChallenge(challenge)
+    }
+
+    suspend fun replaceUserChallengesInRoom(challenges: List<Challenge>) {
+        roomRepository.replaceUserChallenges(challenges)
+    }
+
+    suspend fun deleteUserChallengeFromRoom(challengeId: Int) {
+        roomRepository.deleteChallenge(challengeId)
+    }
+
+    suspend fun seedUserChallengesToRoomIfEmpty() {
+        val roomChallenges = roomRepository.getUserChallenges()
+        if (roomChallenges.isNotEmpty()) return
+
+        val legacyUserChallenges = challengeDataSource.getUserChallenges()
+        if (legacyUserChallenges.isNotEmpty()) {
+            roomRepository.insertChallenges(legacyUserChallenges)
+        }
+    }
+    fun getAllChallenges(): List<Challenge> {
+        return challengeDataSource.getUserChallenges()
+    }
+
+    fun getFeaturedPacks(): List<ChallengePack> {
+        return featuredPackDataSource.getFeaturedPacks()
+    }
 }
