@@ -50,6 +50,7 @@ import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.FeaturedPacksScreen
 import com.app.neura.ui.screen.StatsScreen
 import com.app.neura.ui.screen.AchievementsScreen
+import com.app.neura.ui.screen.SessionReviewScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -237,7 +238,27 @@ class MainActivity : ComponentActivity() {
                         ResultScreen(
                             score = uiState.score,
                             total = uiState.totalQuestions,
+                            onReviewAnswers = {
+                                navController.navigate(NeuraDestinations.SessionReview.route)
+                            },
                             onPlayAgain = {
+                                challengeViewModel.resetSession()
+                                navController.navigate(NeuraDestinations.Home.route) {
+                                    popUpTo(NeuraDestinations.Home.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.SessionReview.route) {
+                        SessionReviewScreen(
+                            answers = challengeViewModel.sessionAnswers,
+                            onBackToResult = {
+                                navController.popBackStack()
+                            },
+                            onBackToHome = {
                                 challengeViewModel.resetSession()
                                 navController.navigate(NeuraDestinations.Home.route) {
                                     popUpTo(NeuraDestinations.Home.route) {

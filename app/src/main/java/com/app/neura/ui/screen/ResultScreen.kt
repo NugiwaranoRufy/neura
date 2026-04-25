@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 fun ResultScreen(
     score: Int,
     total: Int,
+    onReviewAnswers: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -48,7 +50,17 @@ fun ResultScreen(
                 style = MaterialTheme.typography.displaySmall
             )
 
+            OutlinedButton(
+                onClick = onReviewAnswers,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Review answers")
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
+
+
 
             Button(
                 onClick = onPlayAgain,

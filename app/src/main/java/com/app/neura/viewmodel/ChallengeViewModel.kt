@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.app.neura.data.model.GameSessionResult
+import com.app.neura.data.model.SessionAnswer
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -41,6 +42,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private val repository = ChallengeRepository(application.applicationContext)
 
     private var sessionChallenges: List<Challenge> = emptyList()
+    var sessionAnswers by mutableStateOf<List<SessionAnswer>>(emptyList())
+        private set
     private var currentIndex = 0
     private var currentScore = 0
     private var sessionResultSaved = false
@@ -83,6 +86,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         currentIndex = 0
         currentScore = 0
         sessionResultSaved = false
+        sessionAnswers = emptyList()
 
         _uiState.value = ChallengeUiState(
             currentChallenge = sessionChallenges.firstOrNull(),
@@ -100,6 +104,16 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
         val correct = index == current.correctIndex
         if (correct) currentScore++
+
+        sessionAnswers = sessionAnswers
+            .filterNot { it.challenge.id == current.id }
+            .plus(
+                SessionAnswer(
+                    challenge = current,
+                    selectedOptionIndex = index,
+                    isCorrect = correct
+                )
+            )
 
         _uiState.value = _uiState.value.copy(
             selectedOptionIndex = index,
@@ -177,6 +191,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         currentIndex = 0
         currentScore = 0
         sessionResultSaved = false
+        sessionAnswers = emptyList()
         _uiState.value = ChallengeUiState()
     }
 
@@ -401,6 +416,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         currentIndex = 0
         currentScore = 0
         sessionResultSaved = false
+        sessionAnswers = emptyList()
 
         _uiState.value = ChallengeUiState(
             currentChallenge = sessionChallenges.firstOrNull(),
