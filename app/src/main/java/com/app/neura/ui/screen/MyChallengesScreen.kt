@@ -34,6 +34,7 @@ import com.app.neura.ui.screen.filter.ChallengeTypeFilter
 import com.app.neura.ui.screen.filter.DifficultyFilter
 import com.app.neura.data.model.EditorialStatus
 import com.app.neura.data.model.VisibilityStatus
+import com.app.neura.data.model.AccessibilitySettings
 
 enum class MyChallengesFilter {
     ALL,
@@ -51,6 +52,7 @@ fun MyChallengesScreen(
     onPublishChallenge: (Int) -> Unit,
     onMoveChallengeToDraft: (Int) -> Unit,
     onOpenAuthor: (String) -> Unit,
+    accessibilitySettings: AccessibilitySettings,
     onBack: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -58,6 +60,7 @@ fun MyChallengesScreen(
     var difficultyFilter by remember { mutableStateOf(DifficultyFilter.ALL) }
     var tagFilter by remember { mutableStateOf("ALL") }
     var filter by remember { mutableStateOf(MyChallengesFilter.ALL) }
+    var pendingDeleteChallengeId by remember { mutableStateOf<Int?>(null) }
 
 
     val filteredChallenges = challenges.filter { challenge ->
@@ -227,7 +230,13 @@ fun MyChallengesScreen(
                 items(filteredChallenges, key = { it.id }) { challenge ->
                     ChallengeManageCard(
                         challenge = challenge,
-                        onDelete = { onDeleteChallenge(challenge.id) },
+                        onDelete = {
+                            if (accessibilitySettings.confirmDestructiveActions) {
+                                pendingDeleteChallengeId = challenge.id
+                            } else {
+                                onDeleteChallenge(challenge.id)
+                            }
+                        },
                         onEdit = { onEditChallenge(challenge.id) },
                         onPublish = { onPublishChallenge(challenge.id) },
                         onMoveToDraft = { onMoveChallengeToDraft(challenge.id) },
@@ -238,6 +247,51 @@ fun MyChallengesScreen(
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(if (favoriteChallengeIds.contains(challenge.id.toLong())) "★ Favorite" else "☆ Favorite")
+                    }
+                }
+            }
+
+            pendingDeleteChallengeId?.let { challengeId ->
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        androidx.compose.foundation.layout.Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(
+                                text = "Confirm deletion",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text(
+                                text = "This action cannot be undone.",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Button(
+                                onClick = {
+                                    onDeleteChallenge(challengeId)
+                                    pendingDeleteChallengeId = null
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text("Delete challenge")
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    pendingDeleteChallengeId = null
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text("Cancel")
+                            }
+                        }
                     }
                 }
             }
@@ -264,6 +318,13 @@ private fun ChallengeManageCard(
     onMoveToDraft: () -> Unit,
     onOpenAuthor: () -> Unit
 ) {
+
+    Text(
+        text = "👤 ${challenge.authorName.take(1).uppercase()}  ${challenge.authorName}",
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary
+    )
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp)

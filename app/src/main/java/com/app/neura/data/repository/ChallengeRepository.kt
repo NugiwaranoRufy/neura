@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import com.app.neura.data.local.FeaturedPackDataSource
 import com.app.neura.data.local.SessionHistoryLocalDataSource
 import com.app.neura.data.model.GameSessionResult
+import com.app.neura.data.local.AccessibilitySettingsDataSource
+import com.app.neura.data.model.AccessibilitySettings
 
 class ChallengeRepository(
     context: Context
@@ -27,6 +29,8 @@ class ChallengeRepository(
     private val featuredPackDataSource = FeaturedPackDataSource(context)
 
     private val sessionHistoryDataSource = SessionHistoryLocalDataSource(context)
+
+    private val accessibilitySettingsDataSource = AccessibilitySettingsDataSource(context)
 
     // Legacy user challenges only
     fun getUserChallenges(): List<Challenge> {
@@ -160,5 +164,13 @@ class ChallengeRepository(
 
     fun clearSessionHistory() {
         sessionHistoryDataSource.clearSessions()
+    }
+
+    fun getAccessibilitySettings(): AccessibilitySettings {
+        return accessibilitySettingsDataSource.getSettings()
+    }
+
+    fun saveAccessibilitySettings(settings: AccessibilitySettings) {
+        accessibilitySettingsDataSource.saveSettings(settings)
     }
 }

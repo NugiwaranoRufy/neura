@@ -131,6 +131,13 @@ fun MyPacksScreen(
                         androidx.compose.foundation.layout.Column(
                             modifier = Modifier.padding(20.dp)
                         ) {
+
+                            Text(
+                                text = "📦 Community pack",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
                             Text(
                                 text = pack.title,
                                 style = MaterialTheme.typography.titleMedium
@@ -154,6 +161,12 @@ fun MyPacksScreen(
                                 modifier = Modifier
                                     .padding(top = 8.dp)
                                     .clickable { onOpenAuthor(pack.authorName) },
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                text = "by ${pack.authorName}",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
 

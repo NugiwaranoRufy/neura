@@ -29,6 +29,7 @@ import com.app.neura.ui.util.bestDailyStreak
 import com.app.neura.ui.util.currentDailyStreak
 import com.app.neura.ui.util.dailyCompletedToday
 import com.app.neura.data.security.ImportSecurityValidator
+import com.app.neura.data.model.AccessibilitySettings
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -56,6 +57,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private var currentSessionSource = "Standard"
     private var roomUserChallengesCache by mutableStateOf<List<Challenge>>(emptyList())
     var sessionHistory by mutableStateOf<List<GameSessionResult>>(emptyList())
+        private set
+    var accessibilitySettings by mutableStateOf(AccessibilitySettings())
         private set
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
@@ -692,6 +695,15 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getBestDailyStreak(): Int {
         return sessionHistory.bestDailyStreak()
+    }
+
+    fun refreshAccessibilitySettings() {
+        accessibilitySettings = repository.getAccessibilitySettings()
+    }
+
+    fun saveAccessibilitySettings(settings: AccessibilitySettings) {
+        repository.saveAccessibilitySettings(settings)
+        accessibilitySettings = settings
     }
 
 }

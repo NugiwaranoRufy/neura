@@ -26,12 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.viewmodel.ChallengeViewModel
+import com.app.neura.data.model.AccessibilitySettings
 
 @Composable
 fun ChallengeScreen(
     viewModel: ChallengeViewModel,
     onSessionCompleted: () -> Unit,
     onExitSession: () -> Unit,
+    accessibilitySettings: AccessibilitySettings,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -71,14 +73,20 @@ fun ChallengeScreen(
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .padding(horizontal = 20.dp, vertical = 24.dp),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = if (accessibilitySettings.readingHelper) {
+                    Arrangement.spacedBy(8.dp)
+                } else {
+                    Arrangement.Top
+                }
             ) {
-                Text(
-                    text = "Neura",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                if (!accessibilitySettings.focusMode) {
+                    Text(
+                        text = if (accessibilitySettings.calmMode) "Neura" else "Neura",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 Text(
                     text = "${uiState.currentQuestionNumber} / ${uiState.totalQuestions}",
@@ -87,16 +95,18 @@ fun ChallengeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = when (challenge.type) {
-                        ChallengeType.LOGIC -> "Logic"
-                        ChallengeType.LATERAL -> "Lateral"
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                if (!accessibilitySettings.focusMode) {
+                    Text(
+                        text = when (challenge.type) {
+                            ChallengeType.LOGIC -> "Logic"
+                            ChallengeType.LATERAL -> "Lateral"
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -105,7 +115,11 @@ fun ChallengeScreen(
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text(
                             text = challenge.question,
-                            style = MaterialTheme.typography.titleMedium
+                            style = if (accessibilitySettings.readingHelper) {
+                                MaterialTheme.typography.titleLarge
+                            } else {
+                                MaterialTheme.typography.titleMedium
+                            }
                         )
                     }
                 }

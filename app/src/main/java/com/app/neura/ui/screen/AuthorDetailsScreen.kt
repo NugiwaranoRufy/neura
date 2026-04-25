@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.model.ChallengePack
 import com.app.neura.data.model.UserProfile
+import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.Column
 
 @Composable
 fun AuthorDetailsScreen(
@@ -44,6 +46,31 @@ fun AuthorDetailsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "👤 ${authorName.take(1).uppercase()}",
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        Text(
+                            text = "${challenges.size} challenges • ${packs.size} packs",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+
                 Text(
                     text = authorName,
                     style = MaterialTheme.typography.headlineMedium
