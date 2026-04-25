@@ -83,7 +83,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                         repository.getFeaturedPacks().flatMap { it.challenges } +
                         repository.getPacks().flatMap { it.challenges }
                 )
-            .filter { it.type == config.type }
+            .filter { challenge ->
+                challenge.type == config.type &&
+                        (config.difficulty == null || challenge.difficulty == config.difficulty)
+            }
             .distinctBy { it.id }
             .shuffled()
 
@@ -161,19 +164,22 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                 currentChallenge = null,
                 sessionCompleted = true
             )
+            saveCurrentSessionResultIfNeeded()
             return true
         }
 
         val nextIndex = currentIndex + 1
 
         if (nextIndex >= sessionChallenges.size) {
-            _uiState.value = _uiState.value.copy(
+            val completedState = _uiState.value.copy(
                 currentChallenge = null,
                 selectedOptionIndex = null,
                 hasAnswered = false,
                 isCorrect = false,
                 sessionCompleted = true
             )
+
+            _uiState.value = completedState
 
             saveCurrentSessionResultIfNeeded()
 

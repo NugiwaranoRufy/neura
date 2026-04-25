@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.GameSessionConfig
+import com.app.neura.data.model.ChallengeDifficulty
 
 @Composable
 fun HomeScreen(
@@ -49,6 +50,7 @@ fun HomeScreen(
     currentDailyStreak: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
+    var selectedDifficulty by remember { mutableStateOf<ChallengeDifficulty?>(null) }
     var selectedCount by remember { mutableIntStateOf(3) }
     var showSessionSetup by remember { mutableStateOf(false) }
 
@@ -136,6 +138,57 @@ fun HomeScreen(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
+                        Text("Difficulty", style = MaterialTheme.typography.titleMedium)
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedButton(
+                            onClick = { selectedDifficulty = null },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(if (selectedDifficulty == null) "• All" else "All")
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedButton(
+                            onClick = { selectedDifficulty = ChallengeDifficulty.EASY },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(if (selectedDifficulty == ChallengeDifficulty.EASY) "• Easy" else "Easy")
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedButton(
+                            onClick = { selectedDifficulty = ChallengeDifficulty.MEDIUM },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(if (selectedDifficulty == ChallengeDifficulty.MEDIUM) "• Medium" else "Medium")
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedButton(
+                            onClick = { selectedDifficulty = ChallengeDifficulty.HARD },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(if (selectedDifficulty == ChallengeDifficulty.HARD) "• Hard" else "Hard")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
                         Text("Session length", style = MaterialTheme.typography.titleMedium)
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -165,7 +218,8 @@ fun HomeScreen(
                         onStartSession(
                             GameSessionConfig(
                                 type = selectedType,
-                                totalQuestions = selectedCount
+                                totalQuestions = selectedCount,
+                                difficulty = selectedDifficulty
                             )
                         )
                     }
