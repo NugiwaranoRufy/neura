@@ -30,6 +30,18 @@ fun FeaturedPackDetailsScreen(
     onOpenAuthor: () -> Unit,
     onBack: () -> Unit
 ) {
+
+    val averageDifficulty = if (pack.challenges.isEmpty()) {
+        "N/A"
+    } else {
+        val average = pack.challenges.map { it.difficulty.ordinal }.average()
+        when {
+            average < 0.75 -> "Easy"
+            average < 1.5 -> "Medium"
+            else -> "Hard"
+        }
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -73,6 +85,18 @@ fun FeaturedPackDetailsScreen(
                 style = MaterialTheme.typography.bodySmall
             )
 
+            Text(
+                text = "Average difficulty: $averageDifficulty",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            if (pack.tags.isNotEmpty()) {
+                Text(
+                    text = "Tags: ${pack.tags.joinToString(" • ")}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
             Spacer(modifier = Modifier.padding(top = 20.dp))
 
             Button(
@@ -81,7 +105,7 @@ fun FeaturedPackDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(if (isImported) "Imported" else "Import this pack")
+                Text(if (isImported) "Already imported" else "Import this pack")
             }
 
             Spacer(modifier = Modifier.padding(top = 16.dp))

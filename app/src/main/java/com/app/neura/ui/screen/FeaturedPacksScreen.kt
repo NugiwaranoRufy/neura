@@ -24,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.AssistChip
 
 @Composable
 fun FeaturedPacksScreen(
@@ -133,6 +136,24 @@ private fun FeaturedPackCard(
     pack: ChallengePack,
     onClick: () -> Unit
 ) {
+
+    val averageDifficulty = if (pack.challenges.isEmpty()) {
+        "N/A"
+    } else {
+        val average = pack.challenges.map { it.difficulty.ordinal }.average()
+        when {
+            average < 0.75 -> "Easy"
+            average < 1.5 -> "Medium"
+            else -> "Hard"
+        }
+    }
+
+    val categoryBadge = when {
+        pack.tags.any { it.equals("logic", ignoreCase = true) } -> "🧠 Logic"
+        pack.tags.any { it.equals("lateral", ignoreCase = true) } -> "🎯 Lateral"
+        else -> "★ Featured"
+    }
+
     Card(
         modifier = Modifier
             .width(220.dp)
@@ -144,8 +165,15 @@ private fun FeaturedPackCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
+                text = categoryBadge,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
                 text = pack.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2
             )
 
             Text(
@@ -154,17 +182,21 @@ private fun FeaturedPackCard(
                 maxLines = 2
             )
 
-            Spacer(modifier = Modifier.padding(top = 4.dp))
-
             Text(
                 text = "${pack.challenges.size} challenges",
                 style = MaterialTheme.typography.labelSmall
             )
 
+            Text(
+                text = "Difficulty: $averageDifficulty",
+                style = MaterialTheme.typography.labelSmall
+            )
+
             if (pack.tags.isNotEmpty()) {
                 Text(
-                    text = pack.tags.joinToString(" • "),
-                    style = MaterialTheme.typography.labelSmall
+                    text = pack.tags.take(3).joinToString(" • "),
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1
                 )
             }
         }
