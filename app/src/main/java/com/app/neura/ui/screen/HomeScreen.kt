@@ -42,6 +42,7 @@ fun HomeScreen(
     onOpenProfile: () -> Unit,
     onOpenRoomDebug: () -> Unit,
     onOpenStats: () -> Unit,
+    onOpenAchievements: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -252,6 +253,16 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("Stats")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onOpenAchievements,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Achievements")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

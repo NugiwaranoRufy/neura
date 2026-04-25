@@ -49,6 +49,7 @@ import com.app.neura.ui.screen.RoomDebugScreen
 import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.FeaturedPacksScreen
 import com.app.neura.ui.screen.StatsScreen
+import com.app.neura.ui.screen.AchievementsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -203,6 +204,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenStats = {
                                 navController.navigate(NeuraDestinations.Stats.route)
+                            },
+                            onOpenAchievements = {
+                                navController.navigate(NeuraDestinations.Achievements.route)
                             },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
@@ -572,6 +576,19 @@ class MainActivity : ComponentActivity() {
                             onClearHistory = {
                                 challengeViewModel.clearSessionHistory()
                             },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.Achievements.route) {
+                        AchievementsScreen(
+                            sessions = challengeViewModel.sessionHistory,
+                            createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
+                            savedPacksCount = challengeViewModel.getSavedPacksCount(),
+                            favoriteChallengesCount = challengeViewModel.favoriteChallengeIds.collectAsState().value.size,
+                            favoritePacksCount = challengeViewModel.favoritePackIds.collectAsState().value.size,
                             onBack = {
                                 navController.popBackStack()
                             }
