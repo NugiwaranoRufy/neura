@@ -36,6 +36,7 @@ fun AchievementsScreen(
     savedPacksCount: Int,
     favoriteChallengesCount: Int,
     favoritePacksCount: Int,
+    currentDailyStreak: Int,
     onBack: () -> Unit
 ) {
     val completedSessions = sessions.size
@@ -52,6 +53,12 @@ fun AchievementsScreen(
             description = "Complete your first session.",
             unlocked = completedSessions >= 1,
             progressText = "$completedSessions / 1"
+        ),
+        AchievementItem(
+            title = "Daily rhythm",
+            description = "Complete the Daily challenge for 3 days in a row.",
+            unlocked = currentDailyStreak >= 3,
+            progressText = "$currentDailyStreak / 3"
         ),
         AchievementItem(
             title = "Training habit",

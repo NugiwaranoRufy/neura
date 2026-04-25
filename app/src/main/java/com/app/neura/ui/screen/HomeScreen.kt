@@ -44,7 +44,9 @@ fun HomeScreen(
     onOpenStats: () -> Unit,
     onOpenAchievements: () -> Unit,
     onStartDailyChallenge: () -> Unit,
-    userChallengeCount: Int
+    userChallengeCount: Int,
+    dailyCompletedToday: Boolean,
+    currentDailyStreak: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
     var selectedCount by remember { mutableIntStateOf(3) }
@@ -77,6 +79,22 @@ fun HomeScreen(
             Text(
                 text = "Your created challenges: $userChallengeCount",
                 style = MaterialTheme.typography.labelMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = if (dailyCompletedToday) {
+                    "Daily completed today • Streak: $currentDailyStreak"
+                } else {
+                    "Daily not completed today • Streak: $currentDailyStreak"
+                },
+                style = MaterialTheme.typography.labelMedium,
+                color = if (dailyCompletedToday) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -165,7 +183,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Daily challenge")
+                Text(if (dailyCompletedToday) "Daily completed" else "Daily challenge")
             }
 
             Spacer(modifier = Modifier.height(12.dp))

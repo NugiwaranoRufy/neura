@@ -213,7 +213,9 @@ class MainActivity : ComponentActivity() {
                                 challengeViewModel.startDailyChallenge()
                                 navController.navigate(NeuraDestinations.Challenge.route)
                             },
-                            userChallengeCount = challengeViewModel.getUserChallengeCount()
+                            userChallengeCount = challengeViewModel.getUserChallengeCount(),
+                            dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
+                            currentDailyStreak = challengeViewModel.getCurrentDailyStreak()
                         )
                     }
 
@@ -598,6 +600,9 @@ class MainActivity : ComponentActivity() {
                             sessions = challengeViewModel.sessionHistory,
                             bestScoreText = challengeViewModel.getBestScoreText(),
                             averageScoreText = challengeViewModel.getAverageScoreText(),
+                            currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
+                            bestDailyStreak = challengeViewModel.getBestDailyStreak(),
+                            dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
                             onClearHistory = {
                                 challengeViewModel.clearSessionHistory()
                             },
@@ -614,6 +619,7 @@ class MainActivity : ComponentActivity() {
                             savedPacksCount = challengeViewModel.getSavedPacksCount(),
                             favoriteChallengesCount = challengeViewModel.favoriteChallengeIds.collectAsState().value.size,
                             favoritePacksCount = challengeViewModel.favoritePackIds.collectAsState().value.size,
+                            currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
                             onBack = {
                                 navController.popBackStack()
                             }

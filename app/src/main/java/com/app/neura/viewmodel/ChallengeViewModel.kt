@@ -25,6 +25,9 @@ import androidx.compose.runtime.setValue
 import com.app.neura.data.model.GameSessionResult
 import com.app.neura.data.model.SessionAnswer
 import java.time.LocalDate
+import com.app.neura.ui.util.bestDailyStreak
+import com.app.neura.ui.util.currentDailyStreak
+import com.app.neura.ui.util.dailyCompletedToday
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -660,4 +663,16 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             sessionType = daily.type
         )
     }
+    fun isDailyCompletedToday(): Boolean {
+        return sessionHistory.dailyCompletedToday()
+    }
+
+    fun getCurrentDailyStreak(): Int {
+        return sessionHistory.currentDailyStreak()
+    }
+
+    fun getBestDailyStreak(): Int {
+        return sessionHistory.bestDailyStreak()
+    }
+
 }

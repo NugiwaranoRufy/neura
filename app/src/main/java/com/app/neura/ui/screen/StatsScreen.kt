@@ -30,6 +30,9 @@ fun StatsScreen(
     sessions: List<GameSessionResult>,
     bestScoreText: String,
     averageScoreText: String,
+    currentDailyStreak: Int,
+    bestDailyStreak: Int,
+    dailyCompletedToday: Boolean,
     onClearHistory: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -63,6 +66,9 @@ fun StatsScreen(
                         Text("Sessions played: ${sessions.size}")
                         Text("Best score: $bestScoreText")
                         Text("Average score: $averageScoreText")
+                        Text("Daily completed today: ${if (dailyCompletedToday) "Yes" else "No"}")
+                        Text("Current daily streak: $currentDailyStreak")
+                        Text("Best daily streak: $bestDailyStreak")
                     }
                 }
             }
