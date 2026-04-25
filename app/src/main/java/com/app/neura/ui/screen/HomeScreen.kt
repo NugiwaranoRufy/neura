@@ -41,10 +41,12 @@ fun HomeScreen(
     onOpenPlayLater: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenRoomDebug: () -> Unit,
+    onOpenStats: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
     var selectedCount by remember { mutableIntStateOf(3) }
+    var showSessionSetup by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -77,55 +79,57 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Category", style = MaterialTheme.typography.titleMedium)
+            if (showSessionSetup) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text("Category", style = MaterialTheme.typography.titleMedium)
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    OutlinedButton(
-                        onClick = { selectedType = ChallengeType.LOGIC },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text(if (selectedType == ChallengeType.LOGIC) "• Logic" else "Logic")
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedButton(
-                        onClick = { selectedType = ChallengeType.LATERAL },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text(if (selectedType == ChallengeType.LATERAL) "• Lateral" else "Lateral")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Session length", style = MaterialTheme.typography.titleMedium)
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    listOf(3, 5).forEach { count ->
                         OutlinedButton(
-                            onClick = { selectedCount = count },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                            onClick = { selectedType = ChallengeType.LOGIC },
+                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Text(if (selectedCount == count) "• $count challenges" else "$count challenges")
+                            Text(if (selectedType == ChallengeType.LOGIC) "• Logic" else "Logic")
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedButton(
+                            onClick = { selectedType = ChallengeType.LATERAL },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(if (selectedType == ChallengeType.LATERAL) "• Lateral" else "Lateral")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text("Session length", style = MaterialTheme.typography.titleMedium)
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        listOf(3, 5).forEach { count ->
+                            OutlinedButton(
+                                onClick = { selectedCount = count },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Text(if (selectedCount == count) "• $count challenges" else "$count challenges")
+                            }
                         }
                     }
                 }
@@ -135,17 +139,21 @@ fun HomeScreen(
 
             Button(
                 onClick = {
-                    onStartSession(
-                        GameSessionConfig(
-                            type = selectedType,
-                            totalQuestions = selectedCount
+                    if (!showSessionSetup) {
+                        showSessionSetup = true
+                    } else {
+                        onStartSession(
+                            GameSessionConfig(
+                                type = selectedType,
+                                totalQuestions = selectedCount
+                            )
                         )
-                    )
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Start")
+                Text(if (showSessionSetup) "Start session" else "Start")
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -236,6 +244,14 @@ fun HomeScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text("Room debug")
+            }
+
+            OutlinedButton(
+                onClick = onOpenStats,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Stats")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

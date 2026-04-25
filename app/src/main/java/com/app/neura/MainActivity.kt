@@ -48,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.neura.ui.screen.RoomDebugScreen
 import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.FeaturedPacksScreen
+import com.app.neura.ui.screen.StatsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
                 val challengeViewModel: ChallengeViewModel = viewModel()
                 LaunchedEffect(Unit) {
                     challengeViewModel.initializeUserChallengesRoomIfNeeded()
+                    challengeViewModel.refreshSessionHistory()
                 }
                 val uiState by challengeViewModel.uiState.collectAsState()
 
@@ -199,6 +201,9 @@ class MainActivity : ComponentActivity() {
                             onOpenRoomDebug = {
                                 navController.navigate(NeuraDestinations.RoomDebug.route)
                             },
+                            onOpenStats = {
+                                navController.navigate(NeuraDestinations.Stats.route)
+                            },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
@@ -209,6 +214,14 @@ class MainActivity : ComponentActivity() {
                             onSessionCompleted = {
                                 navController.navigate(NeuraDestinations.Result.route) {
                                     popUpTo(NeuraDestinations.Challenge.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onExitSession = {
+                                challengeViewModel.resetSession()
+                                navController.navigate(NeuraDestinations.Home.route) {
+                                    popUpTo(NeuraDestinations.Home.route) {
                                         inclusive = true
                                     }
                                 }
@@ -545,6 +558,20 @@ class MainActivity : ComponentActivity() {
 
                         RoomDebugScreen(
                             viewModel = roomDebugViewModel,
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.Stats.route) {
+                        StatsScreen(
+                            sessions = challengeViewModel.sessionHistory,
+                            bestScoreText = challengeViewModel.getBestScoreText(),
+                            averageScoreText = challengeViewModel.getAverageScoreText(),
+                            onClearHistory = {
+                                challengeViewModel.clearSessionHistory()
+                            },
                             onBack = {
                                 navController.popBackStack()
                             }

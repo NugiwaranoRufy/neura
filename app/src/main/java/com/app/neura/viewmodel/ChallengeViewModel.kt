@@ -22,6 +22,7 @@ import com.app.neura.data.model.UserProfile
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.app.neura.data.model.GameSessionResult
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -42,7 +43,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private var sessionChallenges: List<Challenge> = emptyList()
     private var currentIndex = 0
     private var currentScore = 0
+    private var sessionResultSaved = false
     private var roomUserChallengesCache by mutableStateOf<List<Challenge>>(emptyList())
+    var sessionHistory by mutableStateOf<List<GameSessionResult>>(emptyList())
+        private set
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
     val favoritePackIds = repository.getFavoritePackIds()
@@ -65,11 +69,20 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             UserProfile()
         )
     fun startSession(config: GameSessionConfig) {
-        val all = repository.getChallengesByType(config.type).shuffled()
-        sessionChallenges = all.take(config.totalQuestions)
+        val allPlayableChallenges = (
+                roomUserChallengesCache +
+                        repository.getFeaturedPacks().flatMap { it.challenges } +
+                        repository.getPacks().flatMap { it.challenges }
+                )
+            .filter { it.type == config.type }
+            .distinctBy { it.id }
+            .shuffled()
+
+        sessionChallenges = allPlayableChallenges.take(config.totalQuestions)
 
         currentIndex = 0
         currentScore = 0
+        sessionResultSaved = false
 
         _uiState.value = ChallengeUiState(
             currentChallenge = sessionChallenges.firstOrNull(),
@@ -100,28 +113,70 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         if (sessionChallenges.isEmpty()) return
 
         if (currentIndex >= sessionChallenges.lastIndex) {
+            val completedState = _uiState.value.copy(
+                currentChallenge = null,
+                sessionCompleted = true
+            )
+
+            _uiState.value = completedState
+
+            repository.addSessionResult(
+                GameSessionResult(
+                    type = completedState.sessionType,
+                    score = completedState.score,
+                    totalQuestions = completedState.totalQuestions
+                )
+            )
+            refreshSessionHistory()
+
+            return
+        }
+    }
+
+    fun continueSession(): Boolean {
+        if (sessionChallenges.isEmpty()) {
             _uiState.value = _uiState.value.copy(
                 currentChallenge = null,
                 sessionCompleted = true
             )
-            return
+            return true
         }
 
-        currentIndex++
+        val nextIndex = currentIndex + 1
+
+        if (nextIndex >= sessionChallenges.size) {
+            _uiState.value = _uiState.value.copy(
+                currentChallenge = null,
+                selectedOptionIndex = null,
+                hasAnswered = false,
+                isCorrect = false,
+                sessionCompleted = true
+            )
+
+            saveCurrentSessionResultIfNeeded()
+
+            return true
+        }
+
+        currentIndex = nextIndex
 
         _uiState.value = _uiState.value.copy(
             currentChallenge = sessionChallenges[currentIndex],
             selectedOptionIndex = null,
             hasAnswered = false,
             isCorrect = false,
-            currentQuestionNumber = currentIndex + 1
+            currentQuestionNumber = currentIndex + 1,
+            sessionCompleted = false
         )
+
+        return false
     }
 
     fun resetSession() {
         sessionChallenges = emptyList()
         currentIndex = 0
         currentScore = 0
+        sessionResultSaved = false
         _uiState.value = ChallengeUiState()
     }
 
@@ -345,6 +400,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
         currentIndex = 0
         currentScore = 0
+        sessionResultSaved = false
 
         _uiState.value = ChallengeUiState(
             currentChallenge = sessionChallenges.firstOrNull(),
@@ -500,5 +556,51 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             it.title == pack.title && it.authorName == pack.authorName
         }
     }
+
+    fun refreshSessionHistory() {
+        sessionHistory = repository.getSessionHistory()
+    }
+
+    fun getBestScoreText(): String {
+        val best = sessionHistory.maxByOrNull { result ->
+            if (result.totalQuestions == 0) 0.0 else result.score.toDouble() / result.totalQuestions
+        } ?: return "N/A"
+
+        return "${best.score}/${best.totalQuestions}"
+    }
+
+    fun getAverageScoreText(): String {
+        if (sessionHistory.isEmpty()) return "N/A"
+
+        val average = sessionHistory.map {
+            if (it.totalQuestions == 0) 0.0 else it.score.toDouble() / it.totalQuestions
+        }.average()
+
+        return "${(average * 100).toInt()}%"
+    }
+
+    fun clearSessionHistory() {
+        repository.clearSessionHistory()
+        refreshSessionHistory()
+    }
+    private fun saveCurrentSessionResultIfNeeded() {
+        if (sessionResultSaved) return
+
+        val state = _uiState.value
+
+        if (state.totalQuestions <= 0) return
+
+        repository.addSessionResult(
+            GameSessionResult(
+                type = state.sessionType,
+                score = state.score,
+                totalQuestions = state.totalQuestions
+            )
+        )
+
+        sessionResultSaved = true
+        refreshSessionHistory()
+    }
+
 
 }

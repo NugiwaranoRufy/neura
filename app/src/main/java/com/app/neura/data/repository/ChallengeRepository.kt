@@ -11,6 +11,8 @@ import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 import com.app.neura.data.local.FeaturedPackDataSource
+import com.app.neura.data.local.SessionHistoryLocalDataSource
+import com.app.neura.data.model.GameSessionResult
 
 class ChallengeRepository(
     context: Context
@@ -23,6 +25,8 @@ class ChallengeRepository(
     private val roomRepository = RoomCatalogRepository(database)
 
     private val featuredPackDataSource = FeaturedPackDataSource(context)
+
+    private val sessionHistoryDataSource = SessionHistoryLocalDataSource(context)
 
     // Legacy user challenges only
     fun getUserChallenges(): List<Challenge> {
@@ -144,5 +148,17 @@ class ChallengeRepository(
 
     fun getFeaturedPacks(): List<ChallengePack> {
         return featuredPackDataSource.getFeaturedPacks()
+    }
+
+    fun getSessionHistory(): List<GameSessionResult> {
+        return sessionHistoryDataSource.getSessions()
+    }
+
+    fun addSessionResult(result: GameSessionResult) {
+        sessionHistoryDataSource.addSession(result)
+    }
+
+    fun clearSessionHistory() {
+        sessionHistoryDataSource.clearSessions()
     }
 }
