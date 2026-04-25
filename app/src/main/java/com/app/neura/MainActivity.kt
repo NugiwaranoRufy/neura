@@ -53,6 +53,30 @@ import com.app.neura.ui.screen.AchievementsScreen
 import com.app.neura.ui.screen.SessionReviewScreen
 
 class MainActivity : ComponentActivity() {
+    private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
+        return try {
+            contentResolver.openInputStream(uri)?.use { input ->
+                val buffer = ByteArray(8 * 1024)
+                val output = StringBuilder()
+                var totalBytes = 0
+
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read == -1) break
+
+                    totalBytes += read
+                    if (totalBytes > maxBytes) return null
+
+                    output.append(buffer.decodeToString(0, read))
+                }
+
+                output.toString()
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val incomingUri: Uri? = if (intent?.action == Intent.ACTION_VIEW) {
@@ -95,9 +119,7 @@ class MainActivity : ComponentActivity() {
                     contract = ActivityResultContracts.OpenDocument()
                 ) { uri: Uri? ->
                     if (uri != null) {
-                        val content = contentResolver.openInputStream(uri)
-                            ?.bufferedReader()
-                            ?.use { it.readText() }
+                        val content = readTextFromUriSafely(uri)
 
                         if (content != null) {
                             val success = challengeViewModel.importUserChallengesFromJson(content)
@@ -114,9 +136,7 @@ class MainActivity : ComponentActivity() {
                     contract = ActivityResultContracts.OpenDocument()
                 ) { uri: Uri? ->
                     if (uri != null) {
-                        val content = contentResolver.openInputStream(uri)
-                            ?.bufferedReader()
-                            ?.use { it.readText() }
+                        val content = readTextFromUriSafely(uri)
 
                         if (content != null) {
                             val preview = challengeViewModel.previewChallengePack(content)
@@ -144,9 +164,7 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(incomingUri, initialIncomingPackHandled) {
                     if (!initialIncomingPackHandled && incomingUri != null) {
-                        val content = contentResolver.openInputStream(incomingUri)
-                            ?.bufferedReader()
-                            ?.use { it.readText() }
+                        val content = readTextFromUriSafely(incomingUri)
 
                         if (content != null) {
                             val preview = challengeViewModel.previewChallengePack(content)

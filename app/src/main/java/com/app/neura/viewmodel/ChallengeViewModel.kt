@@ -28,6 +28,7 @@ import java.time.LocalDate
 import com.app.neura.ui.util.bestDailyStreak
 import com.app.neura.ui.util.currentDailyStreak
 import com.app.neura.ui.util.dailyCompletedToday
+import com.app.neura.data.security.ImportSecurityValidator
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -281,10 +282,14 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                 ListSerializer(Challenge.serializer()),
                 jsonContent
             )
-            viewModelScope.launch {
-                repository.replaceUserChallengesInRoom(imported)
-                refreshRoomUserChallenges()
+
+            val safeChallenges = ImportSecurityValidator.sanitizeChallenges(imported)
+
+            if (safeChallenges.isEmpty()) {
+                return false
             }
+
+            repository.mergeUserChallenges(safeChallenges)
             true
         } catch (_: Exception) {
             false
@@ -375,10 +380,16 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun previewChallengePack(jsonContent: String): ChallengePack? {
         return try {
-            exportJson.decodeFromString(
+            val pack = exportJson.decodeFromString(
                 ChallengePack.serializer(),
                 jsonContent
             )
+
+            if (ImportSecurityValidator.isValidPack(pack)) {
+                pack
+            } else {
+                null
+            }
         } catch (_: Exception) {
             null
         }
@@ -386,12 +397,13 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun importChallengePack(pack: ChallengePack): Boolean {
         return try {
-            viewModelScope.launch {
-                repository.replaceUserChallengesInRoom(
-                    (roomUserChallengesCache + pack.challenges).distinctBy { it.id }
-                )
-                refreshRoomUserChallenges()
+            if (!ImportSecurityValidator.isValidPack(pack)) {
+                return false
             }
+
+            repository.mergeUserChallenges(
+                ImportSecurityValidator.sanitizeChallenges(pack.challenges)
+            )
             repository.addPack(pack)
             true
         } catch (_: Exception) {
@@ -453,13 +465,14 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun importFeaturedPack(pack: ChallengePack): Boolean {
         return try {
-            repository.addPack(pack)
-            viewModelScope.launch {
-                repository.replaceUserChallengesInRoom(
-                    (roomUserChallengesCache + pack.challenges).distinctBy { it.id }
-                )
-                refreshRoomUserChallenges()
+            if (!ImportSecurityValidator.isValidPack(pack)) {
+                return false
             }
+
+            repository.addPack(pack)
+            repository.mergeUserChallenges(
+                ImportSecurityValidator.sanitizeChallenges(pack.challenges)
+            )
             true
         } catch (_: Exception) {
             false
