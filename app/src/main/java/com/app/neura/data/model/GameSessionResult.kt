@@ -8,5 +8,6 @@ data class GameSessionResult(
     val type: ChallengeType? = null,
     val score: Int,
     val totalQuestions: Int,
-    val completedAt: Long = System.currentTimeMillis()
+    val completedAt: Long = System.currentTimeMillis(),
+    val source: String = "Standard"
 )

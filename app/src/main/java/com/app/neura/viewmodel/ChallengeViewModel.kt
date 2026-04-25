@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.app.neura.data.model.GameSessionResult
 import com.app.neura.data.model.SessionAnswer
+import java.time.LocalDate
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -47,6 +48,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     private var currentIndex = 0
     private var currentScore = 0
     private var sessionResultSaved = false
+
+    private var currentSessionSource = "Standard"
     private var roomUserChallengesCache by mutableStateOf<List<Challenge>>(emptyList())
     var sessionHistory by mutableStateOf<List<GameSessionResult>>(emptyList())
         private set
@@ -86,6 +89,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         currentIndex = 0
         currentScore = 0
         sessionResultSaved = false
+        currentSessionSource = "Standard"
         sessionAnswers = emptyList()
 
         _uiState.value = ChallengeUiState(
@@ -139,6 +143,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                     type = completedState.sessionType,
                     score = completedState.score,
                     totalQuestions = completedState.totalQuestions
+
                 )
             )
             refreshSessionHistory()
@@ -416,6 +421,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         currentIndex = 0
         currentScore = 0
         sessionResultSaved = false
+        currentSessionSource = "Pack"
         sessionAnswers = emptyList()
 
         _uiState.value = ChallengeUiState(
@@ -610,7 +616,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             GameSessionResult(
                 type = state.sessionType,
                 score = state.score,
-                totalQuestions = state.totalQuestions
+                totalQuestions = state.totalQuestions,
+                source = currentSessionSource
             )
         )
 
@@ -618,5 +625,39 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         refreshSessionHistory()
     }
 
+    fun getDailyChallenge(): Challenge? {
+        val allChallenges = (
+                roomUserChallengesCache +
+                        repository.getFeaturedPacks().flatMap { it.challenges } +
+                        repository.getPacks().flatMap { it.challenges }
+                )
+            .distinctBy { it.id }
 
+        if (allChallenges.isEmpty()) return null
+
+        val daySeed = LocalDate.now().toEpochDay().toInt()
+        val index = kotlin.math.abs(daySeed) % allChallenges.size
+
+        return allChallenges[index]
+    }
+
+    fun startDailyChallenge() {
+        val daily = getDailyChallenge() ?: return
+
+        sessionChallenges = listOf(daily)
+        currentIndex = 0
+        currentScore = 0
+        sessionResultSaved = false
+        currentSessionSource = "Daily challenge"
+        sessionAnswers = emptyList()
+
+        _uiState.value = ChallengeUiState(
+            currentChallenge = daily,
+            currentQuestionNumber = 1,
+            totalQuestions = 1,
+            score = 0,
+            sessionCompleted = false,
+            sessionType = daily.type
+        )
+    }
 }

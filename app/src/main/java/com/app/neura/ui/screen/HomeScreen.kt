@@ -43,6 +43,7 @@ fun HomeScreen(
     onOpenRoomDebug: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenAchievements: () -> Unit,
+    onStartDailyChallenge: () -> Unit,
     userChallengeCount: Int
 ) {
     var selectedType by remember { mutableStateOf(ChallengeType.LOGIC) }
@@ -158,6 +159,17 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onStartDailyChallenge,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Daily challenge")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
 
             OutlinedButton(
                 onClick = onCreateChallenge,

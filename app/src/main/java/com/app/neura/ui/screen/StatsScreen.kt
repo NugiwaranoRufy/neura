@@ -130,6 +130,11 @@ private fun SessionResultCard(
             )
 
             Text(
+                text = "Source: ${session.source}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
                 text = "Type: ${session.type?.name ?: "Mixed"}",
                 style = MaterialTheme.typography.bodySmall
             )

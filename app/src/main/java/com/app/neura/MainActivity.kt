@@ -209,6 +209,10 @@ class MainActivity : ComponentActivity() {
                             onOpenAchievements = {
                                 navController.navigate(NeuraDestinations.Achievements.route)
                             },
+                            onStartDailyChallenge = {
+                                challengeViewModel.startDailyChallenge()
+                                navController.navigate(NeuraDestinations.Challenge.route)
+                            },
                             userChallengeCount = challengeViewModel.getUserChallengeCount()
                         )
                     }
