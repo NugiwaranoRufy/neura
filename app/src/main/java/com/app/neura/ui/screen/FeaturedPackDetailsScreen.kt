@@ -21,6 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.util.averageDifficultyText
+import com.app.neura.ui.util.categoryBadgeText
+import com.app.neura.ui.util.estimatedTimeText
+import com.app.neura.ui.util.mainCategoryText
 
 @Composable
 fun FeaturedPackDetailsScreen(
@@ -30,17 +34,6 @@ fun FeaturedPackDetailsScreen(
     onOpenAuthor: () -> Unit,
     onBack: () -> Unit
 ) {
-
-    val averageDifficulty = if (pack.challenges.isEmpty()) {
-        "N/A"
-    } else {
-        val average = pack.challenges.map { it.difficulty.ordinal }.average()
-        when {
-            average < 0.75 -> "Easy"
-            average < 1.5 -> "Medium"
-            else -> "Hard"
-        }
-    }
 
     Surface(
         modifier = Modifier
@@ -54,7 +47,7 @@ fun FeaturedPackDetailsScreen(
                 .padding(24.dp)
         ) {
             Text(
-                text = "★ Featured",
+                text = pack.categoryBadgeText(),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.labelLarge
             )
@@ -86,7 +79,17 @@ fun FeaturedPackDetailsScreen(
             )
 
             Text(
-                text = "Average difficulty: $averageDifficulty",
+                text = "Average difficulty: ${pack.averageDifficultyText()}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Category: ${pack.mainCategoryText()}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Estimated time: ${pack.estimatedTimeText()}",
                 style = MaterialTheme.typography.bodySmall
             )
 

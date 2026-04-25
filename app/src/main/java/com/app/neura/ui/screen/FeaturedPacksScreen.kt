@@ -27,6 +27,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AssistChip
+import com.app.neura.ui.util.averageDifficultyText
+import com.app.neura.ui.util.categoryBadgeText
+import com.app.neura.ui.util.estimatedTimeText
 
 @Composable
 fun FeaturedPacksScreen(
@@ -137,22 +140,6 @@ private fun FeaturedPackCard(
     onClick: () -> Unit
 ) {
 
-    val averageDifficulty = if (pack.challenges.isEmpty()) {
-        "N/A"
-    } else {
-        val average = pack.challenges.map { it.difficulty.ordinal }.average()
-        when {
-            average < 0.75 -> "Easy"
-            average < 1.5 -> "Medium"
-            else -> "Hard"
-        }
-    }
-
-    val categoryBadge = when {
-        pack.tags.any { it.equals("logic", ignoreCase = true) } -> "🧠 Logic"
-        pack.tags.any { it.equals("lateral", ignoreCase = true) } -> "🎯 Lateral"
-        else -> "★ Featured"
-    }
 
     Card(
         modifier = Modifier
@@ -165,7 +152,7 @@ private fun FeaturedPackCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = categoryBadge,
+                text = pack.categoryBadgeText(),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -188,7 +175,12 @@ private fun FeaturedPackCard(
             )
 
             Text(
-                text = "Difficulty: $averageDifficulty",
+                text = "Difficulty: ${pack.averageDifficultyText()}",
+                style = MaterialTheme.typography.labelSmall
+            )
+
+            Text(
+                text = "Time: ${pack.estimatedTimeText()}",
                 style = MaterialTheme.typography.labelSmall
             )
 

@@ -22,6 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.util.averageDifficultyText
+import com.app.neura.ui.util.categoryBadgeText
+import com.app.neura.ui.util.estimatedTimeText
+import com.app.neura.ui.util.mainCategoryText
 
 @Composable
 fun PackDetailsScreen(
@@ -46,6 +50,12 @@ fun PackDetailsScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
+            Text(
+                text = pack.categoryBadgeText(),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
             Spacer(modifier = Modifier.padding(top = 8.dp))
 
             Text(
@@ -64,6 +74,21 @@ fun PackDetailsScreen(
 
             Text(
                 text = "Challenges: ${pack.challenges.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Average difficulty: ${pack.averageDifficultyText()}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Category: ${pack.mainCategoryText()}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                text = "Estimated time: ${pack.estimatedTimeText()}",
                 style = MaterialTheme.typography.bodySmall
             )
 
