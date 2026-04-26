@@ -24,6 +24,7 @@ import com.app.neura.data.model.GameSessionResult
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.app.neura.ui.component.SecondaryActionButton
 
 @Composable
 fun StatsScreen(
@@ -101,13 +102,10 @@ fun StatsScreen(
             }
 
             item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
+                SecondaryActionButton(
+                    text = "Back",
+                    onClick = onBack
+                )
             }
         }
     }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.GameSessionResult
+import com.app.neura.ui.component.SecondaryActionButton
 
 private data class AchievementItem(
     val title: String,
@@ -144,13 +145,10 @@ fun AchievementsScreen(
             }
 
             item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
+                SecondaryActionButton(
+                    text = "Back",
+                    onClick = onBack
+                )
             }
         }
     }

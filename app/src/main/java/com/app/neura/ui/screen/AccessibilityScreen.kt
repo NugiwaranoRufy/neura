@@ -2,7 +2,6 @@ package com.app.neura.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +21,9 @@ import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.data.model.TextScale
 import com.app.neura.data.model.ThemeMode
 import com.app.neura.data.model.ColorVisionMode
+import com.app.neura.ui.component.SectionCard
+import com.app.neura.ui.component.SelectableOptionButton
+import com.app.neura.ui.component.SecondaryActionButton
 
 @Composable
 fun AccessibilityScreen(
@@ -56,8 +57,8 @@ fun AccessibilityScreen(
             }
 
             item {
-                SettingsCard(title = "Theme") {
-                    OptionButton(
+                SectionCard(title = "Theme") {
+                    SelectableOptionButton(
                         text = "System",
                         selected = settings.themeMode == ThemeMode.SYSTEM,
                         onClick = {
@@ -65,7 +66,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Light",
                         selected = settings.themeMode == ThemeMode.LIGHT,
                         onClick = {
@@ -73,7 +74,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Dark",
                         selected = settings.themeMode == ThemeMode.DARK,
                         onClick = {
@@ -84,8 +85,8 @@ fun AccessibilityScreen(
             }
 
             item {
-                SettingsCard(title = "Text size") {
-                    OptionButton(
+                SectionCard(title = "Text size") {
+                    SelectableOptionButton(
                         text = "Small",
                         selected = settings.textScale == TextScale.SMALL,
                         onClick = {
@@ -93,7 +94,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Normal",
                         selected = settings.textScale == TextScale.NORMAL,
                         onClick = {
@@ -101,7 +102,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Large",
                         selected = settings.textScale == TextScale.LARGE,
                         onClick = {
@@ -109,7 +110,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Extra large",
                         selected = settings.textScale == TextScale.EXTRA_LARGE,
                         onClick = {
@@ -121,8 +122,8 @@ fun AccessibilityScreen(
             }
 
             item {
-                SettingsCard(title = "Contrast") {
-                    OptionButton(
+                SectionCard(title = "Contrast") {
+                    SelectableOptionButton(
                         text = "Standard contrast",
                         selected = !settings.highContrast,
                         onClick = {
@@ -130,7 +131,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "High contrast",
                         selected = settings.highContrast,
                         onClick = {
@@ -141,8 +142,8 @@ fun AccessibilityScreen(
             }
 
             item {
-                SettingsCard(title = "Color vision") {
-                    OptionButton(
+                SectionCard(title = "Color vision") {
+                    SelectableOptionButton(
                         text = "Default",
                         selected = settings.colorVisionMode == ColorVisionMode.DEFAULT,
                         onClick = {
@@ -150,7 +151,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Protanopia",
                         selected = settings.colorVisionMode == ColorVisionMode.PROTANOPIA,
                         onClick = {
@@ -158,7 +159,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Deuteranopia",
                         selected = settings.colorVisionMode == ColorVisionMode.DEUTERANOPIA,
                         onClick = {
@@ -166,7 +167,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = "Tritanopia",
                         selected = settings.colorVisionMode == ColorVisionMode.TRITANOPIA,
                         onClick = {
@@ -177,8 +178,8 @@ fun AccessibilityScreen(
             }
 
             item {
-                SettingsCard(title = "Neuroaccessibility") {
-                    OptionButton(
+                SectionCard(title = "Neuroaccessibility") {
+                    SelectableOptionButton(
                         text = if (settings.calmMode) "Calm mode: On" else "Calm mode: Off",
                         selected = settings.calmMode,
                         onClick = {
@@ -186,7 +187,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = if (settings.focusMode) "Focus mode: On" else "Focus mode: Off",
                         selected = settings.focusMode,
                         onClick = {
@@ -194,7 +195,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = if (settings.readingHelper) "Reading helper: On" else "Reading helper: Off",
                         selected = settings.readingHelper,
                         onClick = {
@@ -202,7 +203,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = if (settings.confirmDestructiveActions) {
                             "Confirm delete actions: On"
                         } else {
@@ -218,7 +219,7 @@ fun AccessibilityScreen(
                         }
                     )
 
-                    OptionButton(
+                    SelectableOptionButton(
                         text = if (settings.reduceMotion) "Reduce motion: On" else "Reduce motion: Off",
                         selected = settings.reduceMotion,
                         onClick = {
@@ -256,52 +257,11 @@ fun AccessibilityScreen(
             }
 
             item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
+                SecondaryActionButton(
+                    text = "Back",
+                    onClick = onBack
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun SettingsCard(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            content()
-        }
-    }
-}
-
-@Composable
-private fun OptionButton(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Text(if (selected) "• $text" else text)
     }
 }
