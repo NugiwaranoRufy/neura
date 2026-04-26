@@ -88,6 +88,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val challengeViewModel: ChallengeViewModel = viewModel()
+            val accessibilitySettings = challengeViewModel.accessibilitySettings
+            val favoriteChallengeIds by challengeViewModel.favoriteChallengeIds.collectAsState()
+            val favoritePackIds by challengeViewModel.favoritePackIds.collectAsState()
+            val playLaterPackIds by challengeViewModel.playLaterPackIds.collectAsState()
+            val userProfile by challengeViewModel.userProfile.collectAsState()
 
             LaunchedEffect(Unit) {
                 challengeViewModel.initializeUserChallengesRoomIfNeeded()
@@ -96,10 +101,10 @@ class MainActivity : ComponentActivity() {
             }
 
             NeuraTheme(
-                themeMode = challengeViewModel.accessibilitySettings.themeMode,
-                textScale = challengeViewModel.accessibilitySettings.textScale,
-                highContrast = challengeViewModel.accessibilitySettings.highContrast,
-                colorVisionMode = challengeViewModel.accessibilitySettings.colorVisionMode
+                themeMode = accessibilitySettings.themeMode,
+                textScale = accessibilitySettings.textScale,
+                highContrast = accessibilitySettings.highContrast,
+                colorVisionMode = accessibilitySettings.colorVisionMode
             ) {
                 val navController = rememberNavController()
                 val uiState by challengeViewModel.uiState.collectAsState()
@@ -246,14 +251,14 @@ class MainActivity : ComponentActivity() {
                             userChallengeCount = challengeViewModel.getUserChallengeCount(),
                             dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
                             currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
-                            accessibilitySettings = challengeViewModel.accessibilitySettings
+                            accessibilitySettings = accessibilitySettings
                         )
                     }
 
                     composable(NeuraDestinations.Challenge.route) {
                         ChallengeScreen(
                             viewModel = challengeViewModel,
-                            accessibilitySettings = challengeViewModel.accessibilitySettings,
+                            accessibilitySettings = accessibilitySettings,
                             onSessionCompleted = {
                                 navController.navigate(NeuraDestinations.Result.route) {
                                     popUpTo(NeuraDestinations.Challenge.route) {
@@ -310,7 +315,7 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.Create.route) {
                         CreateChallengeScreen(
                             viewModel = challengeViewModel,
-                            defaultAuthorName = challengeViewModel.userProfile.collectAsState().value.displayName,
+                            defaultAuthorName = userProfile.displayName,
                             onSaved = {
                                 navController.popBackStack()
                             },
@@ -323,13 +328,10 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.MyChallenges.route) {
                         MyChallengesScreen(
                             challenges = challengeViewModel.getUserChallenges(),
-                            favoriteChallengeIds = challengeViewModel.favoriteChallengeIds.collectAsState().value,
-                            accessibilitySettings = challengeViewModel.accessibilitySettings,
+                            favoriteChallengeIds = favoriteChallengeIds,
+                            accessibilitySettings = accessibilitySettings,
                             onDeleteChallenge = { challengeId ->
                                 challengeViewModel.deleteUserChallenge(challengeId)
-                                navController.navigate(NeuraDestinations.MyChallenges.route) {
-                                    popUpTo(NeuraDestinations.MyChallenges.route) { inclusive = true }
-                                }
                             },
                             onEditChallenge = { challengeId ->
                                 navController.navigate(NeuraDestinations.EditChallenge.createRoute(challengeId))
@@ -400,7 +402,7 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.ExportPack.route) {
                         ExportPackScreen(
                             challenges = challengeViewModel.getUserChallenges(),
-                            defaultAuthorName = challengeViewModel.userProfile.collectAsState().value.displayName,
+                            defaultAuthorName = userProfile.displayName,
                             onExport = { title, description, authorName, challengeIds, tags ->
                                 val json = challengeViewModel.exportChallengePackToJson(
                                     title = title,
@@ -451,8 +453,8 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.MyPacks.route) {
                         MyPacksScreen(
                             packs = challengeViewModel.getPacks(),
-                            favoritePackIds = challengeViewModel.favoritePackIds.collectAsState().value,
-                            playLaterPackIds = challengeViewModel.playLaterPackIds.collectAsState().value,
+                            favoritePackIds = favoriteChallengeIds,
+                            playLaterPackIds = playLaterPackIds,
                             onOpenPack = { localId ->
                                 navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
                             },
@@ -575,7 +577,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable(NeuraDestinations.Profile.route) {
-                        val profile = challengeViewModel.userProfile.collectAsState().value
+                        val profile = userProfile
 
                         ProfileScreen(
                             profile = profile,
@@ -650,8 +652,8 @@ class MainActivity : ComponentActivity() {
                             sessions = challengeViewModel.sessionHistory,
                             createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
                             savedPacksCount = challengeViewModel.getSavedPacksCount(),
-                            favoriteChallengesCount = challengeViewModel.favoriteChallengeIds.collectAsState().value.size,
-                            favoritePacksCount = challengeViewModel.favoritePackIds.collectAsState().value.size,
+                            favoriteChallengesCount = favoriteChallengeIds.size,
+                            favoritePacksCount = favoritePackIds.size,
                             currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
                             onBack = {
                                 navController.popBackStack()
@@ -661,7 +663,7 @@ class MainActivity : ComponentActivity() {
 
                     composable(NeuraDestinations.Accessibility.route) {
                         AccessibilityScreen(
-                            settings = challengeViewModel.accessibilitySettings,
+                            settings = accessibilitySettings,
                             onSettingsChange = { settings ->
                                 challengeViewModel.saveAccessibilitySettings(settings)
                             },

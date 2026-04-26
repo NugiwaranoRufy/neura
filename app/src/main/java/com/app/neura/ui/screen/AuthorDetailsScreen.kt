@@ -70,11 +70,6 @@ fun AuthorDetailsScreen(
                         )
                     }
                 }
-
-                Text(
-                    text = authorName,
-                    style = MaterialTheme.typography.headlineMedium
-                )
             }
 
             if (profile != null) {

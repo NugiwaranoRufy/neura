@@ -83,86 +83,92 @@ fun HomeScreen(
     val roomDebugIcon = if (accessibilitySettings.calmMode) "Debug" else "🛠️"
     val accessibilityIcon = if (accessibilitySettings.calmMode) "Access" else "♿"
 
-    val tiles = listOf(
-        HomeTile(
-            title = if (dailyCompletedToday) "Daily completed" else "Daily challenge",
-            subtitle = "One challenge for today",
-            icon = dailyIcon,
-            onClick = onStartDailyChallenge
-        ),
-        HomeTile(
-            title = "Create",
-            subtitle = "Build a new challenge",
-            icon = createIcon,
-            onClick = onCreateChallenge
-        ),
-        HomeTile(
-            title = "My challenges",
-            subtitle = "$userChallengeCount created",
-            icon = challengesIcon,
-            onClick = onOpenMyChallenges
-        ),
-        HomeTile(
-            title = "My packs",
-            subtitle = "Saved collections",
-            icon = packsIcon,
-            onClick = onOpenMyPacks
-        ),
-        HomeTile(
-            title = "Discover",
-            subtitle = "Featured packs",
-            icon = discoverIcon,
-            onClick = onOpenDiscover
-        ),
-        HomeTile(
-            title = "Favorites",
-            subtitle = "Your saved picks",
-            icon = favoritesIcon,
-            onClick = onOpenFavorites
-        ),
-        HomeTile(
-            title = "Play later",
-            subtitle = "Queued packs",
-            icon = playLaterIcon,
-            onClick = onOpenPlayLater
-        ),
-        HomeTile(
-            title = "Import / Export",
-            subtitle = "Share content",
-            icon = transferIcon,
-            onClick = onOpenTransfer
-        ),
-        HomeTile(
-            title = "Profile",
-            subtitle = "Author profile",
-            icon = profileIcon,
-            onClick = onOpenProfile
-        ),
-        HomeTile(
-            title = "Accessibility",
-            subtitle = "Theme and text size",
-            icon = accessibilityIcon,
-            onClick = onOpenAccessibility
-        ),
-        HomeTile(
-            title = "Stats",
-            subtitle = "Progress history",
-            icon = statsIcon,
-            onClick = onOpenStats
-        ),
-        HomeTile(
-            title = "Achievements",
-            subtitle = "Milestones",
-            icon = achievementsIcon,
-            onClick = onOpenAchievements
-        ),
-        HomeTile(
-            title = "Room debug",
-            subtitle = "Database tools",
-            icon = roomDebugIcon,
-            onClick = onOpenRoomDebug
+    val tiles = remember(
+        dailyCompletedToday,
+        userChallengeCount,
+        accessibilitySettings.calmMode
+    ) {
+        listOf(
+            HomeTile(
+                title = if (dailyCompletedToday) "Daily completed" else "Daily challenge",
+                subtitle = "One challenge for today",
+                icon = dailyIcon,
+                onClick = onStartDailyChallenge
+            ),
+            HomeTile(
+                title = "Create",
+                subtitle = "Build a new challenge",
+                icon = createIcon,
+                onClick = onCreateChallenge
+            ),
+            HomeTile(
+                title = "My challenges",
+                subtitle = "$userChallengeCount created",
+                icon = challengesIcon,
+                onClick = onOpenMyChallenges
+            ),
+            HomeTile(
+                title = "My packs",
+                subtitle = "Saved collections",
+                icon = packsIcon,
+                onClick = onOpenMyPacks
+            ),
+            HomeTile(
+                title = "Discover",
+                subtitle = "Featured packs",
+                icon = discoverIcon,
+                onClick = onOpenDiscover
+            ),
+            HomeTile(
+                title = "Favorites",
+                subtitle = "Your saved picks",
+                icon = favoritesIcon,
+                onClick = onOpenFavorites
+            ),
+            HomeTile(
+                title = "Play later",
+                subtitle = "Queued packs",
+                icon = playLaterIcon,
+                onClick = onOpenPlayLater
+            ),
+            HomeTile(
+                title = "Import / Export",
+                subtitle = "Share content",
+                icon = transferIcon,
+                onClick = onOpenTransfer
+            ),
+            HomeTile(
+                title = "Profile",
+                subtitle = "Author profile",
+                icon = profileIcon,
+                onClick = onOpenProfile
+            ),
+            HomeTile(
+                title = "Accessibility",
+                subtitle = "Theme and text size",
+                icon = accessibilityIcon,
+                onClick = onOpenAccessibility
+            ),
+            HomeTile(
+                title = "Stats",
+                subtitle = "Progress history",
+                icon = statsIcon,
+                onClick = onOpenStats
+            ),
+            HomeTile(
+                title = "Achievements",
+                subtitle = "Milestones",
+                icon = achievementsIcon,
+                onClick = onOpenAchievements
+            ),
+            HomeTile(
+                title = "Room debug",
+                subtitle = "Database tools",
+                icon = roomDebugIcon,
+                onClick = onOpenRoomDebug
+            )
         )
-    )
+    }
 
     Surface(
         modifier = Modifier
