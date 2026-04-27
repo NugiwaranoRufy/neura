@@ -57,6 +57,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var currentSessionSource = "Standard"
     private var roomUserChallengesCache by mutableStateOf<List<Challenge>>(emptyList())
+    private var packsCache by mutableStateOf<List<ChallengePack>>(emptyList())
+    private var featuredPacksCache by mutableStateOf<List<ChallengePack>>(emptyList())
     var sessionHistory by mutableStateOf<List<GameSessionResult>>(emptyList())
         private set
     var accessibilitySettings by mutableStateOf(AccessibilitySettings())
@@ -141,28 +143,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun nextChallenge() {
-        if (sessionChallenges.isEmpty()) return
-
-        if (currentIndex >= sessionChallenges.lastIndex) {
-            val completedState = _uiState.value.copy(
-                currentChallenge = null,
-                sessionCompleted = true
-            )
-
-            _uiState.value = completedState
-
-            repository.addSessionResult(
-                GameSessionResult(
-                    type = completedState.sessionType,
-                    score = completedState.score,
-                    totalQuestions = completedState.totalQuestions
-
-                )
-            )
-            refreshSessionHistory()
-
-            return
-        }
+        continueSession()
     }
 
     fun continueSession(): Boolean {
@@ -296,6 +277,9 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             repository.mergeUserChallenges(safeChallenges)
+            viewModelScope.launch {
+                refreshRoomUserChallenges()
+            }
             true
         } catch (_: Exception) {
             false
@@ -411,6 +395,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
                 ImportSecurityValidator.sanitizeChallenges(pack.challenges)
             )
             repository.addPack(pack)
+            packsCache = repository.getPacks()
             true
         } catch (_: Exception) {
             false
@@ -419,10 +404,11 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun savePackToLibrary(pack: ChallengePack) {
         repository.addPack(pack)
+        packsCache = repository.getPacks()
     }
 
     fun getPacks(): List<ChallengePack> {
-        return repository.getPacks().sortedByDescending { it.createdAt }
+        return packsCache.sortedByDescending { it.createdAt }
     }
 
     fun getPackByCreatedAt(createdAt: Long): ChallengePack? {
@@ -435,6 +421,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deletePack(localId: Long) {
         repository.deletePack(localId)
+        packsCache = repository.getPacks()
     }
 
     fun startSessionFromPack(pack: ChallengePack, totalQuestions: Int? = null) {
@@ -462,7 +449,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getFeaturedPacks(): List<ChallengePack> {
-        return repository.getFeaturedPacks()
+        return featuredPacksCache
     }
 
     fun getFeaturedPackByCreatedAt(createdAt: Long): ChallengePack? {
@@ -476,6 +463,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             repository.addPack(pack)
+            packsCache = repository.getPacks()
             repository.mergeUserChallenges(
                 ImportSecurityValidator.sanitizeChallenges(pack.challenges)
             )
@@ -719,5 +707,18 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         achievementProgress = repository.getAchievementProgress()
     }
 
+    fun preloadCatalogData() {
+        packsCache = repository.getPacks()
+        featuredPacksCache = repository.getFeaturedPacks()
+    }
 
+    fun refreshAllLocalData() {
+        viewModelScope.launch {
+            refreshRoomUserChallenges()
+            preloadCatalogData()
+            refreshSessionHistory()
+            refreshAchievementProgress()
+            refreshAccessibilitySettings()
+        }
+    }
 }

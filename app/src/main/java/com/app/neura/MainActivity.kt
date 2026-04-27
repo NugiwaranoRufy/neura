@@ -96,9 +96,8 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 challengeViewModel.initializeUserChallengesRoomIfNeeded()
-                challengeViewModel.refreshSessionHistory()
-                challengeViewModel.refreshAccessibilitySettings()
-                challengeViewModel.refreshAchievementProgress()
+                challengeViewModel.preloadCatalogData()
+                challengeViewModel.refreshAllLocalData()
             }
 
             NeuraTheme(
@@ -141,7 +140,7 @@ class MainActivity : ComponentActivity() {
                             importStatus = if (success) {
                                 "Import completed."
                             } else {
-                                "Import failed. Invalid file."
+                                "Import failed. The file is invalid or too large."
                             }
                         }
                     }
@@ -159,7 +158,7 @@ class MainActivity : ComponentActivity() {
                                 importedPackPreview = preview
                                 navController.navigate(NeuraDestinations.ImportPackPreview.route)
                             } else {
-                                importStatus = "Invalid pack file."
+                                importStatus = "Invalid pack file. Check the format or file size."
                             }
                         }
                     }

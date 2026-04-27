@@ -123,7 +123,11 @@ fun MyPacksScreen(
                     )
                 }
             } else {
-                items(filteredPacks, key = { it.localId }) { pack ->
+                items(
+                    items = filteredPacks,
+                    key = { it.localId },
+                    contentType = { "pack" }
+                ) { pack ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp)

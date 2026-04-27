@@ -131,7 +131,11 @@ fun ChallengeScreen(
                     val buttonText = if (isSelected) "• $option" else option
 
                     OutlinedButton(
-                        onClick = { viewModel.selectOption(index) },
+                        onClick = {
+                            if (!uiState.hasAnswered) {
+                                viewModel.selectOption(index)
+                            }
+                        },
                         enabled = !uiState.hasAnswered,
                         modifier = Modifier
                             .fillMaxWidth()

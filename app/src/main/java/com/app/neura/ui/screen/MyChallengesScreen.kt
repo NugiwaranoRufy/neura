@@ -244,7 +244,11 @@ fun MyChallengesScreen(
                     )
                 }
             } else {
-                items(filteredChallenges, key = { it.id }) { challenge ->
+                items(
+                    items = filteredChallenges,
+                    key = { it.id },
+                    contentType = { "challenge" }
+                ) { challenge ->
                     ChallengeManageCard(
                         challenge = challenge,
                         onDelete = {

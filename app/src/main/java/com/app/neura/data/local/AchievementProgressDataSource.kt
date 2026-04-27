@@ -25,8 +25,7 @@ class AchievementProgressDataSource(
             val file = getFile()
             if (!file.exists()) return AchievementProgress()
 
-            val content = file.readText()
-            if (content.isBlank()) return AchievementProgress()
+            val content = SafeFileStore.readTextOrNull(file) ?: return AchievementProgress()
 
             json.decodeFromString(
                 AchievementProgress.serializer(),
@@ -38,8 +37,9 @@ class AchievementProgressDataSource(
     }
 
     fun saveProgress(progress: AchievementProgress) {
-        getFile().writeText(
-            json.encodeToString(
+        SafeFileStore.writeTextWithBackup(
+            file = getFile(),
+            content = json.encodeToString(
                 AchievementProgress.serializer(),
                 progress
             )

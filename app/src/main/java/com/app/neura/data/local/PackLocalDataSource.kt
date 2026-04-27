@@ -26,8 +26,7 @@ class PackLocalDataSource(
 
             if (!file.exists()) return emptyList()
 
-            val content = file.readText()
-            if (content.isBlank()) return emptyList()
+            val content = SafeFileStore.readTextOrNull(file) ?: return emptyList()
 
             json.decodeFromString(
                 ListSerializer(ChallengePack.serializer()),
@@ -40,8 +39,9 @@ class PackLocalDataSource(
 
     fun savePacks(packs: List<ChallengePack>) {
         val file = getFile()
-        file.writeText(
-            json.encodeToString(
+        SafeFileStore.writeTextWithBackup(
+            file = file,
+            content = json.encodeToString(
                 ListSerializer(ChallengePack.serializer()),
                 packs
             )

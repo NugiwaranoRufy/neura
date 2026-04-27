@@ -24,8 +24,7 @@ class AccessibilitySettingsDataSource(
             val file = getFile()
             if (!file.exists()) return AccessibilitySettings()
 
-            val content = file.readText()
-            if (content.isBlank()) return AccessibilitySettings()
+            val content = SafeFileStore.readTextOrNull(file) ?: return AccessibilitySettings()
 
             json.decodeFromString(
                 AccessibilitySettings.serializer(),
@@ -37,8 +36,9 @@ class AccessibilitySettingsDataSource(
     }
 
     fun saveSettings(settings: AccessibilitySettings) {
-        getFile().writeText(
-            json.encodeToString(
+        SafeFileStore.writeTextWithBackup(
+            file = getFile(),
+            content = json.encodeToString(
                 AccessibilitySettings.serializer(),
                 settings
             )

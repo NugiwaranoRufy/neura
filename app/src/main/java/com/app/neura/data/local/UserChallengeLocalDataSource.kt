@@ -27,10 +27,7 @@ class UserChallengeLocalDataSource(
             return emptyList()
         }
 
-        val content = file.readText()
-        if (content.isBlank()) {
-            return emptyList()
-        }
+        val content = SafeFileStore.readTextOrNull(file) ?: return emptyList()
 
         return json.decodeFromString(
             ListSerializer(Challenge.serializer()),
@@ -40,8 +37,9 @@ class UserChallengeLocalDataSource(
 
     fun saveUserChallenges(challenges: List<Challenge>) {
         val file = getFile()
-        file.writeText(
-            json.encodeToString(
+        SafeFileStore.writeTextWithBackup(
+            file = file,
+            content = json.encodeToString(
                 ListSerializer(Challenge.serializer()),
                 challenges
             )
