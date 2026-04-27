@@ -30,6 +30,7 @@ import com.app.neura.ui.util.currentDailyStreak
 import com.app.neura.ui.util.dailyCompletedToday
 import com.app.neura.data.security.ImportSecurityValidator
 import com.app.neura.data.model.AccessibilitySettings
+import com.app.neura.data.model.AchievementProgress
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -59,6 +60,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     var sessionHistory by mutableStateOf<List<GameSessionResult>>(emptyList())
         private set
     var accessibilitySettings by mutableStateOf(AccessibilitySettings())
+        private set
+    var achievementProgress by mutableStateOf(AchievementProgress())
         private set
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
@@ -637,17 +640,24 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
         if (state.totalQuestions <= 0) return
 
-        repository.addSessionResult(
-            GameSessionResult(
-                type = state.sessionType,
-                score = state.score,
-                totalQuestions = state.totalQuestions,
-                source = currentSessionSource
-            )
+        val result = GameSessionResult(
+            type = state.sessionType,
+            score = state.score,
+            totalQuestions = state.totalQuestions,
+            source = currentSessionSource
         )
+
+        repository.addSessionResult(result)
 
         sessionResultSaved = true
         refreshSessionHistory()
+
+        repository.recordAchievementSession(
+            result = result,
+            currentDailyStreak = getCurrentDailyStreak()
+        )
+
+        refreshAchievementProgress()
     }
 
     fun getDailyChallenge(): Challenge? {
@@ -705,5 +715,9 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         repository.saveAccessibilitySettings(settings)
         accessibilitySettings = settings
     }
+    fun refreshAchievementProgress() {
+        achievementProgress = repository.getAchievementProgress()
+    }
+
 
 }

@@ -15,6 +15,8 @@ import com.app.neura.data.local.SessionHistoryLocalDataSource
 import com.app.neura.data.model.GameSessionResult
 import com.app.neura.data.local.AccessibilitySettingsDataSource
 import com.app.neura.data.model.AccessibilitySettings
+import com.app.neura.data.local.AchievementProgressDataSource
+import com.app.neura.data.model.AchievementProgress
 
 class ChallengeRepository(
     context: Context
@@ -22,15 +24,12 @@ class ChallengeRepository(
     private val challengeDataSource = UserChallengeLocalDataSource(context)
     private val packDataSource = PackLocalDataSource(context)
     private val userPreferencesDataSource = UserPreferencesDataSource(context)
-
     private val database = NeuraDatabase.getInstance(context)
     private val roomRepository = RoomCatalogRepository(database)
-
     private val featuredPackDataSource = FeaturedPackDataSource(context)
-
     private val sessionHistoryDataSource = SessionHistoryLocalDataSource(context)
-
     private val accessibilitySettingsDataSource = AccessibilitySettingsDataSource(context)
+    private val achievementProgressDataSource = AchievementProgressDataSource(context)
 
     // Legacy user challenges only
     fun getUserChallenges(): List<Challenge> {
@@ -172,5 +171,19 @@ class ChallengeRepository(
 
     fun saveAccessibilitySettings(settings: AccessibilitySettings) {
         accessibilitySettingsDataSource.saveSettings(settings)
+    }
+
+    fun getAchievementProgress(): AchievementProgress {
+        return achievementProgressDataSource.getProgress()
+    }
+
+    fun recordAchievementSession(
+        result: GameSessionResult,
+        currentDailyStreak: Int
+    ) {
+        achievementProgressDataSource.recordSession(
+            result = result,
+            currentDailyStreak = currentDailyStreak
+        )
     }
 }

@@ -35,6 +35,8 @@ import com.app.neura.ui.screen.filter.DifficultyFilter
 import com.app.neura.data.model.EditorialStatus
 import com.app.neura.data.model.VisibilityStatus
 import com.app.neura.data.model.AccessibilitySettings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.derivedStateOf
 
 enum class MyChallengesFilter {
     ALL,
@@ -63,36 +65,51 @@ fun MyChallengesScreen(
     var pendingDeleteChallengeId by remember { mutableStateOf<Int?>(null) }
 
 
-    val filteredChallenges = challenges.filter { challenge ->
-        val matchesEditorialStatus = when (filter) {
-            MyChallengesFilter.ALL -> true
-            MyChallengesFilter.DRAFT -> challenge.editorialStatus == EditorialStatus.DRAFT
-            MyChallengesFilter.PUBLISHED -> challenge.editorialStatus == EditorialStatus.PUBLISHED
+    val filteredChallenges by remember(
+        challenges,
+        query,
+        typeFilter,
+        difficultyFilter,
+        tagFilter,
+        filter
+    ) {
+        derivedStateOf {
+            challenges.filter { challenge ->
+                val matchesQuery =
+                    challenge.question.contains(query, ignoreCase = true) ||
+                            challenge.authorName.contains(query, ignoreCase = true)
+
+                val matchesStatus = when (filter) {
+                    MyChallengesFilter.ALL -> true
+                    MyChallengesFilter.DRAFT -> challenge.editorialStatus.name == "DRAFT"
+                    MyChallengesFilter.PUBLISHED -> challenge.editorialStatus.name == "PUBLISHED"
+                }
+
+                val matchesType = when (typeFilter) {
+                    ChallengeTypeFilter.ALL -> true
+                    ChallengeTypeFilter.LOGIC -> challenge.type == ChallengeType.LOGIC
+                    ChallengeTypeFilter.LATERAL -> challenge.type == ChallengeType.LATERAL
+                }
+
+                val matchesDifficulty = when (difficultyFilter) {
+                    DifficultyFilter.ALL -> true
+                    DifficultyFilter.EASY -> challenge.difficulty == ChallengeDifficulty.EASY
+                    DifficultyFilter.MEDIUM -> challenge.difficulty == ChallengeDifficulty.MEDIUM
+                    DifficultyFilter.HARD -> challenge.difficulty == ChallengeDifficulty.HARD
+                }
+
+                val matchesTag = when (tagFilter) {
+                    "ALL" -> true
+                    else -> challenge.tags.contains(tagFilter)
+                }
+
+                matchesQuery &&
+                        matchesStatus &&
+                        matchesType &&
+                        matchesDifficulty &&
+                        matchesTag
+            }
         }
-
-        val matchesQuery =
-            challenge.question.contains(query, ignoreCase = true) ||
-                    challenge.authorName.contains(query, ignoreCase = true)
-
-        val matchesType = when (typeFilter) {
-            ChallengeTypeFilter.ALL -> true
-            ChallengeTypeFilter.LOGIC -> challenge.type == ChallengeType.LOGIC
-            ChallengeTypeFilter.LATERAL -> challenge.type == ChallengeType.LATERAL
-        }
-
-        val matchesDifficulty = when (difficultyFilter) {
-            DifficultyFilter.ALL -> true
-            DifficultyFilter.EASY -> challenge.difficulty == ChallengeDifficulty.EASY
-            DifficultyFilter.MEDIUM -> challenge.difficulty == ChallengeDifficulty.MEDIUM
-            DifficultyFilter.HARD -> challenge.difficulty == ChallengeDifficulty.HARD
-        }
-
-        val matchesTag = when (tagFilter) {
-            "ALL" -> true
-            else -> challenge.tags.contains(tagFilter)
-        }
-
-        matchesEditorialStatus && matchesQuery && matchesType && matchesDifficulty && matchesTag
     }
 
     Surface(
@@ -251,51 +268,6 @@ fun MyChallengesScreen(
                 }
             }
 
-            pendingDeleteChallengeId?.let { challengeId ->
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        androidx.compose.foundation.layout.Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Text(
-                                text = "Confirm deletion",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Text(
-                                text = "This action cannot be undone.",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                            Button(
-                                onClick = {
-                                    onDeleteChallenge(challengeId)
-                                    pendingDeleteChallengeId = null
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(14.dp)
-                            ) {
-                                Text("Delete challenge")
-                            }
-
-                            OutlinedButton(
-                                onClick = {
-                                    pendingDeleteChallengeId = null
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(14.dp)
-                            ) {
-                                Text("Cancel")
-                            }
-                        }
-                    }
-                }
-            }
-
             item {
                 OutlinedButton(
                     onClick = onBack,
@@ -306,6 +278,40 @@ fun MyChallengesScreen(
                 }
             }
         }
+
+        pendingDeleteChallengeId?.let { challengeId ->
+            AlertDialog(
+                onDismissRequest = {
+                    pendingDeleteChallengeId = null
+                },
+                title = {
+                    Text("Confirm deletion")
+                },
+                text = {
+                    Text("This action cannot be undone.")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onDeleteChallenge(challengeId)
+                            pendingDeleteChallengeId = null
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = {
+                            pendingDeleteChallengeId = null
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
     }
 }
 

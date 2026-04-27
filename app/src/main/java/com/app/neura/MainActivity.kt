@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
                 challengeViewModel.initializeUserChallengesRoomIfNeeded()
                 challengeViewModel.refreshSessionHistory()
                 challengeViewModel.refreshAccessibilitySettings()
+                challengeViewModel.refreshAchievementProgress()
             }
 
             NeuraTheme(
@@ -649,7 +650,7 @@ class MainActivity : ComponentActivity() {
 
                     composable(NeuraDestinations.Achievements.route) {
                         AchievementsScreen(
-                            sessions = challengeViewModel.sessionHistory,
+                            progress = challengeViewModel.achievementProgress,
                             createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
                             savedPacksCount = challengeViewModel.getSavedPacksCount(),
                             favoriteChallengesCount = favoriteChallengeIds.size,

@@ -220,7 +220,13 @@ fun HomeScreen(
                             tile = tile,
                             calmMode = accessibilitySettings.calmMode,
                             readingHelper = accessibilitySettings.readingHelper,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
 
+                    if (tiles.size % 2 != 0) {
+                        androidx.compose.foundation.layout.Spacer(
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }

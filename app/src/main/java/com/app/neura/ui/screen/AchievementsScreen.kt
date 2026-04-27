@@ -14,14 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.app.neura.data.model.GameSessionResult
 import com.app.neura.ui.component.SecondaryActionButton
+import com.app.neura.data.model.AchievementProgress
 
 private data class AchievementItem(
     val title: String,
@@ -32,7 +31,7 @@ private data class AchievementItem(
 
 @Composable
 fun AchievementsScreen(
-    sessions: List<GameSessionResult>,
+    progress: AchievementProgress,
     createdChallengesCount: Int,
     savedPacksCount: Int,
     favoriteChallengesCount: Int,
@@ -40,13 +39,10 @@ fun AchievementsScreen(
     currentDailyStreak: Int,
     onBack: () -> Unit
 ) {
-    val completedSessions = sessions.size
-
-    val perfectScores = sessions.count {
-        it.totalQuestions > 0 && it.score == it.totalQuestions
-    }
 
     val totalFavorites = favoriteChallengesCount + favoritePacksCount
+    val completedSessions = progress.lifetimeSessions
+    val perfectScores = progress.lifetimePerfectScores
 
     val achievements = listOf(
         AchievementItem(
@@ -58,8 +54,8 @@ fun AchievementsScreen(
         AchievementItem(
             title = "Daily rhythm",
             description = "Complete the Daily challenge for 3 days in a row.",
-            unlocked = currentDailyStreak >= 3,
-            progressText = "$currentDailyStreak / 3"
+            unlocked = progress.bestDailyStreak >= 3,
+            progressText = "${progress.bestDailyStreak} / 3"
         ),
         AchievementItem(
             title = "Training habit",
@@ -94,7 +90,7 @@ fun AchievementsScreen(
     )
 
     val unlockedCount = achievements.count { it.unlocked }
-    val progress = if (achievements.isEmpty()) {
+    val achievementCompletionProgress = if (achievements.isEmpty()) {
         0f
     } else {
         unlockedCount.toFloat() / achievements.size.toFloat()
@@ -133,7 +129,7 @@ fun AchievementsScreen(
                         )
 
                         LinearProgressIndicator(
-                            progress = { progress },
+                            progress = { achievementCompletionProgress },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
