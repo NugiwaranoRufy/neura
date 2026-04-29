@@ -52,6 +52,7 @@ import com.app.neura.ui.screen.StatsScreen
 import com.app.neura.ui.screen.AchievementsScreen
 import com.app.neura.ui.screen.SessionReviewScreen
 import com.app.neura.ui.screen.AccessibilityScreen
+import com.app.neura.ui.screen.SettingsScreen
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -247,6 +248,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenAccessibility = {
                                 navController.navigate(NeuraDestinations.Accessibility.route)
+                            },
+                            onOpenSettings = {
+                                navController.navigate(NeuraDestinations.Settings.route)
                             },
                             userChallengeCount = challengeViewModel.getUserChallengeCount(),
                             dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
@@ -664,6 +668,33 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable(NeuraDestinations.Settings.route) {
+                        SettingsScreen(
+                            onOpenAccessibility = {
+                                navController.navigate(NeuraDestinations.Accessibility.route)
+                            },
+                            onOpenProfile = {
+                                navController.navigate(NeuraDestinations.Profile.route)
+                            },
+                            onOpenStats = {
+                                navController.navigate(NeuraDestinations.Stats.route)
+                            },
+                            onOpenAchievements = {
+                                navController.navigate(NeuraDestinations.Achievements.route)
+                            },
+                            onOpenTransfer = {
+                                importStatus = null
+                                navController.navigate(NeuraDestinations.Transfer.route)
+                            },
+                            onOpenRoomDebug = {
+                                navController.navigate(NeuraDestinations.RoomDebug.route)
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
                     composable(NeuraDestinations.Accessibility.route) {
                         AccessibilityScreen(
                             settings = accessibilitySettings,
@@ -675,6 +706,8 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+
+
                 }
             }
         }

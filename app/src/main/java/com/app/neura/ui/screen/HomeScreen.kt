@@ -55,6 +55,7 @@ fun HomeScreen(
     onOpenPlayLater: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenAccessibility: () -> Unit,
+    onOpenSettings: () -> Unit,
     onOpenRoomDebug: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenAchievements: () -> Unit,
@@ -82,6 +83,7 @@ fun HomeScreen(
     val achievementsIcon = if (accessibilitySettings.calmMode) "Goals" else "🏆"
     val roomDebugIcon = if (accessibilitySettings.calmMode) "Debug" else "🛠️"
     val accessibilityIcon = if (accessibilitySettings.calmMode) "Access" else "♿"
+    val settingsIcon = if (accessibilitySettings.calmMode) "Settings" else "⚙️"
 
     val tiles = remember(
         dailyCompletedToday,
@@ -148,6 +150,12 @@ fun HomeScreen(
                 subtitle = "Theme and text size",
                 icon = accessibilityIcon,
                 onClick = onOpenAccessibility
+            ),
+            HomeTile(
+                title = "Settings",
+                subtitle = "App preferences",
+                icon = settingsIcon,
+                onClick = onOpenSettings
             ),
             HomeTile(
                 title = "Stats",
