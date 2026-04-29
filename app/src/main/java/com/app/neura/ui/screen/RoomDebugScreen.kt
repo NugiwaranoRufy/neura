@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.viewmodel.RoomDebugViewModel
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun RoomDebugScreen(
@@ -42,9 +43,10 @@ fun RoomDebugScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "Room Debug",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Room debug",
+                    subtitle = "Inspect local database state.",
+                    onBack = onBack
                 )
             }
 
@@ -108,15 +110,6 @@ fun RoomDebugScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 }

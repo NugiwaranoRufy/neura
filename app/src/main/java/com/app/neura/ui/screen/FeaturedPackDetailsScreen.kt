@@ -25,6 +25,7 @@ import com.app.neura.ui.util.averageDifficultyText
 import com.app.neura.ui.util.categoryBadgeText
 import com.app.neura.ui.util.estimatedTimeText
 import com.app.neura.ui.util.mainCategoryText
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun FeaturedPackDetailsScreen(
@@ -52,9 +53,10 @@ fun FeaturedPackDetailsScreen(
                 style = MaterialTheme.typography.labelLarge
             )
 
-            Text(
-                text = pack.title,
-                style = MaterialTheme.typography.headlineMedium
+            TopBackHeader(
+                title = pack.title,
+                subtitle = "Featured pack by ${pack.authorName}",
+                onBack = onBack
             )
 
             Spacer(modifier = Modifier.padding(top = 8.dp))
@@ -165,13 +167,6 @@ fun FeaturedPackDetailsScreen(
 
             Spacer(modifier = Modifier.padding(top = 12.dp))
 
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Back")
-            }
         }
     }
 }

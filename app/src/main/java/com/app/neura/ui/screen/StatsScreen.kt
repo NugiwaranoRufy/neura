@@ -64,7 +64,7 @@ fun StatsScreen(
             item {
                 TopBackHeader(
                     title = "Stats",
-                    subtitle = "See your stats.",
+                    subtitle = "Track your sessions and progress.",
                     onBack = onBack
                 )
             }

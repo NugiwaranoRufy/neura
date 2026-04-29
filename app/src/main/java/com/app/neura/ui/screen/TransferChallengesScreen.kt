@@ -45,7 +45,7 @@ fun TransferChallengesScreen(
         ) {
                 TopBackHeader(
                     title = "Import / Export",
-                    subtitle = "Import and/or Export your challenges.",
+                    subtitle = "Move your challenges and packs safely.",
                     onBack = onBack
                 )
 

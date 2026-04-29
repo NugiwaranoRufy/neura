@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun ImportPackPreviewScreen(
@@ -38,9 +39,10 @@ fun ImportPackPreviewScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = "Import pack",
-                style = MaterialTheme.typography.headlineMedium
+            TopBackHeader(
+                title = "Import pack",
+                subtitle = "Preview before adding it to your library.",
+                onBack = onBack
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -83,13 +85,6 @@ fun ImportPackPreviewScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Cancel")
-            }
         }
     }
 }

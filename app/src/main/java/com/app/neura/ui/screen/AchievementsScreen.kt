@@ -114,7 +114,7 @@ fun AchievementsScreen(
             item {
                 TopBackHeader(
                     title = "Achievements",
-                    subtitle = "Check your progress.",
+                    subtitle = "Milestones unlocked through your activity.",
                     onBack = onBack
                 )
             }

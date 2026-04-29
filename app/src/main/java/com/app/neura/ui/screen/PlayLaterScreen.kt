@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
 import com.app.neura.ui.component.EmptyStateCard
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun PlayLaterScreen(
@@ -39,9 +40,10 @@ fun PlayLaterScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "Play later",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Play later",
+                    subtitle = "Packs saved for another session.",
+                    onBack = onBack
                 )
             }
 
@@ -77,15 +79,6 @@ fun PlayLaterScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 }

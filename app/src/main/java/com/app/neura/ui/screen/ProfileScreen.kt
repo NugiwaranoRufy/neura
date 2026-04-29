@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.UserProfile
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun ProfileScreen(
@@ -57,9 +58,10 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "Profile",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Profile",
+                    subtitle = "Manage your author identity.",
+                    onBack = onBack
                 )
             }
 
@@ -157,15 +159,6 @@ fun ProfileScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 }

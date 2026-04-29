@@ -46,7 +46,7 @@ fun AccessibilityScreen(
             item {
                 TopBackHeader(
                     title = "Accessibility",
-                    subtitle = "Manage appearance settings.",
+                    subtitle = "Adjust appearance, readability and neuroaccessibility.",
                     onBack = onBack
                 )
             }

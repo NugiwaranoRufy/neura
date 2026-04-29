@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.Challenge
 import com.app.neura.data.model.TagCatalog
 import androidx.compose.runtime.mutableStateListOf
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun ExportPackScreen(
@@ -94,18 +95,13 @@ fun ExportPackScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("Export pack")
+                        TopBackHeader(
+                            title = "Export pack",
+                            subtitle = "Create a shareable challenge collection.",
+                            onBack = onBack
+                        )
                     }
 
-                    OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text("Back")
-                    }
                 }
             }
         }
@@ -121,9 +117,10 @@ fun ExportPackScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "Export pack",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Export pack",
+                    subtitle = "Create a shareable challenge collection.",
+                    onBack = onBack
                 )
             }
 

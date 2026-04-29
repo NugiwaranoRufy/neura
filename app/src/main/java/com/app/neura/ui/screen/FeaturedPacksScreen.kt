@@ -58,7 +58,7 @@ fun FeaturedPacksScreen(
             item {
                 TopBackHeader(
                     title = "Discover",
-                    subtitle = "Search new challenges.",
+                    subtitle = "Explore featured packs from the community.",
                     onBack = onBack
                 )
             }

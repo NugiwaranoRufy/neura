@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
 import com.app.neura.ui.component.EmptyStateCard
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun FavoritesScreen(
@@ -39,9 +40,10 @@ fun FavoritesScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "Favorites",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Favorites",
+                    subtitle = "Your saved packs and content.",
+                    onBack = onBack
                 )
             }
 
@@ -77,15 +79,6 @@ fun FavoritesScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 }
