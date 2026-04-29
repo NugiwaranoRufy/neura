@@ -37,6 +37,12 @@ import com.app.neura.data.model.VisibilityStatus
 import com.app.neura.data.model.AccessibilitySettings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.derivedStateOf
+import com.app.neura.ui.component.EmptyStateCard
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 enum class MyChallengesFilter {
     ALL,
@@ -49,6 +55,7 @@ fun MyChallengesScreen(
     challenges: List<Challenge>,
     favoriteChallengeIds: Set<Long>,
     onDeleteChallenge: (Int) -> Unit,
+    onRestoreChallenge: (Challenge) -> Unit,
     onEditChallenge: (Int) -> Unit,
     onToggleFavorite: (Int) -> Unit,
     onPublishChallenge: (Int) -> Unit,
@@ -63,7 +70,8 @@ fun MyChallengesScreen(
     var tagFilter by remember { mutableStateOf("ALL") }
     var filter by remember { mutableStateOf(MyChallengesFilter.ALL) }
     var pendingDeleteChallengeId by remember { mutableStateOf<Int?>(null) }
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     val filteredChallenges by remember(
         challenges,
@@ -112,210 +120,234 @@ fun MyChallengesScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .navigationBarsPadding()
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp)
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { innerPadding ->
+
+        Surface(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .navigationBarsPadding()
         ) {
-            item {
-                Text(
-                    text = "My challenges",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            }
-
-            item {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text("Search challenges") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Text("Status", style = MaterialTheme.typography.titleMedium)
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(onClick = { filter = MyChallengesFilter.ALL }) {
-                        Text(if (filter == MyChallengesFilter.ALL) "• All" else "All")
-                    }
-                    OutlinedButton(onClick = { filter = MyChallengesFilter.DRAFT }) {
-                        Text(if (filter == MyChallengesFilter.DRAFT) "• Draft" else "Draft")
-                    }
-                    OutlinedButton(onClick = { filter = MyChallengesFilter.PUBLISHED }) {
-                        Text(if (filter == MyChallengesFilter.PUBLISHED) "• Published" else "Published")
-                    }
-                }
-            }
-
-            item {
-                Text("Type", style = MaterialTheme.typography.titleMedium)
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.ALL }) {
-                        Text(if (typeFilter == ChallengeTypeFilter.ALL) "• All" else "All")
-                    }
-                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LOGIC }) {
-                        Text(if (typeFilter == ChallengeTypeFilter.LOGIC) "• Logic" else "Logic")
-                    }
-                    OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LATERAL }) {
-                        Text(if (typeFilter == ChallengeTypeFilter.LATERAL) "• Lateral" else "Lateral")
-                    }
-                }
-            }
-
-            item {
-                Text("Difficulty", style = MaterialTheme.typography.titleMedium)
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.ALL }) {
-                        Text(if (difficultyFilter == DifficultyFilter.ALL) "• All" else "All")
-                    }
-                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.EASY }) {
-                        Text(if (difficultyFilter == DifficultyFilter.EASY) "• Easy" else "Easy")
-                    }
-                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.MEDIUM }) {
-                        Text(if (difficultyFilter == DifficultyFilter.MEDIUM) "• Medium" else "Medium")
-                    }
-                    OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.HARD }) {
-                        Text(if (difficultyFilter == DifficultyFilter.HARD) "• Hard" else "Hard")
-                    }
-                }
-            }
-
-            item {
-                Text("Tag", style = MaterialTheme.typography.titleMedium)
-            }
-
-            item {
-                OutlinedButton(
-                    onClick = { tagFilter = "ALL" },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(if (tagFilter == "ALL") "• All" else "All")
-                }
-            }
-
-            items(TagCatalog.challengeTags, key = { it }) { tag ->
-                OutlinedButton(
-                    onClick = { tagFilter = tag },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(if (tagFilter == tag) "• $tag" else tag)
-                }
-            }
-
-            item {
-                Text(
-                    text = "Results: ${filteredChallenges.size}",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-
-            if (filteredChallenges.isEmpty()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp)
+            ) {
                 item {
                     Text(
-                        text = "No challenges found.",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "My challenges",
+                        style = MaterialTheme.typography.headlineMedium
                     )
                 }
-            } else {
-                items(
-                    items = filteredChallenges,
-                    key = { it.id },
-                    contentType = { "challenge" }
-                ) { challenge ->
-                    ChallengeManageCard(
-                        challenge = challenge,
-                        onDelete = {
-                            if (accessibilitySettings.confirmDestructiveActions) {
-                                pendingDeleteChallengeId = challenge.id
-                            } else {
-                                onDeleteChallenge(challenge.id)
+
+                item {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        label = { Text("Search challenges") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                item {
+                    Text("Status", style = MaterialTheme.typography.titleMedium)
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(onClick = { filter = MyChallengesFilter.ALL }) {
+                            Text(if (filter == MyChallengesFilter.ALL) "• All" else "All")
+                        }
+                        OutlinedButton(onClick = { filter = MyChallengesFilter.DRAFT }) {
+                            Text(if (filter == MyChallengesFilter.DRAFT) "• Draft" else "Draft")
+                        }
+                        OutlinedButton(onClick = { filter = MyChallengesFilter.PUBLISHED }) {
+                            Text(if (filter == MyChallengesFilter.PUBLISHED) "• Published" else "Published")
+                        }
+                    }
+                }
+
+                item {
+                    Text("Type", style = MaterialTheme.typography.titleMedium)
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.ALL }) {
+                            Text(if (typeFilter == ChallengeTypeFilter.ALL) "• All" else "All")
+                        }
+                        OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LOGIC }) {
+                            Text(if (typeFilter == ChallengeTypeFilter.LOGIC) "• Logic" else "Logic")
+                        }
+                        OutlinedButton(onClick = { typeFilter = ChallengeTypeFilter.LATERAL }) {
+                            Text(if (typeFilter == ChallengeTypeFilter.LATERAL) "• Lateral" else "Lateral")
+                        }
+                    }
+                }
+
+                item {
+                    Text("Difficulty", style = MaterialTheme.typography.titleMedium)
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.ALL }) {
+                            Text(if (difficultyFilter == DifficultyFilter.ALL) "• All" else "All")
+                        }
+                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.EASY }) {
+                            Text(if (difficultyFilter == DifficultyFilter.EASY) "• Easy" else "Easy")
+                        }
+                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.MEDIUM }) {
+                            Text(if (difficultyFilter == DifficultyFilter.MEDIUM) "• Medium" else "Medium")
+                        }
+                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.HARD }) {
+                            Text(if (difficultyFilter == DifficultyFilter.HARD) "• Hard" else "Hard")
+                        }
+                    }
+                }
+
+                item {
+                    Text("Tag", style = MaterialTheme.typography.titleMedium)
+                }
+
+                item {
+                    OutlinedButton(
+                        onClick = { tagFilter = "ALL" },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(if (tagFilter == "ALL") "• All" else "All")
+                    }
+                }
+
+                items(TagCatalog.challengeTags, key = { it }) { tag ->
+                    OutlinedButton(
+                        onClick = { tagFilter = tag },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(if (tagFilter == tag) "• $tag" else tag)
+                    }
+                }
+
+                item {
+                    Text(
+                        text = "Results: ${filteredChallenges.size}",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+
+                if (filteredChallenges.isEmpty()) {
+                    item {
+                        EmptyStateCard(
+                            icon = "🧩",
+                            title = "No challenges found",
+                            message = "Try changing filters or create your first custom challenge."
+                        )
+                    }
+                } else {
+                    items(
+                        items = filteredChallenges,
+                        key = { it.id },
+                        contentType = { "challenge" }
+                    ) { challenge ->
+                        ChallengeManageCard(
+                            challenge = challenge,
+                            onDelete = {
+                                if (accessibilitySettings.confirmDestructiveActions) {
+                                    pendingDeleteChallengeId = challenge.id
+                                } else {
+                                    onDeleteChallenge(challenge.id)
+                                }
+                            },
+                            onEdit = { onEditChallenge(challenge.id) },
+                            onPublish = { onPublishChallenge(challenge.id) },
+                            onMoveToDraft = { onMoveChallengeToDraft(challenge.id) },
+                            onOpenAuthor = { onOpenAuthor(challenge.authorName) }
+                        )
+                        OutlinedButton(
+                            onClick = { onToggleFavorite(challenge.id) },
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text(if (favoriteChallengeIds.contains(challenge.id.toLong())) "★ Favorite" else "☆ Favorite")
+                        }
+                    }
+                }
+
+                item {
+                    OutlinedButton(
+                        onClick = onBack,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Back")
+                    }
+                }
+            }
+
+            pendingDeleteChallengeId?.let { challengeId ->
+                AlertDialog(
+                    onDismissRequest = {
+                        pendingDeleteChallengeId = null
+                    },
+                    title = {
+                        Text("Confirm deletion")
+                    },
+                    text = {
+                        Text("This action cannot be undone.")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val deletedChallenge = challenges.firstOrNull { it.id == challengeId }
+
+                                onDeleteChallenge(challengeId)
+                                pendingDeleteChallengeId = null
+
+                                if (deletedChallenge != null) {
+                                    coroutineScope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "Challenge deleted",
+                                            actionLabel = "Undo"
+                                        )
+
+                                        if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+                                            onRestoreChallenge(deletedChallenge)
+                                        }
+                                    }
+                                }
                             }
-                        },
-                        onEdit = { onEditChallenge(challenge.id) },
-                        onPublish = { onPublishChallenge(challenge.id) },
-                        onMoveToDraft = { onMoveChallengeToDraft(challenge.id) },
-                        onOpenAuthor = { onOpenAuthor(challenge.authorName) }
-                    )
-                    OutlinedButton(
-                        onClick = { onToggleFavorite(challenge.id) },
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Text(if (favoriteChallengeIds.contains(challenge.id.toLong())) "★ Favorite" else "☆ Favorite")
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = {
+                                pendingDeleteChallengeId = null
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
                     }
-                }
+                )
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
-
-        pendingDeleteChallengeId?.let { challengeId ->
-            AlertDialog(
-                onDismissRequest = {
-                    pendingDeleteChallengeId = null
-                },
-                title = {
-                    Text("Confirm deletion")
-                },
-                text = {
-                    Text("This action cannot be undone.")
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            onDeleteChallenge(challengeId)
-                            pendingDeleteChallengeId = null
-                        }
-                    ) {
-                        Text("Delete")
-                    }
-                },
-                dismissButton = {
-                    OutlinedButton(
-                        onClick = {
-                            pendingDeleteChallengeId = null
-                        }
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-
     }
 }
 

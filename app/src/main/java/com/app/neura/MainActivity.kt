@@ -333,6 +333,9 @@ class MainActivity : ComponentActivity() {
                             onDeleteChallenge = { challengeId ->
                                 challengeViewModel.deleteUserChallenge(challengeId)
                             },
+                            onRestoreChallenge = { challenge ->
+                                challengeViewModel.restoreUserChallenge(challenge)
+                            },
                             onEditChallenge = { challengeId ->
                                 navController.navigate(NeuraDestinations.EditChallenge.createRoute(challengeId))
                             },
@@ -458,11 +461,11 @@ class MainActivity : ComponentActivity() {
                             onOpenPack = { localId ->
                                 navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
                             },
-                            onDeletePack = { localId ->
-                                challengeViewModel.deletePack(localId)
-                                navController.navigate(NeuraDestinations.MyPacks.route) {
-                                    popUpTo(NeuraDestinations.MyPacks.route) { inclusive = true }
-                                }
+                            onDeletePack = { pack ->
+                                challengeViewModel.deletePack(pack.localId)
+                            },
+                            onRestorePack = { pack ->
+                                challengeViewModel.restorePack(pack)
                             },
                             onToggleFavorite = { localId ->
                                 challengeViewModel.toggleFavoritePack(localId)

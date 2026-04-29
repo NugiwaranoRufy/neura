@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.component.EmptyStateCard
 
 @Composable
 fun PlayLaterScreen(
@@ -46,9 +47,10 @@ fun PlayLaterScreen(
 
             if (packs.isEmpty()) {
                 item {
-                    Text(
-                        text = "No saved packs for later.",
-                        style = MaterialTheme.typography.bodyMedium
+                    EmptyStateCard(
+                        icon = "⏳",
+                        title = "Nothing queued",
+                        message = "Save packs for later and they will appear here."
                     )
                 }
             } else {

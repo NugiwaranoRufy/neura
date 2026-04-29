@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.component.EmptyStateCard
 
 @Composable
 fun FavoritesScreen(
@@ -46,9 +47,10 @@ fun FavoritesScreen(
 
             if (packs.isEmpty()) {
                 item {
-                    Text(
-                        text = "No favorite packs yet.",
-                        style = MaterialTheme.typography.bodyMedium
+                    EmptyStateCard(
+                        icon = "⭐",
+                        title = "No favorites yet",
+                        message = "Mark packs or challenges as favorites to find them quickly here."
                     )
                 }
             } else {

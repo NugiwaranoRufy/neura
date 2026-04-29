@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.data.model.AccessibilitySettings
+import com.app.neura.ui.component.EmptyStateCard
+import com.app.neura.ui.component.SecondaryActionButton
 
 @Composable
 fun ChallengeScreen(
@@ -40,35 +42,34 @@ fun ChallengeScreen(
     val scrollState = rememberScrollState()
 
     val challenge = uiState.currentChallenge
-
-    Surface(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .navigationBarsPadding()
-    ) {
-        if (challenge == null) {
+    if (challenge == null) {
+        Surface(modifier = modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "No challenge available.",
-                    style = MaterialTheme.typography.titleMedium
+                EmptyStateCard(
+                    icon = "🧠",
+                    title = "No challenges available",
+                    message = "Try importing a pack, creating a challenge, or changing your session filters."
                 )
 
-                OutlinedButton(
-                    onClick = onExitSession,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back to Home")
-                }
+                androidx.compose.foundation.layout.Spacer(
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+
+                SecondaryActionButton(
+                    text = "Back to Home",
+                    onClick = onExitSession
+                )
             }
-        } else {
-            Column(
+        }
+        return
+        }
+    Surface(modifier = modifier.fillMaxSize()) {
+        Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
@@ -207,4 +208,3 @@ fun ChallengeScreen(
             }
         }
     }
-}

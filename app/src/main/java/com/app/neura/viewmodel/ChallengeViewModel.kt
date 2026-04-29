@@ -721,4 +721,16 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             refreshAccessibilitySettings()
         }
     }
+
+    fun restoreUserChallenge(challenge: Challenge) {
+        viewModelScope.launch {
+            repository.insertUserChallengeToRoom(challenge)
+            refreshRoomUserChallenges()
+        }
+    }
+
+    fun restorePack(pack: ChallengePack) {
+        repository.addPack(pack)
+        preloadCatalogData()
+    }
 }

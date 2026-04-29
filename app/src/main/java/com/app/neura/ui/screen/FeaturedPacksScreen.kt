@@ -24,12 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.ChallengePack
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.AssistChip
 import com.app.neura.ui.util.averageDifficultyText
 import com.app.neura.ui.util.categoryBadgeText
 import com.app.neura.ui.util.estimatedTimeText
+import com.app.neura.ui.component.EmptyStateCard
 
 @Composable
 fun FeaturedPacksScreen(
@@ -63,31 +61,41 @@ fun FeaturedPacksScreen(
                 )
             }
 
-            item {
-                PackSection(
-                    title = "🔥 Featured",
-                    packs = packs,
-                    onOpenPack = onOpenPack
-                )
-            }
-
-            if (logicPacks.isNotEmpty()) {
+            if (packs.isEmpty()) {
+                item {
+                    EmptyStateCard(
+                        icon = "🌍",
+                        title = "No featured packs",
+                        message = "Featured content is not available right now. Try again later."
+                    )
+                }
+            } else {
                 item {
                     PackSection(
-                        title = "🧠 Logic Packs",
-                        packs = logicPacks,
+                        title = "🔥 Featured",
+                        packs = packs,
                         onOpenPack = onOpenPack
                     )
                 }
-            }
 
-            if (lateralPacks.isNotEmpty()) {
-                item {
-                    PackSection(
-                        title = "🎯 Lateral Packs",
-                        packs = lateralPacks,
-                        onOpenPack = onOpenPack
-                    )
+                if (logicPacks.isNotEmpty()) {
+                    item {
+                        PackSection(
+                            title = "🧠 Logic Packs",
+                            packs = logicPacks,
+                            onOpenPack = onOpenPack
+                        )
+                    }
+                }
+
+                if (lateralPacks.isNotEmpty()) {
+                    item {
+                        PackSection(
+                            title = "🎯 Lateral Packs",
+                            packs = lateralPacks,
+                            onOpenPack = onOpenPack
+                        )
+                    }
                 }
             }
 

@@ -31,6 +31,12 @@ import com.app.neura.ui.screen.filter.PackSortOption
 import com.app.neura.ui.util.averageDifficultyText
 import com.app.neura.ui.util.categoryBadgeText
 import com.app.neura.ui.util.estimatedTimeText
+import com.app.neura.ui.component.EmptyStateCard
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyPacksScreen(
@@ -38,7 +44,8 @@ fun MyPacksScreen(
     favoritePackIds: Set<Long>,
     playLaterPackIds: Set<Long>,
     onOpenPack: (Long) -> Unit,
-    onDeletePack: (Long) -> Unit,
+    onDeletePack: (ChallengePack) -> Unit,
+    onRestorePack: (ChallengePack) -> Unit,
     onToggleFavorite: (Long) -> Unit,
     onTogglePlayLater: (Long) -> Unit,
     onOpenAuthor: (String) -> Unit,
@@ -46,6 +53,8 @@ fun MyPacksScreen(
 ) {
     var query by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf(PackSortOption.NEWEST) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     val filteredPacks = packs
         .filter {
@@ -60,8 +69,14 @@ fun MyPacksScreen(
             }
         }
 
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { innerPadding ->
     Surface(
         modifier = Modifier
+            .padding(innerPadding)
             .fillMaxSize()
             .safeDrawingPadding()
             .navigationBarsPadding()
@@ -117,9 +132,10 @@ fun MyPacksScreen(
 
             if (filteredPacks.isEmpty()) {
                 item {
-                    Text(
-                        text = "No packs found.",
-                        style = MaterialTheme.typography.bodyMedium
+                    EmptyStateCard(
+                        icon = "📦",
+                        title = "No packs yet",
+                        message = "Import a pack, discover featured content, or create your own collection."
                     )
                 }
             } else {
@@ -210,7 +226,20 @@ fun MyPacksScreen(
                                 }
 
                                 Button(
-                                    onClick = { onDeletePack(pack.localId) },
+                                    onClick = {
+                                        onDeletePack(pack)
+
+                                        coroutineScope.launch {
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = "Pack deleted",
+                                                actionLabel = "Undo"
+                                            )
+
+                                            if (result == androidx.compose.material3.SnackbarResult.ActionPerformed) {
+                                                onRestorePack(pack)
+                                            }
+                                        }
+                                    },
                                     shape = RoundedCornerShape(14.dp)
                                 ) {
                                     Text("Delete")
@@ -245,4 +274,4 @@ fun MyPacksScreen(
             }
         }
     }
-}
+} }

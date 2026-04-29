@@ -25,6 +25,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.app.neura.ui.component.SecondaryActionButton
+import com.app.neura.ui.component.EmptyStateCard
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun StatsScreen(
@@ -37,6 +44,9 @@ fun StatsScreen(
     onClearHistory: () -> Unit,
     onBack: () -> Unit
 ) {
+
+    var showClearConfirmDialog by remember { mutableStateOf(false) }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -48,6 +58,8 @@ fun StatsScreen(
             contentPadding = PaddingValues(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+
             item {
                 Text(
                     text = "Stats",
@@ -83,7 +95,11 @@ fun StatsScreen(
 
             if (sessions.isEmpty()) {
                 item {
-                    Text("No sessions yet.")
+                    EmptyStateCard(
+                        icon = "📊",
+                        title = "No stats yet",
+                        message = "Complete a session or a Daily Challenge to start tracking your progress."
+                    )
                 }
             } else {
                 items(sessions, key = { it.id }) { session ->
@@ -92,7 +108,9 @@ fun StatsScreen(
 
                 item {
                     Button(
-                        onClick = onClearHistory,
+                        onClick = {
+                            showClearConfirmDialog = true
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
@@ -101,6 +119,8 @@ fun StatsScreen(
                 }
             }
 
+
+
             item {
                 SecondaryActionButton(
                     text = "Back",
@@ -108,7 +128,41 @@ fun StatsScreen(
                 )
             }
         }
+
+        if (showClearConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showClearConfirmDialog = false
+                },
+                title = {
+                    Text("Clear stats history?")
+                },
+                text = {
+                    Text("This will remove session history, but achievements will remain.")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onClearHistory()
+                            showClearConfirmDialog = false
+                        }
+                    ) {
+                        Text("Clear history")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = {
+                            showClearConfirmDialog = false
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
+
 }
 
 @Composable
