@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun StatsScreen(
@@ -61,9 +62,10 @@ fun StatsScreen(
 
 
             item {
-                Text(
-                    text = "Stats",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Stats",
+                    subtitle = "See your stats.",
+                    onBack = onBack
                 )
             }
 
@@ -121,12 +123,6 @@ fun StatsScreen(
 
 
 
-            item {
-                SecondaryActionButton(
-                    text = "Back",
-                    onClick = onBack
-                )
-            }
         }
 
         if (showClearConfirmDialog) {

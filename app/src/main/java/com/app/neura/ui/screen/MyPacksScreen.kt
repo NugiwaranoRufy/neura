@@ -37,7 +37,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import com.app.neura.ui.component.TopBackHeader
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MyPacksScreen(
     packs: List<ChallengePack>,
@@ -87,9 +91,10 @@ fun MyPacksScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Text(
-                    text = "My packs",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "My packs",
+                    subtitle = "Manage your saved collections.",
+                    onBack = onBack
                 )
             }
 
@@ -212,15 +217,18 @@ fun MyPacksScreen(
                                 )
                             }
 
-                            Row(
+                            FlowRow(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                maxItemsInEachRow = 2
                             ) {
                                 OutlinedButton(
                                     onClick = { onOpenPack(pack.localId) },
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
                                     Text("Open")
                                 }
@@ -240,22 +248,26 @@ fun MyPacksScreen(
                                             }
                                         }
                                     },
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
                                     Text("Delete")
                                 }
+
                                 OutlinedButton(
                                     onClick = { onToggleFavorite(pack.localId) },
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    Text(if (favoritePackIds.contains(pack.localId)) "★ Favorite" else "☆ Favorite")
+                                    Text(if (favoritePackIds.contains(pack.localId)) "★ Fav" else "☆ Fav")
                                 }
 
                                 OutlinedButton(
                                     onClick = { onTogglePlayLater(pack.localId) },
-                                    shape = RoundedCornerShape(14.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    Text(if (playLaterPackIds.contains(pack.localId)) "• Play later" else "Play later")
+                                    Text(if (playLaterPackIds.contains(pack.localId)) "• Later" else "Later")
                                 }
                             }
                         }
@@ -263,15 +275,6 @@ fun MyPacksScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 } }

@@ -203,7 +203,13 @@ fun ChallengeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Exit session")
+                    Text(
+                        if (uiState.hasAnswered && uiState.currentQuestionNumber >= uiState.totalQuestions) {
+                            "Back to Home"
+                        } else {
+                            "Exit session"
+                        }
+                    )
                 }
             }
         }

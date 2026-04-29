@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.ui.component.InfoStateCard
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun TransferChallengesScreen(
@@ -42,10 +43,11 @@ fun TransferChallengesScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = "Import / Export",
-                style = MaterialTheme.typography.headlineMedium
-            )
+                TopBackHeader(
+                    title = "Import / Export",
+                    subtitle = "Import and/or Export your challenges.",
+                    onBack = onBack
+                )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -104,12 +106,5 @@ fun TransferChallengesScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("Back")
-            }
         }
     }

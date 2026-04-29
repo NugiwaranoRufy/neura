@@ -92,14 +92,14 @@ fun HomeScreen(
     ) {
         listOf(
             HomeTile(
-                title = if (dailyCompletedToday) "Daily completed" else "Daily challenge",
-                subtitle = "One challenge for today",
+                title = if (dailyCompletedToday) "Daily done" else "Daily",
+                subtitle = "Today’s challenge",
                 icon = dailyIcon,
                 onClick = onStartDailyChallenge
             ),
             HomeTile(
                 title = "Create",
-                subtitle = "Build a new challenge",
+                subtitle = "New challenge",
                 icon = createIcon,
                 onClick = onCreateChallenge
             ),
@@ -111,7 +111,7 @@ fun HomeScreen(
             ),
             HomeTile(
                 title = "My packs",
-                subtitle = "Saved collections",
+                subtitle = "Collections",
                 icon = packsIcon,
                 onClick = onOpenMyPacks
             ),
@@ -123,7 +123,7 @@ fun HomeScreen(
             ),
             HomeTile(
                 title = "Favorites",
-                subtitle = "Your saved picks",
+                subtitle = "Saved picks",
                 icon = favoritesIcon,
                 onClick = onOpenFavorites
             ),
@@ -134,46 +134,10 @@ fun HomeScreen(
                 onClick = onOpenPlayLater
             ),
             HomeTile(
-                title = "Import / Export",
-                subtitle = "Share content",
-                icon = transferIcon,
-                onClick = onOpenTransfer
-            ),
-            HomeTile(
-                title = "Profile",
-                subtitle = "Author profile",
-                icon = profileIcon,
-                onClick = onOpenProfile
-            ),
-            HomeTile(
-                title = "Accessibility",
-                subtitle = "Theme and text size",
-                icon = accessibilityIcon,
-                onClick = onOpenAccessibility
-            ),
-            HomeTile(
                 title = "Settings",
-                subtitle = "App preferences",
+                subtitle = "App tools",
                 icon = settingsIcon,
                 onClick = onOpenSettings
-            ),
-            HomeTile(
-                title = "Stats",
-                subtitle = "Progress history",
-                icon = statsIcon,
-                onClick = onOpenStats
-            ),
-            HomeTile(
-                title = "Achievements",
-                subtitle = "Milestones",
-                icon = achievementsIcon,
-                onClick = onOpenAchievements
-            ),
-            HomeTile(
-                title = "Room debug",
-                subtitle = "Database tools",
-                icon = roomDebugIcon,
-                onClick = onOpenRoomDebug
             )
         )
     }
@@ -229,6 +193,7 @@ fun HomeScreen(
                             calmMode = accessibilitySettings.calmMode,
                             readingHelper = accessibilitySettings.readingHelper,
                             modifier = Modifier.weight(1f)
+
                         )
                     }
 
@@ -336,7 +301,7 @@ private fun HomeTileCard(
 ) {
     Card(
         modifier = modifier
-            .height(if (readingHelper) 158.dp else 142.dp)
+            .height(if (readingHelper) 172.dp else 156.dp)
             .clickable { tile.onClick() },
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(
@@ -376,7 +341,6 @@ private fun HomeTileCard(
                 Text(
                     text = tile.subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

@@ -271,6 +271,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onExitSession = {
+                                challengeViewModel.saveCompletedSessionBeforeExit()
                                 challengeViewModel.resetSession()
                                 navController.navigate(NeuraDestinations.Home.route) {
                                     popUpTo(NeuraDestinations.Home.route) {

@@ -24,6 +24,7 @@ import com.app.neura.data.model.ColorVisionMode
 import com.app.neura.ui.component.SectionCard
 import com.app.neura.ui.component.SelectableOptionButton
 import com.app.neura.ui.component.SecondaryActionButton
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun AccessibilityScreen(
@@ -43,9 +44,10 @@ fun AccessibilityScreen(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             item {
-                Text(
-                    text = "Accessibility",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Accessibility",
+                    subtitle = "Manage appearance settings.",
+                    onBack = onBack
                 )
             }
 
@@ -256,12 +258,6 @@ fun AccessibilityScreen(
                 }
             }
 
-            item {
-                SecondaryActionButton(
-                    text = "Back",
-                    onClick = onBack
-                )
-            }
         }
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.TextButton
 
 @Composable
 fun SectionCard(
@@ -84,5 +85,36 @@ fun SecondaryActionButton(
         shape = RoundedCornerShape(16.dp)
     ) {
         Text(text)
+    }
+
+}
+
+@Composable
+fun TopBackHeader(
+    title: String,
+    onBack: () -> Unit,
+    subtitle: String? = null
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        TextButton(
+            onClick = onBack
+        ) {
+            Text("‹ Back")
+        }
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        if (subtitle != null) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }

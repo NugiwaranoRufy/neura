@@ -28,6 +28,7 @@ import com.app.neura.ui.util.averageDifficultyText
 import com.app.neura.ui.util.categoryBadgeText
 import com.app.neura.ui.util.estimatedTimeText
 import com.app.neura.ui.component.EmptyStateCard
+import com.app.neura.ui.component.TopBackHeader
 
 @Composable
 fun FeaturedPacksScreen(
@@ -55,9 +56,10 @@ fun FeaturedPacksScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             item {
-                Text(
-                    text = "Discover",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Discover",
+                    subtitle = "Search new challenges.",
+                    onBack = onBack
                 )
             }
 
@@ -99,15 +101,6 @@ fun FeaturedPacksScreen(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onBack,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Back")
-                }
-            }
         }
     }
 }

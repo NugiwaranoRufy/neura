@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.ui.component.SecondaryActionButton
 import com.app.neura.data.model.AchievementProgress
+import com.app.neura.ui.component.TopBackHeader
 
 private data class AchievementItem(
     val title: String,
@@ -43,49 +44,52 @@ fun AchievementsScreen(
     val totalFavorites = favoriteChallengesCount + favoritePacksCount
     val completedSessions = progress.lifetimeSessions
     val perfectScores = progress.lifetimePerfectScores
+    fun capped(value: Int, target: Int): String {
+        return "${minOf(value, target)} / $target"
+    }
 
     val achievements = listOf(
         AchievementItem(
             title = "First steps",
             description = "Complete your first session.",
             unlocked = completedSessions >= 1,
-            progressText = "$completedSessions / 1"
+            progressText = capped(completedSessions, 1)
         ),
         AchievementItem(
             title = "Daily rhythm",
             description = "Complete the Daily challenge for 3 days in a row.",
             unlocked = progress.bestDailyStreak >= 3,
-            progressText = "${progress.bestDailyStreak} / 3"
+            progressText = capped(progress.bestDailyStreak, 3)
         ),
         AchievementItem(
             title = "Training habit",
             description = "Complete 5 sessions.",
             unlocked = completedSessions >= 5,
-            progressText = "$completedSessions / 5"
+            progressText = capped(completedSessions, 5)
         ),
         AchievementItem(
             title = "Perfect mind",
             description = "Complete a session with a perfect score.",
             unlocked = perfectScores >= 1,
-            progressText = "$perfectScores / 1"
+            progressText = capped(perfectScores, 1)
         ),
         AchievementItem(
             title = "Creator",
             description = "Create your first custom challenge.",
             unlocked = createdChallengesCount >= 1,
-            progressText = "$createdChallengesCount / 1"
+            progressText = capped(createdChallengesCount, 1)
         ),
         AchievementItem(
             title = "Collector",
             description = "Save or import your first pack.",
             unlocked = savedPacksCount >= 1,
-            progressText = "$savedPacksCount / 1"
+            progressText = capped(savedPacksCount, 1)
         ),
         AchievementItem(
             title = "Curator",
             description = "Add at least 3 favorites.",
             unlocked = totalFavorites >= 3,
-            progressText = "$totalFavorites / 3"
+            progressText = capped(totalFavorites, 3)
         )
     )
 
@@ -108,12 +112,12 @@ fun AchievementsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    text = "Achievements",
-                    style = MaterialTheme.typography.headlineMedium
+                TopBackHeader(
+                    title = "Achievements",
+                    subtitle = "Check your progress.",
+                    onBack = onBack
                 )
             }
-
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -140,12 +144,6 @@ fun AchievementsScreen(
                 AchievementCard(achievement)
             }
 
-            item {
-                SecondaryActionButton(
-                    text = "Back",
-                    onClick = onBack
-                )
-            }
         }
     }
 }

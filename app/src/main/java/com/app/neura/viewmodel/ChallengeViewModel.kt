@@ -188,6 +188,24 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         return false
     }
 
+    fun saveCompletedSessionBeforeExit() {
+        val state = _uiState.value
+
+        val answeredLastQuestion =
+            sessionChallenges.isNotEmpty() &&
+                    currentIndex >= sessionChallenges.lastIndex &&
+                    state.hasAnswered
+
+        if (state.sessionCompleted || answeredLastQuestion) {
+            _uiState.value = state.copy(
+                currentChallenge = null,
+                sessionCompleted = true
+            )
+
+            saveCurrentSessionResultIfNeeded()
+        }
+    }
+
     fun resetSession() {
         sessionChallenges = emptyList()
         currentIndex = 0

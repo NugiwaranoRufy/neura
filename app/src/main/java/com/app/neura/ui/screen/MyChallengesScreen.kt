@@ -43,6 +43,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import com.app.neura.ui.component.TopBackHeader
 
 enum class MyChallengesFilter {
     ALL,
@@ -139,9 +140,10 @@ fun MyChallengesScreen(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp)
             ) {
                 item {
-                    Text(
-                        text = "My challenges",
-                        style = MaterialTheme.typography.headlineMedium
+                    TopBackHeader(
+                        title = "My challenges",
+                        subtitle = "Manage your challenges.",
+                        onBack = onBack
                     )
                 }
 
@@ -288,15 +290,6 @@ fun MyChallengesScreen(
                     }
                 }
 
-                item {
-                    OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text("Back")
-                    }
-                }
             }
 
             pendingDeleteChallengeId?.let { challengeId ->
