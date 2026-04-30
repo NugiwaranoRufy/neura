@@ -37,6 +37,7 @@ import com.app.neura.ui.component.SelectableOptionButton
 import com.app.neura.data.model.HomeInsight
 import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.data.model.ActivityFeedItem
+import com.app.neura.data.model.TrainingIdentity
 
 private data class HomeTile(
     val title: String,
@@ -53,6 +54,7 @@ fun HomeScreen(
     hasOngoingSession: Boolean,
     homeInsight: HomeInsight,
     weeklyGoalProgress: WeeklyGoalProgress,
+    trainingIdentity: TrainingIdentity,
     recentActivityItems: List<ActivityFeedItem>,
     onOpenActivity: () -> Unit,
     onCreateChallenge: () -> Unit,
@@ -219,6 +221,12 @@ fun HomeScreen(
                             )
                         )
                     }
+                )
+
+                TrainingIdentityPreviewCard(
+                    identity = trainingIdentity,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenProfile = onOpenProfile
                 )
 
                 RecentActivityPreviewCard(
@@ -820,6 +828,84 @@ private fun RecentActivityPreviewRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun TrainingIdentityPreviewCard(
+    identity: TrainingIdentity,
+    calmMode: Boolean,
+    onOpenProfile: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Training Identity"
+                } else {
+                    "🪪 Training Identity"
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = identity.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    Text(
+                        text = "Level ${identity.level} • ${identity.averageAccuracyText} average",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
+                ) {
+                    Text(
+                        text = "LV ${identity.level}",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Text(
+                text = "${identity.mainStyleText} main style • ${identity.bestAreaText} best area",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Button(
+                onClick = onOpenProfile,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Open profile")
+            }
         }
     }
 }

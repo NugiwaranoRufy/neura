@@ -1,6 +1,7 @@
 package com.app.neura.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,10 +27,13 @@ import com.app.neura.data.model.UserProfile
 import com.app.neura.ui.component.TopBackHeader
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.OutlinedButton
+import com.app.neura.data.model.TrainingIdentity
+import androidx.compose.material3.CardDefaults
 
 @Composable
 fun ProfileScreen(
     profile: UserProfile,
+    trainingIdentity: TrainingIdentity,
     createdChallengesCount: Int,
     savedPacksCount: Int,
     onSave: (UserProfile) -> Unit,
@@ -68,6 +72,10 @@ fun ProfileScreen(
                     subtitle = "Manage your author identity.",
                     onBack = onBack
                 )
+            }
+
+            item {
+                TrainingIdentityCard(identity = trainingIdentity)
             }
 
             item {
@@ -184,6 +192,8 @@ fun ProfileScreen(
                         Text("Created challenges: $createdChallengesCount")
                         Text("Saved packs: $savedPacksCount")
                         Text("Weekly goal: $weeklyGoalSessions sessions")
+                        Text("Training level: ${trainingIdentity.level}")
+                        Text("Training title: ${trainingIdentity.title}")
                     }
                 }
             }
@@ -208,6 +218,157 @@ fun ProfileScreen(
                 }
             }
 
+        }
+    }
+}
+
+@Composable
+private fun TrainingIdentityCard(
+    identity: TrainingIdentity
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Training Identity",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = identity.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    Text(
+                        text = "Level ${identity.level}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
+                ) {
+                    Text(
+                        text = "LV ${identity.level}",
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TrainingIdentityMetric(
+                    label = "Sessions",
+                    value = identity.totalSessions.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+
+                TrainingIdentityMetric(
+                    label = "Average",
+                    value = identity.averageAccuracyText,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TrainingIdentityMetric(
+                    label = "Main style",
+                    value = identity.mainStyleText,
+                    modifier = Modifier.weight(1f)
+                )
+
+                TrainingIdentityMetric(
+                    label = "Best area",
+                    value = identity.bestAreaText,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Weekly rhythm",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    Text(
+                        text = identity.weeklyProgressText,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Text(
+                text = identity.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}
+
+@Composable
+private fun TrainingIdentityMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }

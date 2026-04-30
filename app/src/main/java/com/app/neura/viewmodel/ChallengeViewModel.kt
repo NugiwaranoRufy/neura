@@ -36,6 +36,8 @@ import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.ui.util.buildWeeklyGoalProgress
 import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.ui.util.buildActivityFeed
+import com.app.neura.data.model.TrainingIdentity
+import com.app.neura.ui.util.buildTrainingIdentity
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -747,6 +749,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getActivityFeed(limit: Int = 20): List<ActivityFeedItem> {
         return sessionHistory.buildActivityFeed(limit)
+    }
+
+    fun getTrainingIdentity(weeklyGoalSessions: Int): TrainingIdentity {
+        return sessionHistory.buildTrainingIdentity(weeklyGoalSessions)
     }
 
     fun refreshAccessibilitySettings() {

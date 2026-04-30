@@ -214,6 +214,9 @@ class MainActivity : ComponentActivity() {
                             weeklyGoalProgress = challengeViewModel.getWeeklyGoalProgress(
                                 userProfile.weeklyGoalSessions
                             ),
+                            trainingIdentity = challengeViewModel.getTrainingIdentity(
+                                userProfile.weeklyGoalSessions
+                            ),
                             recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
                             onOpenActivity = {
                                 navController.navigate(NeuraDestinations.Activity.route)
@@ -614,6 +617,9 @@ class MainActivity : ComponentActivity() {
 
                         ProfileScreen(
                             profile = profile,
+                            trainingIdentity = challengeViewModel.getTrainingIdentity(
+                                profile.weeklyGoalSessions
+                            ),
                             createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
                             savedPacksCount = challengeViewModel.getSavedPacksCount(),
                             onSave = { updatedProfile ->
