@@ -36,6 +36,7 @@ fun ProfileScreen(
     trainingIdentity: TrainingIdentity,
     createdChallengesCount: Int,
     savedPacksCount: Int,
+    onOpenShareIdentity: () -> Unit,
     onSave: (UserProfile) -> Unit,
     onBack: () -> Unit
 ) {
@@ -75,7 +76,10 @@ fun ProfileScreen(
             }
 
             item {
-                TrainingIdentityCard(identity = trainingIdentity)
+                TrainingIdentityCard(
+                    identity = trainingIdentity,
+                    onOpenShareIdentity = onOpenShareIdentity
+                )
             }
 
             item {
@@ -224,7 +228,8 @@ fun ProfileScreen(
 
 @Composable
 private fun TrainingIdentityCard(
-    identity: TrainingIdentity
+    identity: TrainingIdentity,
+    onOpenShareIdentity: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -339,6 +344,14 @@ private fun TrainingIdentityCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
+
+            Button(
+                onClick = onOpenShareIdentity,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Share identity")
+            }
         }
     }
 }

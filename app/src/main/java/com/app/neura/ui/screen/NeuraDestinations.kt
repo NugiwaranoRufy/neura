@@ -35,4 +35,5 @@ sealed class NeuraDestinations(val route: String) {
     object Accessibility : NeuraDestinations("accessibility")
     object Settings : NeuraDestinations("settings")
     data object Activity : NeuraDestinations("activity")
+    data object ShareIdentity : NeuraDestinations("share_identity")
 }

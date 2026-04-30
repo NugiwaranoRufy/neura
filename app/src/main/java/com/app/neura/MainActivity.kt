@@ -48,6 +48,7 @@ import com.app.neura.ui.theme.NeuraTheme
 import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.ActivityFeedScreen
+import com.app.neura.ui.screen.ShareTrainingIdentityScreen
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -220,6 +221,9 @@ class MainActivity : ComponentActivity() {
                             recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
                             onOpenActivity = {
                                 navController.navigate(NeuraDestinations.Activity.route)
+                            },
+                            onOpenShareIdentity = {
+                                navController.navigate(NeuraDestinations.ShareIdentity.route)
                             },
                             onCreateChallenge = {
                                 navController.navigate(NeuraDestinations.Create.route)
@@ -622,10 +626,27 @@ class MainActivity : ComponentActivity() {
                             ),
                             createdChallengesCount = challengeViewModel.getCreatedChallengesCount(),
                             savedPacksCount = challengeViewModel.getSavedPacksCount(),
+                            onOpenShareIdentity = {
+                                navController.navigate(NeuraDestinations.ShareIdentity.route)
+                            },
                             onSave = { updatedProfile ->
                                 challengeViewModel.saveUserProfile(updatedProfile)
                                 navController.popBackStack()
                             },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.ShareIdentity.route) {
+                        val profile = userProfile
+
+                        ShareTrainingIdentityScreen(
+                            profile = profile,
+                            trainingIdentity = challengeViewModel.getTrainingIdentity(
+                                profile.weeklyGoalSessions
+                            ),
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -707,6 +728,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenProfile = {
                                 navController.navigate(NeuraDestinations.Profile.route)
+                            },
+                            onOpenShareIdentity = {
+                                navController.navigate(NeuraDestinations.ShareIdentity.route)
                             },
                             onOpenActivity = {
                                 navController.navigate(NeuraDestinations.Activity.route)

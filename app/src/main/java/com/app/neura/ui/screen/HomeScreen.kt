@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +58,7 @@ fun HomeScreen(
     trainingIdentity: TrainingIdentity,
     recentActivityItems: List<ActivityFeedItem>,
     onOpenActivity: () -> Unit,
+    onOpenShareIdentity: () -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -226,7 +228,8 @@ fun HomeScreen(
                 TrainingIdentityPreviewCard(
                     identity = trainingIdentity,
                     calmMode = accessibilitySettings.calmMode,
-                    onOpenProfile = onOpenProfile
+                    onOpenProfile = onOpenProfile,
+                    onOpenShareIdentity = onOpenShareIdentity
                 )
 
                 RecentActivityPreviewCard(
@@ -836,7 +839,8 @@ private fun RecentActivityPreviewRow(
 private fun TrainingIdentityPreviewCard(
     identity: TrainingIdentity,
     calmMode: Boolean,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenShareIdentity: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -899,12 +903,25 @@ private fun TrainingIdentityPreviewCard(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
-            Button(
-                onClick = onOpenProfile,
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Open profile")
+                OutlinedButton(
+                    onClick = onOpenProfile,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Profile")
+                }
+
+                Button(
+                    onClick = onOpenShareIdentity,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Share")
+                }
             }
         }
     }
