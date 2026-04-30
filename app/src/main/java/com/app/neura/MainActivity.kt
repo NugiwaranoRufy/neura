@@ -210,6 +210,9 @@ class MainActivity : ComponentActivity() {
                             },
                             hasOngoingSession = challengeViewModel.hasOngoingSession,
                             homeInsight = challengeViewModel.getHomeInsight(),
+                            weeklyGoalProgress = challengeViewModel.getWeeklyGoalProgress(
+                                userProfile.weeklyGoalSessions
+                            ),
                             onCreateChallenge = {
                                 navController.navigate(NeuraDestinations.Create.route)
                             },

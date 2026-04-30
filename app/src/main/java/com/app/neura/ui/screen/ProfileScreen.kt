@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.neura.data.model.UserProfile
 import com.app.neura.ui.component.TopBackHeader
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.OutlinedButton
 
 @Composable
 fun ProfileScreen(
@@ -38,6 +39,10 @@ fun ProfileScreen(
     var username by remember(profile.username) { mutableStateOf(profile.username) }
     var bio by remember(profile.bio) { mutableStateOf(profile.bio) }
     var favoriteTag by remember(profile.favoriteTag) { mutableStateOf(profile.favoriteTag) }
+    var weeklyGoalSessions by remember(profile.weeklyGoalSessions) {
+        mutableStateOf(profile.weeklyGoalSessions)
+    }
+
 
     val initials = displayName
         .trim()
@@ -131,11 +136,54 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     androidx.compose.foundation.layout.Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Weekly goal",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Text(
+                            text = "Choose how many training sessions you want to complete every week.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            listOf(1, 3, 5, 7).forEach { goal ->
+                                OutlinedButton(
+                                    onClick = { weeklyGoalSessions = goal },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = if (weeklyGoalSessions == goal) {
+                                            "$goal ✓"
+                                        } else {
+                                            goal.toString()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    androidx.compose.foundation.layout.Column(
                         modifier = Modifier.padding(20.dp)
                     ) {
                         Text("Stats", style = MaterialTheme.typography.titleMedium)
                         Text("Created challenges: $createdChallengesCount")
                         Text("Saved packs: $savedPacksCount")
+                        Text("Weekly goal: $weeklyGoalSessions sessions")
                     }
                 }
             }
@@ -148,7 +196,8 @@ fun ProfileScreen(
                                 displayName = displayName.trim().ifEmpty { "You" },
                                 username = username.trim().ifEmpty { "neura_user" },
                                 bio = bio.trim(),
-                                favoriteTag = favoriteTag.trim()
+                                favoriteTag = favoriteTag.trim(),
+                                weeklyGoalSessions = weeklyGoalSessions.coerceIn(1, 7)
                             )
                         )
                     },

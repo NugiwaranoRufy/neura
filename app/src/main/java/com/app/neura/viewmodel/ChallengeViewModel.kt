@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import com.app.neura.data.model.CreateChallengeForm
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import com.app.neura.data.model.ChallengeDifficulty
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -33,6 +32,8 @@ import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.data.model.AchievementProgress
 import com.app.neura.data.model.HomeInsight
 import com.app.neura.ui.util.buildHomeInsight
+import com.app.neura.data.model.WeeklyGoalProgress
+import com.app.neura.ui.util.buildWeeklyGoalProgress
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -645,6 +646,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         return "${(average * 100).toInt()}%"
     }
 
+
     fun clearSessionHistory() {
         repository.clearSessionHistory()
         refreshSessionHistory()
@@ -735,6 +737,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             currentDailyStreak = getCurrentDailyStreak(),
             hasOngoingSession = hasOngoingSession
         )
+    }
+
+    fun getWeeklyGoalProgress(goalSessions: Int): WeeklyGoalProgress {
+        return sessionHistory.buildWeeklyGoalProgress(goalSessions)
     }
 
     fun refreshAccessibilitySettings() {

@@ -35,6 +35,7 @@ import com.app.neura.data.model.GameSessionConfig
 import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.ui.component.SelectableOptionButton
 import com.app.neura.data.model.HomeInsight
+import com.app.neura.data.model.WeeklyGoalProgress
 
 private data class HomeTile(
     val title: String,
@@ -50,6 +51,7 @@ fun HomeScreen(
     onResumeSession: () -> Unit,
     hasOngoingSession: Boolean,
     homeInsight: HomeInsight,
+    weeklyGoalProgress: WeeklyGoalProgress,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -191,6 +193,20 @@ fun HomeScreen(
                                 )
                             )
                         }
+                    }
+                )
+
+                WeeklyGoalCard(
+                    progress = weeklyGoalProgress,
+                    calmMode = accessibilitySettings.calmMode,
+                    onStartTraining = {
+                        onStartSession(
+                            GameSessionConfig(
+                                type = homeInsight.suggestedType,
+                                totalQuestions = homeInsight.suggestedQuestionCount,
+                                difficulty = homeInsight.suggestedDifficulty
+                            )
+                        )
                     }
                 )
 
@@ -632,6 +648,75 @@ private fun InsightMetricChip(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
+        }
+    }
+}
+
+@Composable
+private fun WeeklyGoalCard(
+    progress: WeeklyGoalProgress,
+    calmMode: Boolean,
+    onStartTraining: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    progress.title
+                } else {
+                    "🎯 ${progress.title}"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = "${progress.completedSessions} of ${progress.goalSessions} sessions completed",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = progress.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Progress",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+
+                    Text(
+                        text = "${progress.progressPercent}%",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+            }
+
+            Button(
+                onClick = onStartTraining,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(progress.actionLabel)
+            }
         }
     }
 }
