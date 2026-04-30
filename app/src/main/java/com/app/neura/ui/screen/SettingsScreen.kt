@@ -37,6 +37,7 @@ private data class SettingsTile(
 fun SettingsScreen(
     onOpenAccessibility: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenActivity: () -> Unit,
     onOpenStats: () -> Unit,
     onOpenAchievements: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -46,6 +47,7 @@ fun SettingsScreen(
     val tiles = listOf(
         SettingsTile("Accessibility", "Theme, text, contrast", "♿", onOpenAccessibility),
         SettingsTile("Profile", "Author identity", "👤", onOpenProfile),
+        SettingsTile("Activity", "Review your recent training timeline.", icon = "📰", onOpenActivity),
         SettingsTile("Stats", "Session history", "📊", onOpenStats),
         SettingsTile("Achievements", "Milestones", "🏆", onOpenAchievements),
         SettingsTile("Import / Export", "Share content", "🔁", onOpenTransfer),

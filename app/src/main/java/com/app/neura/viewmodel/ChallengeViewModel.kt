@@ -34,6 +34,8 @@ import com.app.neura.data.model.HomeInsight
 import com.app.neura.ui.util.buildHomeInsight
 import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.ui.util.buildWeeklyGoalProgress
+import com.app.neura.data.model.ActivityFeedItem
+import com.app.neura.ui.util.buildActivityFeed
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -741,6 +743,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getWeeklyGoalProgress(goalSessions: Int): WeeklyGoalProgress {
         return sessionHistory.buildWeeklyGoalProgress(goalSessions)
+    }
+
+    fun getActivityFeed(limit: Int = 20): List<ActivityFeedItem> {
+        return sessionHistory.buildActivityFeed(limit)
     }
 
     fun refreshAccessibilitySettings() {

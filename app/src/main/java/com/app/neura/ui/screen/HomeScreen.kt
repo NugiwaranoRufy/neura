@@ -36,6 +36,7 @@ import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.ui.component.SelectableOptionButton
 import com.app.neura.data.model.HomeInsight
 import com.app.neura.data.model.WeeklyGoalProgress
+import com.app.neura.data.model.ActivityFeedItem
 
 private data class HomeTile(
     val title: String,
@@ -52,6 +53,8 @@ fun HomeScreen(
     hasOngoingSession: Boolean,
     homeInsight: HomeInsight,
     weeklyGoalProgress: WeeklyGoalProgress,
+    recentActivityItems: List<ActivityFeedItem>,
+    onOpenActivity: () -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -85,11 +88,13 @@ fun HomeScreen(
     val playLaterIcon = if (accessibilitySettings.calmMode) "Later" else "⏳"
     val transferIcon = if (accessibilitySettings.calmMode) "Transfer" else "🔁"
     val profileIcon = if (accessibilitySettings.calmMode) "Profile" else "👤"
+    val activityIcon = if (accessibilitySettings.calmMode) "Activity" else "📰"
     val statsIcon = if (accessibilitySettings.calmMode) "Stats" else "📊"
     val achievementsIcon = if (accessibilitySettings.calmMode) "Goals" else "🏆"
     val roomDebugIcon = if (accessibilitySettings.calmMode) "Debug" else "🛠️"
     val accessibilityIcon = if (accessibilitySettings.calmMode) "Access" else "♿"
     val settingsIcon = if (accessibilitySettings.calmMode) "Settings" else "⚙️"
+
 
     val tiles = remember(
         dailyCompletedToday,
@@ -138,6 +143,12 @@ fun HomeScreen(
                 subtitle = "Queued packs",
                 icon = playLaterIcon,
                 onClick = onOpenPlayLater
+            ),
+            HomeTile(
+                title = "Activity",
+                subtitle = "Recent progress",
+                icon = activityIcon,
+                onClick = onOpenActivity
             ),
             HomeTile(
                 title = "Settings",
@@ -208,6 +219,12 @@ fun HomeScreen(
                             )
                         )
                     }
+                )
+
+                RecentActivityPreviewCard(
+                    items = recentActivityItems,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenActivity = onOpenActivity
                 )
 
                 if (showSessionSetup) {
@@ -717,6 +734,92 @@ private fun WeeklyGoalCard(
             ) {
                 Text(progress.actionLabel)
             }
+        }
+    }
+}
+
+@Composable
+private fun RecentActivityPreviewCard(
+    items: List<ActivityFeedItem>,
+    calmMode: Boolean,
+    onOpenActivity: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Recent activity"
+                } else {
+                    "📰 Recent activity"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            if (items.isEmpty()) {
+                Text(
+                    text = "Complete a session to start building your activity timeline.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                items.take(3).forEach { item ->
+                    RecentActivityPreviewRow(item = item)
+                }
+            }
+
+            Button(
+                onClick = onOpenActivity,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("View all activity")
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentActivityPreviewRow(
+    item: ActivityFeedItem
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = item.icon,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(
+                text = "${item.message} • ${item.metadata}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

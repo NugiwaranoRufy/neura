@@ -47,6 +47,7 @@ import com.app.neura.ui.screen.TransferChallengesScreen
 import com.app.neura.ui.theme.NeuraTheme
 import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.viewmodel.RoomDebugViewModel
+import com.app.neura.ui.screen.ActivityFeedScreen
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -213,6 +214,10 @@ class MainActivity : ComponentActivity() {
                             weeklyGoalProgress = challengeViewModel.getWeeklyGoalProgress(
                                 userProfile.weeklyGoalSessions
                             ),
+                            recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
+                            onOpenActivity = {
+                                navController.navigate(NeuraDestinations.Activity.route)
+                            },
                             onCreateChallenge = {
                                 navController.navigate(NeuraDestinations.Create.route)
                             },
@@ -595,6 +600,15 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+
+                    composable(NeuraDestinations.Activity.route) {
+                        ActivityFeedScreen(
+                            items = challengeViewModel.getActivityFeed(),
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
                     composable(NeuraDestinations.Profile.route) {
                         val profile = userProfile
 
@@ -687,6 +701,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenProfile = {
                                 navController.navigate(NeuraDestinations.Profile.route)
+                            },
+                            onOpenActivity = {
+                                navController.navigate(NeuraDestinations.Activity.route)
                             },
                             onOpenStats = {
                                 navController.navigate(NeuraDestinations.Stats.route)
