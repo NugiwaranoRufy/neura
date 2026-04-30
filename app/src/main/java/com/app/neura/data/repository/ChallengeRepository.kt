@@ -17,6 +17,9 @@ import com.app.neura.data.local.AccessibilitySettingsDataSource
 import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.data.local.AchievementProgressDataSource
 import com.app.neura.data.model.AchievementProgress
+import com.app.neura.data.local.OngoingSessionDataSource
+import com.app.neura.data.model.OngoingSession
+import com.app.neura.data.model.SessionAnswer
 
 class ChallengeRepository(
     context: Context
@@ -30,6 +33,7 @@ class ChallengeRepository(
     private val sessionHistoryDataSource = SessionHistoryLocalDataSource(context)
     private val accessibilitySettingsDataSource = AccessibilitySettingsDataSource(context)
     private val achievementProgressDataSource = AchievementProgressDataSource(context)
+    private val ongoingSessionDataSource = OngoingSessionDataSource(context)
 
     // Legacy user challenges only
     fun getUserChallenges(): List<Challenge> {
@@ -185,5 +189,37 @@ class ChallengeRepository(
             result = result,
             currentDailyStreak = currentDailyStreak
         )
+    }
+
+    fun saveOngoingSession(
+        challenges: List<Challenge>,
+        currentIndex: Int,
+        score: Int,
+        answers: List<SessionAnswer>,
+        source: String,
+        sessionType: ChallengeType?
+    ) {
+        val session = OngoingSession(
+            challenges = challenges,
+            currentIndex = currentIndex,
+            score = score,
+            answers = answers,
+            source = source,
+            sessionType = sessionType
+        )
+
+        ongoingSessionDataSource.saveSession(session)
+    }
+
+    fun getOngoingSession(): OngoingSession? {
+        return ongoingSessionDataSource.getSession()
+    }
+
+    fun hasOngoingSession(): Boolean {
+        return ongoingSessionDataSource.hasSession()
+    }
+
+    fun clearOngoingSession() {
+        ongoingSessionDataSource.clearSession()
     }
 }

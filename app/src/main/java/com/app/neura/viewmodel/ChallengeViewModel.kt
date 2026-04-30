@@ -65,6 +65,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         private set
     var achievementProgress by mutableStateOf(AchievementProgress())
         private set
+    var hasOngoingSession by mutableStateOf(false)
+        private set
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
     val favoritePackIds = repository.getFavoritePackIds()
@@ -87,6 +89,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             UserProfile()
         )
     fun startSession(config: GameSessionConfig) {
+        repository.clearOngoingSession()
+        hasOngoingSession = false
         val allPlayableChallenges = (
                 roomUserChallengesCache +
                         repository.getFeaturedPacks().flatMap { it.challenges } +
@@ -213,6 +217,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         sessionResultSaved = false
         sessionAnswers = emptyList()
         _uiState.value = ChallengeUiState()
+        repository.clearOngoingSession()
+        hasOngoingSession = false
     }
 
     fun createChallenge(form: CreateChallengeForm): Boolean {
@@ -443,6 +449,8 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun startSessionFromPack(pack: ChallengePack, totalQuestions: Int? = null) {
+        repository.clearOngoingSession()
+        hasOngoingSession = false
         val all = pack.challenges.shuffled()
         sessionChallenges = if (totalQuestions != null) {
             all.take(totalQuestions)
@@ -658,6 +666,9 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         sessionResultSaved = true
         refreshSessionHistory()
 
+        repository.clearOngoingSession()
+        hasOngoingSession = false
+
         repository.recordAchievementSession(
             result = result,
             currentDailyStreak = getCurrentDailyStreak()
@@ -683,7 +694,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun startDailyChallenge() {
+
         val daily = getDailyChallenge() ?: return
+        repository.clearOngoingSession()
+        hasOngoingSession = false
 
         sessionChallenges = listOf(daily)
         currentIndex = 0
@@ -737,6 +751,7 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             refreshSessionHistory()
             refreshAchievementProgress()
             refreshAccessibilitySettings()
+            refreshOngoingSessionStatus()
         }
     }
 
@@ -751,4 +766,100 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         repository.addPack(pack)
         preloadCatalogData()
     }
+    fun getFavoriteChallenges(): List<Challenge> {
+        val ids = favoriteChallengeIds.value
+        return roomUserChallengesCache
+            .filter { it.id.toLong() in ids }
+            .sortedByDescending { it.createdAt }
+    }
+
+    fun startSessionFromChallenge(challenge: Challenge) {
+
+        repository.clearOngoingSession()
+        hasOngoingSession = false
+
+        sessionChallenges = listOf(challenge)
+        currentIndex = 0
+        currentScore = 0
+        sessionResultSaved = false
+        currentSessionSource = "Favorite challenge"
+        sessionAnswers = emptyList()
+
+        _uiState.value = ChallengeUiState(
+            currentChallenge = challenge,
+            currentQuestionNumber = 1,
+            totalQuestions = 1,
+            score = 0,
+            sessionCompleted = false,
+            sessionType = challenge.type
+        )
+    }
+
+    fun saveSessionState() {
+        val state = _uiState.value
+
+        if (sessionChallenges.isEmpty()) return
+        if (state.sessionCompleted) return
+        if (currentIndex !in sessionChallenges.indices) return
+
+        repository.saveOngoingSession(
+            challenges = sessionChallenges,
+            currentIndex = currentIndex,
+            score = currentScore,
+            answers = sessionAnswers,
+            source = currentSessionSource,
+            sessionType = state.sessionType
+        )
+
+        hasOngoingSession = true
+    }
+
+    fun restoreSessionIfExists(): Boolean {
+        val session = repository.getOngoingSession() ?: return false
+
+        if (session.challenges.isEmpty()) {
+            repository.clearOngoingSession()
+            hasOngoingSession = false
+            return false
+        }
+
+        if (session.currentIndex !in session.challenges.indices) {
+            repository.clearOngoingSession()
+            hasOngoingSession = false
+            return false
+        }
+
+        sessionChallenges = session.challenges
+        currentIndex = session.currentIndex
+        currentScore = session.score
+        sessionAnswers = session.answers
+        currentSessionSource = session.source
+        sessionResultSaved = false
+
+        val currentChallenge = sessionChallenges.getOrNull(currentIndex)
+        val existingAnswer = sessionAnswers.firstOrNull {
+            it.challenge.id == currentChallenge?.id
+        }
+
+        _uiState.value = ChallengeUiState(
+            currentChallenge = currentChallenge,
+            selectedOptionIndex = existingAnswer?.selectedOptionIndex,
+            hasAnswered = existingAnswer != null,
+            isCorrect = existingAnswer?.isCorrect ?: false,
+            currentQuestionNumber = currentIndex + 1,
+            totalQuestions = sessionChallenges.size,
+            score = currentScore,
+            sessionCompleted = false,
+            sessionType = session.sessionType ?: currentChallenge?.type
+        )
+
+        hasOngoingSession = true
+
+        return true
+    }
+
+    fun refreshOngoingSessionStatus() {
+        hasOngoingSession = repository.hasOngoingSession()
+    }
+
 }

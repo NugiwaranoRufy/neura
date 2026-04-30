@@ -1,58 +1,52 @@
 package com.app.neura
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.app.neura.ui.screen.ChallengeScreen
-import com.app.neura.ui.screen.HomeScreen
-import com.app.neura.ui.screen.NeuraDestinations
-import com.app.neura.ui.screen.ResultScreen
-import com.app.neura.ui.theme.NeuraTheme
-import com.app.neura.viewmodel.ChallengeViewModel
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import com.app.neura.ui.screen.CreateChallengeScreen
-import com.app.neura.ui.screen.MyChallengesScreen
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.app.neura.ui.screen.TransferChallengesScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.app.neura.ui.screen.EditChallengeScreen
 import com.app.neura.data.model.ChallengePack
+import com.app.neura.ui.screen.AccessibilityScreen
+import com.app.neura.ui.screen.AchievementsScreen
+import com.app.neura.ui.screen.AuthorDetailsScreen
+import com.app.neura.ui.screen.ChallengeScreen
+import com.app.neura.ui.screen.CreateChallengeScreen
+import com.app.neura.ui.screen.EditChallengeScreen
 import com.app.neura.ui.screen.ExportPackScreen
-import com.app.neura.ui.screen.ImportPackPreviewScreen
-import androidx.navigation.navArgument
-import com.app.neura.ui.screen.MyPacksScreen
-import com.app.neura.ui.screen.PackDetailsScreen
-import android.content.Intent
-import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.navArgument
-import com.app.neura.ui.screen.DiscoverScreen
-import com.app.neura.ui.screen.FeaturedPackDetailsScreen
 import com.app.neura.ui.screen.FavoritesScreen
+import com.app.neura.ui.screen.FeaturedPackDetailsScreen
+import com.app.neura.ui.screen.FeaturedPacksScreen
+import com.app.neura.ui.screen.HomeScreen
+import com.app.neura.ui.screen.ImportPackPreviewScreen
+import com.app.neura.ui.screen.MyChallengesScreen
+import com.app.neura.ui.screen.MyPacksScreen
+import com.app.neura.ui.screen.NeuraDestinations
+import com.app.neura.ui.screen.PackDetailsScreen
 import com.app.neura.ui.screen.PlayLaterScreen
 import com.app.neura.ui.screen.ProfileScreen
-import android.net.Uri
-import com.app.neura.ui.screen.AuthorDetailsScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.neura.ui.screen.ResultScreen
 import com.app.neura.ui.screen.RoomDebugScreen
-import com.app.neura.viewmodel.RoomDebugViewModel
-import com.app.neura.ui.screen.FeaturedPacksScreen
-import com.app.neura.ui.screen.StatsScreen
-import com.app.neura.ui.screen.AchievementsScreen
 import com.app.neura.ui.screen.SessionReviewScreen
-import com.app.neura.ui.screen.AccessibilityScreen
 import com.app.neura.ui.screen.SettingsScreen
+import com.app.neura.ui.screen.StatsScreen
+import com.app.neura.ui.screen.TransferChallengesScreen
+import com.app.neura.ui.theme.NeuraTheme
+import com.app.neura.viewmodel.ChallengeViewModel
+import com.app.neura.viewmodel.RoomDebugViewModel
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -208,6 +202,13 @@ class MainActivity : ComponentActivity() {
                                 challengeViewModel.startSession(config)
                                 navController.navigate(NeuraDestinations.Challenge.route)
                             },
+                            onResumeSession = {
+                                val restored = challengeViewModel.restoreSessionIfExists()
+                                if (restored) {
+                                    navController.navigate(NeuraDestinations.Challenge.route)
+                                }
+                            },
+                            hasOngoingSession = challengeViewModel.hasOngoingSession,
                             onCreateChallenge = {
                                 navController.navigate(NeuraDestinations.Create.route)
                             },
@@ -271,13 +272,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onExitSession = {
-                                challengeViewModel.saveCompletedSessionBeforeExit()
-                                challengeViewModel.resetSession()
                                 navController.navigate(NeuraDestinations.Home.route) {
                                     popUpTo(NeuraDestinations.Home.route) {
                                         inclusive = true
                                     }
                                 }
+
+                                challengeViewModel.refreshOngoingSessionStatus()
                             }
                         )
                     }
@@ -461,7 +462,7 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.MyPacks.route) {
                         MyPacksScreen(
                             packs = challengeViewModel.getPacks(),
-                            favoritePackIds = favoriteChallengeIds,
+                            favoritePackIds = favoritePackIds,
                             playLaterPackIds = playLaterPackIds,
                             onOpenPack = { localId ->
                                 navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
@@ -564,8 +565,13 @@ class MainActivity : ComponentActivity() {
                     composable(NeuraDestinations.Favorites.route) {
                         FavoritesScreen(
                             packs = challengeViewModel.getFavoritePacks(),
+                            challenges = challengeViewModel.getFavoriteChallenges(),
                             onOpenPack = { localId ->
                                 navController.navigate(NeuraDestinations.PackDetails.createRoute(localId))
+                            },
+                            onPlayChallenge = { challenge ->
+                                challengeViewModel.startSessionFromChallenge(challenge)
+                                navController.navigate(NeuraDestinations.Challenge.route)
                             },
                             onBack = {
                                 navController.popBackStack()

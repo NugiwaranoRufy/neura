@@ -44,6 +44,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import com.app.neura.ui.component.TopBackHeader
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 
 enum class MyChallengesFilter {
     ALL,
@@ -51,6 +53,7 @@ enum class MyChallengesFilter {
     PUBLISHED
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MyChallengesScreen(
     challenges: List<Challenge>,
@@ -203,20 +206,37 @@ fun MyChallengesScreen(
                 }
 
                 item {
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        maxItemsInEachRow = 2
                     ) {
-                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.ALL }) {
+                        OutlinedButton(
+                            onClick = { difficultyFilter = DifficultyFilter.ALL },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(if (difficultyFilter == DifficultyFilter.ALL) "• All" else "All")
                         }
-                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.EASY }) {
+
+                        OutlinedButton(
+                            onClick = { difficultyFilter = DifficultyFilter.EASY },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(if (difficultyFilter == DifficultyFilter.EASY) "• Easy" else "Easy")
                         }
-                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.MEDIUM }) {
+
+                        OutlinedButton(
+                            onClick = { difficultyFilter = DifficultyFilter.MEDIUM },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(if (difficultyFilter == DifficultyFilter.MEDIUM) "• Medium" else "Medium")
                         }
-                        OutlinedButton(onClick = { difficultyFilter = DifficultyFilter.HARD }) {
+
+                        OutlinedButton(
+                            onClick = { difficultyFilter = DifficultyFilter.HARD },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(if (difficultyFilter == DifficultyFilter.HARD) "• Hard" else "Hard")
                         }
                     }

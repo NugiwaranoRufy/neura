@@ -29,6 +29,8 @@ import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.ui.component.EmptyStateCard
 import com.app.neura.ui.component.SecondaryActionButton
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 
 @Composable
 fun ChallengeScreen(
@@ -42,6 +44,7 @@ fun ChallengeScreen(
     val scrollState = rememberScrollState()
 
     val challenge = uiState.currentChallenge
+    val isFocus = accessibilitySettings.focusMode
     if (challenge == null) {
         Surface(modifier = modifier.fillMaxSize()) {
             Column(
@@ -151,6 +154,22 @@ fun ChallengeScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 if (uiState.hasAnswered) {
+
+                    val resultColor by animateColorAsState(
+                        targetValue = if (uiState.isCorrect)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.error,
+                        animationSpec = tween(400),
+                        label = "resultColor"
+                    )
+
+                    Text(
+                        text = if (uiState.isCorrect) "Correct" else "Not correct",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = resultColor
+                    )
+
                     Text(
                         text = if (uiState.isCorrect) "Correct" else "Not correct",
                         style = MaterialTheme.typography.titleMedium,
@@ -198,19 +217,31 @@ fun ChallengeScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                OutlinedButton(
-                    onClick = onExitSession,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        if (uiState.hasAnswered && uiState.currentQuestionNumber >= uiState.totalQuestions) {
-                            "Back to Home"
-                        } else {
-                            "Exit session"
-                        }
-                    )
-                }
+            OutlinedButton(
+                onClick = {
+                    val isLastAnsweredQuestion =
+                        uiState.hasAnswered &&
+                                uiState.currentQuestionNumber >= uiState.totalQuestions
+
+                    if (isLastAnsweredQuestion) {
+                        viewModel.saveCompletedSessionBeforeExit()
+                    } else {
+                        viewModel.saveSessionState()
+                    }
+
+                    onExitSession()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    if (uiState.hasAnswered && uiState.currentQuestionNumber >= uiState.totalQuestions) {
+                        "Back to Home"
+                    } else {
+                        "Exit session"
+                    }
+                )
+            }
             }
         }
     }

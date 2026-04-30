@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.height
 import com.app.neura.ui.component.TopBackHeader
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -85,11 +86,26 @@ fun MyPacksScreen(
             .safeDrawingPadding()
             .navigationBarsPadding()
     ) {
+
+        val isLoading = packs.isEmpty()
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            if (isLoading) {
+                items(3) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .height(120.dp)
+                    ) {}
+                }
+            }
+
             item {
                 TopBackHeader(
                     title = "My packs",

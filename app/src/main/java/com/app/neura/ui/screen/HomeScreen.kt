@@ -46,6 +46,8 @@ private data class HomeTile(
 @Composable
 fun HomeScreen(
     onStartSession: (GameSessionConfig) -> Unit,
+    onResumeSession: () -> Unit,
+    hasOngoingSession: Boolean,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -164,6 +166,13 @@ fun HomeScreen(
                     calmMode = accessibilitySettings.calmMode,
                     readingHelper = accessibilitySettings.readingHelper
                 )
+
+                if (hasOngoingSession) {
+                    ResumeSessionCard(
+                        calmMode = accessibilitySettings.calmMode,
+                        onResumeSession = onResumeSession
+                    )
+                }
 
                 if (showSessionSetup) {
                     SessionSetupPanel(
@@ -463,6 +472,43 @@ private fun SessionSetupPanel(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ResumeSessionCard(
+    calmMode: Boolean,
+    onResumeSession: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onResumeSession() },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Resume session"
+                } else {
+                    "▶️ Resume session"
+                },
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
+            Text(
+                text = "Continue from where you left off.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
         }
     }
 }
