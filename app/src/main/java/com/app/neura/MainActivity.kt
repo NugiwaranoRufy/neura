@@ -209,6 +209,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             hasOngoingSession = challengeViewModel.hasOngoingSession,
+                            homeInsight = challengeViewModel.getHomeInsight(),
                             onCreateChallenge = {
                                 navController.navigate(NeuraDestinations.Create.route)
                             },
@@ -279,6 +280,7 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 challengeViewModel.refreshOngoingSessionStatus()
+                                challengeViewModel.refreshSessionHistory()
                             }
                         )
                     }

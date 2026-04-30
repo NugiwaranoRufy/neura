@@ -34,6 +34,7 @@ import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.GameSessionConfig
 import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.ui.component.SelectableOptionButton
+import com.app.neura.data.model.HomeInsight
 
 private data class HomeTile(
     val title: String,
@@ -48,6 +49,7 @@ fun HomeScreen(
     onStartSession: (GameSessionConfig) -> Unit,
     onResumeSession: () -> Unit,
     hasOngoingSession: Boolean,
+    homeInsight: HomeInsight,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -173,6 +175,24 @@ fun HomeScreen(
                         onResumeSession = onResumeSession
                     )
                 }
+
+                HomeInsightCard(
+                    insight = homeInsight,
+                    calmMode = accessibilitySettings.calmMode,
+                    onPrimaryAction = {
+                        if (homeInsight.shouldResumeSession) {
+                            onResumeSession()
+                        } else {
+                            onStartSession(
+                                GameSessionConfig(
+                                    type = homeInsight.suggestedType,
+                                    totalQuestions = homeInsight.suggestedQuestionCount,
+                                    difficulty = homeInsight.suggestedDifficulty
+                                )
+                            )
+                        }
+                    }
+                )
 
                 if (showSessionSetup) {
                     SessionSetupPanel(
@@ -508,6 +528,109 @@ private fun ResumeSessionCard(
                 text = "Continue from where you left off.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeInsightCard(
+    insight: HomeInsight,
+    calmMode: Boolean,
+    onPrimaryAction: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Your next step"
+                } else {
+                    "✨ Your next step"
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Text(
+                text = insight.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Text(
+                text = insight.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                InsightMetricChip(
+                    label = "Sessions",
+                    value = insight.totalSessions.toString(),
+                    modifier = Modifier.weight(1f)
+                )
+
+                InsightMetricChip(
+                    label = "Average",
+                    value = insight.averageAccuracyText,
+                    modifier = Modifier.weight(1f)
+                )
+
+                InsightMetricChip(
+                    label = "Streak",
+                    value = "${insight.currentDailyStreak}d",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Button(
+                onClick = onPrimaryAction,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(insight.primaryActionLabel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun InsightMetricChip(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
             )
         }
     }

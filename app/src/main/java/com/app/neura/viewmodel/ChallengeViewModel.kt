@@ -31,6 +31,8 @@ import com.app.neura.ui.util.dailyCompletedToday
 import com.app.neura.data.security.ImportSecurityValidator
 import com.app.neura.data.model.AccessibilitySettings
 import com.app.neura.data.model.AchievementProgress
+import com.app.neura.data.model.HomeInsight
+import com.app.neura.ui.util.buildHomeInsight
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -725,6 +727,14 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getBestDailyStreak(): Int {
         return sessionHistory.bestDailyStreak()
+    }
+
+    fun getHomeInsight(): HomeInsight {
+        return sessionHistory.buildHomeInsight(
+            dailyCompletedToday = isDailyCompletedToday(),
+            currentDailyStreak = getCurrentDailyStreak(),
+            hasOngoingSession = hasOngoingSession
+        )
     }
 
     fun refreshAccessibilitySettings() {
