@@ -46,6 +46,8 @@ import com.app.neura.data.model.WeeklyMissionsSummary
 import com.app.neura.ui.util.buildWeeklyMissionsSummary
 import com.app.neura.data.model.MissionBadgesSummary
 import com.app.neura.ui.util.buildMissionBadgesSummary
+import com.app.neura.data.model.BadgeUnlockSummary
+import com.app.neura.ui.util.buildBadgeUnlockSummary
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -656,6 +658,19 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         }.average()
 
         return "${(average * 100).toInt()}%"
+    }
+
+    fun getLatestSessionResult(): GameSessionResult? {
+        return sessionHistory.maxByOrNull { it.completedAt }
+    }
+
+    fun getBadgeUnlockSummary(
+        weeklyGoalSessions: Int
+    ): BadgeUnlockSummary {
+        return buildBadgeUnlockSummary(
+            latestResult = getLatestSessionResult(),
+            badgesSummary = getMissionBadgesSummary(weeklyGoalSessions)
+        )
     }
 
 

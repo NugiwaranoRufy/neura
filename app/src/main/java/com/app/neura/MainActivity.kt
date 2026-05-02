@@ -332,6 +332,12 @@ class MainActivity : ComponentActivity() {
                         ResultScreen(
                             score = uiState.score,
                             total = uiState.totalQuestions,
+                            badgeUnlockSummary = challengeViewModel.getBadgeUnlockSummary(
+                                userProfile.weeklyGoalSessions
+                            ),
+                            onOpenBadges = {
+                                navController.navigate(NeuraDestinations.Badges.route)
+                            },
                             onReviewAnswers = {
                                 navController.navigate(NeuraDestinations.SessionReview.route)
                             },

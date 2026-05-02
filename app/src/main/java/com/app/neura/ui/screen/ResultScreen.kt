@@ -18,13 +18,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import com.app.neura.data.model.BadgeUnlockSummary
+import com.app.neura.data.model.MissionBadge
 
 @Composable
 fun ResultScreen(
     score: Int,
     total: Int,
     onReviewAnswers: () -> Unit,
-    onPlayAgain: () -> Unit
+    onPlayAgain: () -> Unit,
+    badgeUnlockSummary: BadgeUnlockSummary,
+    onOpenBadges: () -> Unit,
 ) {
     val percentage = if (total == 0) 0 else (score * 100) / total
 
@@ -116,6 +125,11 @@ fun ResultScreen(
                 }
             }
 
+            BadgeUnlockCard(
+                summary = badgeUnlockSummary,
+                onOpenBadges = onOpenBadges
+            )
+
             OutlinedButton(
                 onClick = onReviewAnswers,
                 modifier = Modifier.fillMaxWidth(),
@@ -131,6 +145,95 @@ fun ResultScreen(
             ) {
                 Text("Back to Home")
             }
+        }
+    }
+}
+
+@Composable
+private fun BadgeUnlockCard(
+    summary: BadgeUnlockSummary,
+    onOpenBadges: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (summary.unlockedBadges.isEmpty()) {
+                MaterialTheme.colorScheme.surfaceVariant
+            } else {
+                MaterialTheme.colorScheme.secondaryContainer
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (summary.unlockedBadges.isEmpty()) {
+                    "Badge progress"
+                } else {
+                    "🏅 ${summary.title}"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = summary.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (summary.unlockedBadges.isNotEmpty()) {
+                summary.unlockedBadges.take(3).forEach { badge ->
+                    BadgeUnlockedRow(badge = badge)
+                }
+            }
+
+            OutlinedButton(
+                onClick = onOpenBadges,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("View badges")
+            }
+        }
+    }
+}
+
+@Composable
+private fun BadgeUnlockedRow(
+    badge: MissionBadge
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = badge.icon,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = badge.title,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(
+                text = badge.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
