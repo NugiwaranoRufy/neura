@@ -40,6 +40,8 @@ import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.data.model.TrainingIdentity
 import com.app.neura.data.model.TrainingRecordsSummary
+import com.app.neura.data.model.TrainingPlanSummary
+
 
 private data class HomeTile(
     val title: String,
@@ -58,10 +60,12 @@ fun HomeScreen(
     weeklyGoalProgress: WeeklyGoalProgress,
     trainingIdentity: TrainingIdentity,
     trainingRecordsSummary: TrainingRecordsSummary,
+    trainingPlanSummary: TrainingPlanSummary,
     recentActivityItems: List<ActivityFeedItem>,
     onOpenActivity: () -> Unit,
     onOpenShareIdentity: () -> Unit,
     onOpenRecords: () -> Unit,
+    onOpenTrainingPlan: () -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -102,6 +106,7 @@ fun HomeScreen(
     val roomDebugIcon = if (accessibilitySettings.calmMode) "Debug" else "🛠️"
     val accessibilityIcon = if (accessibilitySettings.calmMode) "Access" else "♿"
     val settingsIcon = if (accessibilitySettings.calmMode) "Settings" else "⚙️"
+    val planIcon = if (accessibilitySettings.calmMode) "Plan" else "🧭"
 
 
     val tiles = remember(
@@ -163,6 +168,12 @@ fun HomeScreen(
                 subtitle = "Personal bests",
                 icon = recordsIcon,
                 onClick = onOpenRecords
+            ),
+            HomeTile(
+                title = "Plan",
+                subtitle = "Adaptive coach",
+                icon = planIcon,
+                onClick = onOpenTrainingPlan
             ),
             HomeTile(
                 title = "Settings",
@@ -246,6 +257,21 @@ fun HomeScreen(
                     recordsSummary = trainingRecordsSummary,
                     calmMode = accessibilitySettings.calmMode,
                     onOpenRecords = onOpenRecords
+                )
+
+                TrainingPlanPreviewCard(
+                    plan = trainingPlanSummary,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenTrainingPlan = onOpenTrainingPlan,
+                    onStartRecommended = {
+                        onStartSession(
+                            GameSessionConfig(
+                                type = trainingPlanSummary.recommendedType,
+                                totalQuestions = trainingPlanSummary.recommendedQuestionCount,
+                                difficulty = trainingPlanSummary.recommendedDifficulty
+                            )
+                        )
+                    }
                 )
 
                 RecentActivityPreviewCard(
@@ -1025,6 +1051,92 @@ private fun PersonalRecordPreviewRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+@Composable
+private fun TrainingPlanPreviewCard(
+    plan: TrainingPlanSummary,
+    calmMode: Boolean,
+    onOpenTrainingPlan: () -> Unit,
+    onStartRecommended: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Training plan"
+                } else {
+                    "🧭 Training plan"
+                },
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
+            Text(
+                text = plan.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
+            Text(
+                text = plan.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Focus area",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+
+                    Text(
+                        text = plan.focusAreaText,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onOpenTrainingPlan,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Open plan")
+                }
+
+                Button(
+                    onClick = onStartRecommended,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Start now")
+                }
+            }
         }
     }
 }

@@ -50,6 +50,8 @@ import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.ActivityFeedScreen
 import com.app.neura.ui.screen.ShareTrainingIdentityScreen
 import com.app.neura.ui.screen.RecordsScreen
+import com.app.neura.ui.screen.TrainingPlanScreen
+
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -220,8 +222,14 @@ class MainActivity : ComponentActivity() {
                                 userProfile.weeklyGoalSessions
                             ),
                             trainingRecordsSummary = challengeViewModel.getTrainingRecordsSummary(),
+                            trainingPlanSummary = challengeViewModel.getTrainingPlanSummary(
+                                userProfile.weeklyGoalSessions
+                            ),
                             onOpenRecords = {
                                 navController.navigate(NeuraDestinations.Records.route)
+                            },
+                            onOpenTrainingPlan = {
+                                navController.navigate(NeuraDestinations.TrainingPlan.route)
                             },
                             recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
                             onOpenActivity = {
@@ -671,6 +679,21 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable(NeuraDestinations.TrainingPlan.route) {
+                        TrainingPlanScreen(
+                            plan = challengeViewModel.getTrainingPlanSummary(
+                                userProfile.weeklyGoalSessions
+                            ),
+                            onStartPlanStep = { config ->
+                                challengeViewModel.startSession(config)
+                                navController.navigate(NeuraDestinations.Challenge.route)
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
                     composable(
                         route = NeuraDestinations.AuthorDetails.route,
                         arguments = listOf(
@@ -755,6 +778,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenRecords = {
                                 navController.navigate(NeuraDestinations.Records.route)
+                            },
+                            onOpenTrainingPlan = {
+                                navController.navigate(NeuraDestinations.TrainingPlan.route)
                             },
                             onOpenStats = {
                                 navController.navigate(NeuraDestinations.Stats.route)
