@@ -49,6 +49,7 @@ import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.viewmodel.RoomDebugViewModel
 import com.app.neura.ui.screen.ActivityFeedScreen
 import com.app.neura.ui.screen.ShareTrainingIdentityScreen
+import com.app.neura.ui.screen.RecordsScreen
 
 class MainActivity : ComponentActivity() {
     private fun readTextFromUriSafely(uri: Uri, maxBytes: Int = 512_000): String? {
@@ -218,6 +219,10 @@ class MainActivity : ComponentActivity() {
                             trainingIdentity = challengeViewModel.getTrainingIdentity(
                                 userProfile.weeklyGoalSessions
                             ),
+                            trainingRecordsSummary = challengeViewModel.getTrainingRecordsSummary(),
+                            onOpenRecords = {
+                                navController.navigate(NeuraDestinations.Records.route)
+                            },
                             recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
                             onOpenActivity = {
                                 navController.navigate(NeuraDestinations.Activity.route)
@@ -273,6 +278,7 @@ class MainActivity : ComponentActivity() {
                             dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
                             currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
                             accessibilitySettings = accessibilitySettings
+
                         )
                     }
 
@@ -629,6 +635,9 @@ class MainActivity : ComponentActivity() {
                             onOpenShareIdentity = {
                                 navController.navigate(NeuraDestinations.ShareIdentity.route)
                             },
+                            onOpenRecords = {
+                                navController.navigate(NeuraDestinations.Records.route)
+                            },
                             onSave = { updatedProfile ->
                                 challengeViewModel.saveUserProfile(updatedProfile)
                                 navController.popBackStack()
@@ -647,6 +656,15 @@ class MainActivity : ComponentActivity() {
                             trainingIdentity = challengeViewModel.getTrainingIdentity(
                                 profile.weeklyGoalSessions
                             ),
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable(NeuraDestinations.Records.route) {
+                        RecordsScreen(
+                            recordsSummary = challengeViewModel.getTrainingRecordsSummary(),
                             onBack = {
                                 navController.popBackStack()
                             }
@@ -734,6 +752,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenActivity = {
                                 navController.navigate(NeuraDestinations.Activity.route)
+                            },
+                            onOpenRecords = {
+                                navController.navigate(NeuraDestinations.Records.route)
                             },
                             onOpenStats = {
                                 navController.navigate(NeuraDestinations.Stats.route)

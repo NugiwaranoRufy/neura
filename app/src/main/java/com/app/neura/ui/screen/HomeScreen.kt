@@ -39,6 +39,7 @@ import com.app.neura.data.model.HomeInsight
 import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.data.model.TrainingIdentity
+import com.app.neura.data.model.TrainingRecordsSummary
 
 private data class HomeTile(
     val title: String,
@@ -56,9 +57,11 @@ fun HomeScreen(
     homeInsight: HomeInsight,
     weeklyGoalProgress: WeeklyGoalProgress,
     trainingIdentity: TrainingIdentity,
+    trainingRecordsSummary: TrainingRecordsSummary,
     recentActivityItems: List<ActivityFeedItem>,
     onOpenActivity: () -> Unit,
     onOpenShareIdentity: () -> Unit,
+    onOpenRecords: () -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenTransfer: () -> Unit,
@@ -93,6 +96,7 @@ fun HomeScreen(
     val transferIcon = if (accessibilitySettings.calmMode) "Transfer" else "🔁"
     val profileIcon = if (accessibilitySettings.calmMode) "Profile" else "👤"
     val activityIcon = if (accessibilitySettings.calmMode) "Activity" else "📰"
+    val recordsIcon = if (accessibilitySettings.calmMode) "Records" else "🥇"
     val statsIcon = if (accessibilitySettings.calmMode) "Stats" else "📊"
     val achievementsIcon = if (accessibilitySettings.calmMode) "Goals" else "🏆"
     val roomDebugIcon = if (accessibilitySettings.calmMode) "Debug" else "🛠️"
@@ -153,6 +157,12 @@ fun HomeScreen(
                 subtitle = "Recent progress",
                 icon = activityIcon,
                 onClick = onOpenActivity
+            ),
+            HomeTile(
+                title = "Records",
+                subtitle = "Personal bests",
+                icon = recordsIcon,
+                onClick = onOpenRecords
             ),
             HomeTile(
                 title = "Settings",
@@ -230,6 +240,12 @@ fun HomeScreen(
                     calmMode = accessibilitySettings.calmMode,
                     onOpenProfile = onOpenProfile,
                     onOpenShareIdentity = onOpenShareIdentity
+                )
+
+                PersonalRecordsPreviewCard(
+                    recordsSummary = trainingRecordsSummary,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenRecords = onOpenRecords
                 )
 
                 RecentActivityPreviewCard(
@@ -923,6 +939,92 @@ private fun TrainingIdentityPreviewCard(
                     Text("Share")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PersonalRecordsPreviewCard(
+    recordsSummary: TrainingRecordsSummary,
+    calmMode: Boolean,
+    onOpenRecords: () -> Unit
+) {
+    val primaryItems = recordsSummary.items.take(3)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Personal records"
+                } else {
+                    "🥇 Personal records"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = recordsSummary.highlightMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            primaryItems.forEach { item ->
+                PersonalRecordPreviewRow(item = item)
+            }
+
+            Button(
+                onClick = onOpenRecords,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("View records")
+            }
+        }
+    }
+}
+
+@Composable
+private fun PersonalRecordPreviewRow(
+    item: com.app.neura.data.model.TrainingRecordItem
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = item.icon,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(
+                text = "${item.value} • ${item.description}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

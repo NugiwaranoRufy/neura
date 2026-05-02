@@ -38,6 +38,8 @@ import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.ui.util.buildActivityFeed
 import com.app.neura.data.model.TrainingIdentity
 import com.app.neura.ui.util.buildTrainingIdentity
+import com.app.neura.data.model.TrainingRecordsSummary
+import com.app.neura.ui.util.buildTrainingRecordsSummary
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -753,6 +755,10 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getTrainingIdentity(weeklyGoalSessions: Int): TrainingIdentity {
         return sessionHistory.buildTrainingIdentity(weeklyGoalSessions)
+    }
+
+    fun getTrainingRecordsSummary(): TrainingRecordsSummary {
+        return sessionHistory.buildTrainingRecordsSummary()
     }
 
     fun refreshAccessibilitySettings() {
