@@ -41,7 +41,7 @@ import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.data.model.TrainingIdentity
 import com.app.neura.data.model.TrainingRecordsSummary
 import com.app.neura.data.model.TrainingPlanSummary
-
+import com.app.neura.data.model.WeeklyMissionsSummary
 
 private data class HomeTile(
     val title: String,
@@ -62,12 +62,14 @@ fun HomeScreen(
     trainingRecordsSummary: TrainingRecordsSummary,
     trainingPlanSummary: TrainingPlanSummary,
     recentActivityItems: List<ActivityFeedItem>,
+    weeklyMissionsSummary: WeeklyMissionsSummary,
     onOpenActivity: () -> Unit,
     onOpenShareIdentity: () -> Unit,
     onOpenRecords: () -> Unit,
     onOpenTrainingPlan: () -> Unit,
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
+    onOpenMissions: () -> Unit,
     onOpenTransfer: () -> Unit,
     onOpenMyPacks: () -> Unit,
     onOpenDiscover: () -> Unit,
@@ -107,12 +109,14 @@ fun HomeScreen(
     val accessibilityIcon = if (accessibilitySettings.calmMode) "Access" else "♿"
     val settingsIcon = if (accessibilitySettings.calmMode) "Settings" else "⚙️"
     val planIcon = if (accessibilitySettings.calmMode) "Plan" else "🧭"
+    val missionsIcon = if (accessibilitySettings.calmMode) "Missions" else "✅"
 
 
     val tiles = remember(
         dailyCompletedToday,
         userChallengeCount,
-        accessibilitySettings.calmMode
+        accessibilitySettings.calmMode,
+        weeklyMissionsSummary.progressText
     ) {
         listOf(
             HomeTile(
@@ -174,6 +178,12 @@ fun HomeScreen(
                 subtitle = "Adaptive coach",
                 icon = planIcon,
                 onClick = onOpenTrainingPlan
+            ),
+            HomeTile(
+                title = "Missions",
+                subtitle = weeklyMissionsSummary.progressText,
+                icon = missionsIcon,
+                onClick = onOpenMissions
             ),
             HomeTile(
                 title = "Settings",
@@ -271,6 +281,26 @@ fun HomeScreen(
                                 difficulty = trainingPlanSummary.recommendedDifficulty
                             )
                         )
+                    }
+                )
+
+                WeeklyMissionsPreviewCard(
+                    summary = weeklyMissionsSummary,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenMissions = onOpenMissions,
+                    onStartPrimaryMission = {
+                        val mission = weeklyMissionsSummary.missions.firstOrNull { !it.isCompleted }
+                            ?: weeklyMissionsSummary.missions.firstOrNull()
+
+                        if (mission != null) {
+                            onStartSession(
+                                GameSessionConfig(
+                                    type = mission.recommendedType,
+                                    totalQuestions = mission.recommendedQuestionCount,
+                                    difficulty = mission.recommendedDifficulty
+                                )
+                            )
+                        }
                     }
                 )
 
@@ -1137,6 +1167,115 @@ private fun TrainingPlanPreviewCard(
                     Text("Start now")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun WeeklyMissionsPreviewCard(
+    summary: WeeklyMissionsSummary,
+    calmMode: Boolean,
+    onOpenMissions: () -> Unit,
+    onStartPrimaryMission: () -> Unit
+) {
+    val previewMissions = summary.missions.take(2)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Weekly missions"
+                } else {
+                    "✅ Weekly missions"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = summary.progressText,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = summary.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            previewMissions.forEach { mission ->
+                WeeklyMissionPreviewRow(mission = mission)
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onOpenMissions,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("View")
+                }
+
+                Button(
+                    onClick = onStartPrimaryMission,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("Start")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeeklyMissionPreviewRow(
+    mission: com.app.neura.data.model.WeeklyMission
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = mission.icon,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = mission.title,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(
+                text = if (mission.isCompleted) {
+                    "Done • ${mission.progressText}"
+                } else {
+                    mission.progressText
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

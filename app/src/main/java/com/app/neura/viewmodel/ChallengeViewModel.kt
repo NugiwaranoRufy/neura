@@ -42,7 +42,8 @@ import com.app.neura.data.model.TrainingRecordsSummary
 import com.app.neura.ui.util.buildTrainingRecordsSummary
 import com.app.neura.data.model.TrainingPlanSummary
 import com.app.neura.ui.util.buildTrainingPlanSummary
-
+import com.app.neura.data.model.WeeklyMissionsSummary
+import com.app.neura.ui.util.buildWeeklyMissionsSummary
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -767,6 +768,15 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
             weeklyGoalSessions = weeklyGoalSessions,
             dailyCompletedToday = isDailyCompletedToday(),
             hasOngoingSession = hasOngoingSession
+        )
+    }
+
+    fun getWeeklyMissionsSummary(
+        weeklyGoalSessions: Int
+    ): WeeklyMissionsSummary {
+        return sessionHistory.buildWeeklyMissionsSummary(
+            weeklyGoalSessions = weeklyGoalSessions,
+            dailyCompletedToday = isDailyCompletedToday()
         )
     }
 

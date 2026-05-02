@@ -38,4 +38,5 @@ sealed class NeuraDestinations(val route: String) {
     data object ShareIdentity : NeuraDestinations("share_identity")
     data object Records : NeuraDestinations("records")
     data object TrainingPlan : NeuraDestinations("training_plan")
+    data object Missions : NeuraDestinations("missions")
 }
