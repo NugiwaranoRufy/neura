@@ -39,6 +39,7 @@ import com.app.neura.ui.screen.FeaturedPackDetailsScreen
 import com.app.neura.ui.screen.FeaturedPacksScreen
 import com.app.neura.ui.screen.HomeScreen
 import com.app.neura.ui.screen.ImportPackPreviewScreen
+import com.app.neura.ui.screen.MissionsHubScreen
 import com.app.neura.ui.screen.MissionsScreen
 import com.app.neura.ui.screen.MyChallengesScreen
 import com.app.neura.ui.screen.MyPacksScreen
@@ -255,15 +256,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     },
                                     hasOngoingSession = challengeViewModel.hasOngoingSession,
-                                    homeInsight = challengeViewModel.getHomeInsight(),
-                                    weeklyGoalProgress = challengeViewModel.getWeeklyGoalProgress(
-                                        userProfile.weeklyGoalSessions
-                                    ),
-                                    trainingIdentity = challengeViewModel.getTrainingIdentity(
-                                        userProfile.weeklyGoalSessions
-                                    ),
-                                    trainingRecordsSummary = challengeViewModel.getTrainingRecordsSummary(),
-                                    trainingPlanSummary = challengeViewModel.getTrainingPlanSummary(
+                                    homeSmartSummary = challengeViewModel.getHomeSmartSummary(
                                         userProfile.weeklyGoalSessions
                                     ),
                                     weeklyMissionsSummary = challengeViewModel.getWeeklyMissionsSummary(
@@ -272,9 +265,6 @@ class MainActivity : ComponentActivity() {
                                     missionBadgesSummary = challengeViewModel.getMissionBadgesSummary(
                                         userProfile.weeklyGoalSessions
                                     ),
-                                    onOpenRecords = {
-                                        navController.navigate(NeuraDestinations.Records.route)
-                                    },
                                     onOpenTrainingPlan = {
                                         navController.navigate(NeuraDestinations.TrainingPlan.route)
                                     },
@@ -284,53 +274,11 @@ class MainActivity : ComponentActivity() {
                                     onOpenBadges = {
                                         navController.navigate(NeuraDestinations.Badges.route)
                                     },
-                                    recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
-                                    onOpenActivity = {
-                                        navController.navigate(NeuraDestinations.Activity.route)
-                                    },
-                                    onOpenShareIdentity = {
-                                        navController.navigate(NeuraDestinations.ShareIdentity.route)
-                                    },
                                     onCreateChallenge = {
                                         navController.navigate(NeuraDestinations.Create.route)
                                     },
                                     onOpenMyChallenges = {
                                         navController.navigate(NeuraDestinations.MyChallenges.route)
-                                    },
-                                    onOpenTransfer = {
-                                        importStatus = null
-                                        navController.navigate(NeuraDestinations.Transfer.route)
-                                    },
-                                    onOpenMyPacks = {
-                                        navController.navigate(NeuraDestinations.MyPacks.route)
-                                    },
-                                    onOpenDiscover = {
-                                        navController.navigate(NeuraDestinations.Discover.route)
-                                    },
-                                    onOpenFavorites = {
-                                        navController.navigate(NeuraDestinations.Favorites.route)
-                                    },
-                                    onOpenPlayLater = {
-                                        navController.navigate(NeuraDestinations.PlayLater.route)
-                                    },
-                                    onOpenProfile = {
-                                        navController.navigate(NeuraDestinations.Profile.route)
-                                    },
-                                    onOpenRoomDebug = {
-                                        navController.navigate(NeuraDestinations.RoomDebug.route)
-                                    },
-                                    onOpenStats = {
-                                        navController.navigate(NeuraDestinations.Stats.route)
-                                    },
-                                    onOpenAchievements = {
-                                        navController.navigate(NeuraDestinations.Achievements.route)
-                                    },
-                                    onStartDailyChallenge = {
-                                        challengeViewModel.startDailyChallenge()
-                                        navController.navigate(NeuraDestinations.Challenge.route)
-                                    },
-                                    onOpenAccessibility = {
-                                        navController.navigate(NeuraDestinations.Accessibility.route)
                                     },
                                     onOpenSettings = {
                                         navController.navigate(NeuraDestinations.Settings.route)
@@ -339,7 +287,6 @@ class MainActivity : ComponentActivity() {
                                     dailyCompletedToday = challengeViewModel.isDailyCompletedToday(),
                                     currentDailyStreak = challengeViewModel.getCurrentDailyStreak(),
                                     accessibilitySettings = accessibilitySettings
-
                                 )
                             }
 
@@ -792,6 +739,33 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(NeuraDestinations.Missions.route) {
+                                MissionsHubScreen(
+                                    weeklyMissionsSummary = challengeViewModel.getWeeklyMissionsSummary(
+                                        userProfile.weeklyGoalSessions
+                                    ),
+                                    missionBadgesSummary = challengeViewModel.getMissionBadgesSummary(
+                                        userProfile.weeklyGoalSessions
+                                    ),
+                                    trainingPlanSummary = challengeViewModel.getTrainingPlanSummary(
+                                        userProfile.weeklyGoalSessions
+                                    ),
+                                    trainingRecordsSummary = challengeViewModel.getTrainingRecordsSummary(),
+                                    onOpenMissionsList = {
+                                        navController.navigate(NeuraDestinations.MissionsList.route)
+                                    },
+                                    onOpenBadges = {
+                                        navController.navigate(NeuraDestinations.Badges.route)
+                                    },
+                                    onOpenTrainingPlan = {
+                                        navController.navigate(NeuraDestinations.TrainingPlan.route)
+                                    },
+                                    onOpenRecords = {
+                                        navController.navigate(NeuraDestinations.Records.route)
+                                    }
+                                )
+                            }
+
+                            composable(NeuraDestinations.MissionsList.route) {
                                 MissionsScreen(
                                     missionsSummary = challengeViewModel.getWeeklyMissionsSummary(
                                         userProfile.weeklyGoalSessions

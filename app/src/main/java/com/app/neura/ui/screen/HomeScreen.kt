@@ -3,12 +3,11 @@ package com.app.neura.ui.screen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -29,26 +28,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.app.neura.data.model.AccessibilitySettings
+import com.app.neura.data.model.ActivityFeedItem
 import com.app.neura.data.model.ChallengeDifficulty
 import com.app.neura.data.model.ChallengeType
 import com.app.neura.data.model.GameSessionConfig
-import com.app.neura.data.model.AccessibilitySettings
-import com.app.neura.ui.component.SelectableOptionButton
-import com.app.neura.data.model.HomeInsight
-import com.app.neura.data.model.WeeklyGoalProgress
-import com.app.neura.data.model.ActivityFeedItem
+import com.app.neura.data.model.HomeSmartSummary
+import com.app.neura.data.model.MissionBadgesSummary
 import com.app.neura.data.model.TrainingIdentity
 import com.app.neura.data.model.TrainingRecordsSummary
-import com.app.neura.data.model.TrainingPlanSummary
+import com.app.neura.data.model.WeeklyGoalProgress
 import com.app.neura.data.model.WeeklyMissionsSummary
-import com.app.neura.data.model.MissionBadgesSummary
+import com.app.neura.ui.component.SelectableOptionButton
 import com.app.neura.ui.screen.home.HomeHeader
-import com.app.neura.ui.screen.home.HomeInsightCard
+import com.app.neura.ui.screen.home.HomeSmartCard
 import com.app.neura.ui.screen.home.HomeTile
 import com.app.neura.ui.screen.home.HomeTileCard
-import com.app.neura.ui.screen.home.MissionBadgesPreviewCard
-import com.app.neura.ui.screen.home.TrainingPlanPreviewCard
-import com.app.neura.ui.screen.home.WeeklyMissionsPreviewCard
+import com.app.neura.ui.screen.home.MissionBadgesCompactCard
+import com.app.neura.ui.screen.home.WeeklyMissionsCompactCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -56,34 +53,15 @@ fun HomeScreen(
     onStartSession: (GameSessionConfig) -> Unit,
     onResumeSession: () -> Unit,
     hasOngoingSession: Boolean,
-    homeInsight: HomeInsight,
-    weeklyGoalProgress: WeeklyGoalProgress,
-    trainingIdentity: TrainingIdentity,
-    trainingRecordsSummary: TrainingRecordsSummary,
-    trainingPlanSummary: TrainingPlanSummary,
-    recentActivityItems: List<ActivityFeedItem>,
+    homeSmartSummary: HomeSmartSummary,
     weeklyMissionsSummary: WeeklyMissionsSummary,
     missionBadgesSummary: MissionBadgesSummary,
-    onOpenActivity: () -> Unit,
-    onOpenShareIdentity: () -> Unit,
-    onOpenRecords: () -> Unit,
     onOpenTrainingPlan: () -> Unit,
-    onCreateChallenge: () -> Unit,
-    onOpenMyChallenges: () -> Unit,
     onOpenMissions: () -> Unit,
     onOpenBadges: () -> Unit,
-    onOpenTransfer: () -> Unit,
-    onOpenMyPacks: () -> Unit,
-    onOpenDiscover: () -> Unit,
-    onOpenFavorites: () -> Unit,
-    onOpenPlayLater: () -> Unit,
-    onOpenProfile: () -> Unit,
-    onOpenAccessibility: () -> Unit,
+    onCreateChallenge: () -> Unit,
+    onOpenMyChallenges: () -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenRoomDebug: () -> Unit,
-    onOpenStats: () -> Unit,
-    onOpenAchievements: () -> Unit,
-    onStartDailyChallenge: () -> Unit,
     userChallengeCount: Int,
     dailyCompletedToday: Boolean,
     currentDailyStreak: Int,
@@ -120,46 +98,27 @@ fun HomeScreen(
         accessibilitySettings.calmMode,
         onCreateChallenge,
         onOpenMyChallenges,
-        onOpenMyPacks,
-        onOpenFavorites,
-        onOpenPlayLater,
         onOpenSettings
     ) {
+
         listOf(
+
             HomeTile(
                 title = "Create",
                 subtitle = "New challenge",
-                icon = createIcon,
+                icon = if (accessibilitySettings.calmMode) "Create" else "➕",
                 onClick = onCreateChallenge
             ),
             HomeTile(
                 title = "My challenges",
                 subtitle = "$userChallengeCount created",
-                icon = challengesIcon,
+                icon = if (accessibilitySettings.calmMode) "Challenges" else "🧩",
                 onClick = onOpenMyChallenges
-            ),
-            HomeTile(
-                title = "My packs",
-                subtitle = "Collections",
-                icon = packsIcon,
-                onClick = onOpenMyPacks
-            ),
-            HomeTile(
-                title = "Favorites",
-                subtitle = "Saved picks",
-                icon = favoritesIcon,
-                onClick = onOpenFavorites
-            ),
-            HomeTile(
-                title = "Play later",
-                subtitle = "Queued packs",
-                icon = playLaterIcon,
-                onClick = onOpenPlayLater
             ),
             HomeTile(
                 title = "Settings",
                 subtitle = "App tools",
-                icon = settingsIcon,
+                icon = if (accessibilitySettings.calmMode) "Settings" else "⚙️",
                 onClick = onOpenSettings
             )
         )
@@ -169,188 +128,116 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
-            .navigationBarsPadding()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+            HomeHeader(
+                dailyCompletedToday = dailyCompletedToday,
+                currentDailyStreak = currentDailyStreak,
+                calmMode = accessibilitySettings.calmMode,
+                readingHelper = accessibilitySettings.readingHelper
+            )
+
+            if (hasOngoingSession) {
+                ResumeSessionCard(
+                    calmMode = accessibilitySettings.calmMode,
+                    onResumeSession = onResumeSession
+                )
+            }
+
+            HomeSmartCard(
+                summary = homeSmartSummary,
+                calmMode = accessibilitySettings.calmMode,
+                onPrimaryAction = {
+                    if (homeSmartSummary.shouldResumeSession) {
+                        onResumeSession()
+                    } else {
+                        onStartSession(homeSmartSummary.recommendedConfig)
+                    }
+                },
+                onSecondaryAction = {
+                    onOpenTrainingPlan()
+                }
+            )
+
+            WeeklyMissionsCompactCard(
+                summary = weeklyMissionsSummary,
+                calmMode = accessibilitySettings.calmMode,
+                onOpenMissions = onOpenMissions
+            )
+
+            MissionBadgesCompactCard(
+                summary = missionBadgesSummary,
+                calmMode = accessibilitySettings.calmMode,
+                onOpenBadges = onOpenBadges
+            )
+
+            OutlinedButton(
+                onClick = {
+                    showSessionSetup = !showSessionSetup
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp)
             ) {
-                HomeHeader(
-                    dailyCompletedToday = dailyCompletedToday,
-                    currentDailyStreak = currentDailyStreak,
-                    calmMode = accessibilitySettings.calmMode,
-                    readingHelper = accessibilitySettings.readingHelper
+                Text(if (showSessionSetup) "Hide custom session" else "Custom session")
+            }
+
+            if (showSessionSetup) {
+                SessionSetupPanel(
+                    selectedType = selectedType,
+                    onSelectedTypeChange = { selectedType = it },
+                    selectedDifficulty = selectedDifficulty,
+                    onSelectedDifficultyChange = { selectedDifficulty = it },
+                    selectedCount = selectedCount,
+                    onSelectedCountChange = { selectedCount = it }
                 )
 
-                if (hasOngoingSession) {
-                    ResumeSessionCard(
-                        calmMode = accessibilitySettings.calmMode,
-                        onResumeSession = onResumeSession
-                    )
-                }
-
-                HomeInsightCard(
-                    insight = homeInsight,
-                    calmMode = accessibilitySettings.calmMode,
-                    onPrimaryAction = {
-                        if (homeInsight.shouldResumeSession) {
-                            onResumeSession()
-                        } else {
-                            onStartSession(
-                                GameSessionConfig(
-                                    type = homeInsight.suggestedType,
-                                    totalQuestions = homeInsight.suggestedQuestionCount,
-                                    difficulty = homeInsight.suggestedDifficulty
-                                )
-                            )
-                        }
-                    }
-                )
-
-                /* WeeklyGoalCard(
-                    progress = weeklyGoalProgress,
-                    calmMode = accessibilitySettings.calmMode,
-                    onStartTraining = {
+                Button(
+                    onClick = {
                         onStartSession(
                             GameSessionConfig(
-                                type = homeInsight.suggestedType,
-                                totalQuestions = homeInsight.suggestedQuestionCount,
-                                difficulty = homeInsight.suggestedDifficulty
+                                type = selectedType,
+                                totalQuestions = selectedCount,
+                                difficulty = selectedDifficulty
                             )
                         )
-                    }
-                )
-
-                TrainingIdentityPreviewCard(
-                    identity = trainingIdentity,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenProfile = onOpenProfile,
-                    onOpenShareIdentity = onOpenShareIdentity
-                )
-
-                PersonalRecordsPreviewCard(
-                    recordsSummary = trainingRecordsSummary,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenRecords = onOpenRecords
-                ) */
-
-                TrainingPlanPreviewCard(
-                    plan = trainingPlanSummary,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenTrainingPlan = onOpenTrainingPlan,
-                    onStartRecommended = {
-                        onStartSession(
-                            GameSessionConfig(
-                                type = trainingPlanSummary.recommendedType,
-                                totalQuestions = trainingPlanSummary.recommendedQuestionCount,
-                                difficulty = trainingPlanSummary.recommendedDifficulty
-                            )
-                        )
-                    }
-                )
-
-                WeeklyMissionsPreviewCard(
-                    summary = weeklyMissionsSummary,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenMissions = onOpenMissions,
-                    onStartPrimaryMission = {
-                        val mission = weeklyMissionsSummary.missions.firstOrNull { !it.isCompleted }
-                            ?: weeklyMissionsSummary.missions.firstOrNull()
-
-                        if (mission != null) {
-                            onStartSession(
-                                GameSessionConfig(
-                                    type = mission.recommendedType,
-                                    totalQuestions = mission.recommendedQuestionCount,
-                                    difficulty = mission.recommendedDifficulty
-                                )
-                            )
-                        }
-                    }
-                )
-
-                MissionBadgesPreviewCard(
-                    summary = missionBadgesSummary,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenBadges = onOpenBadges
-                )
-
-                /* RecentActivityPreviewCard(
-                    items = recentActivityItems,
-                    calmMode = accessibilitySettings.calmMode,
-                    onOpenActivity = onOpenActivity
-                ) */
-
-                if (showSessionSetup) {
-                    SessionSetupPanel(
-                        selectedType = selectedType,
-                        onSelectedTypeChange = { selectedType = it },
-                        selectedDifficulty = selectedDifficulty,
-                        onSelectedDifficultyChange = { selectedDifficulty = it },
-                        selectedCount = selectedCount,
-                        onSelectedCountChange = { selectedCount = it }
-                    )
-                }
-
-                Text(
-                    text = "Explore",
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                FlowRow(
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    maxItemsInEachRow = 2
+                    shape = RoundedCornerShape(18.dp)
                 ) {
-                    tiles.forEach { tile ->
-                        HomeTileCard(
-                            tile = tile,
-                            calmMode = accessibilitySettings.calmMode,
-                            readingHelper = accessibilitySettings.readingHelper,
-                            modifier = Modifier.weight(1f)
-
-                        )
-                    }
-
-                    if (tiles.size % 2 != 0) {
-                        androidx.compose.foundation.layout.Spacer(
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                    Text("Start custom session")
                 }
             }
 
-            Surface(
-                tonalElevation = 3.dp,
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = "Quick actions",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                maxItemsInEachRow = 2
             ) {
-                Button(
-                    onClick = {
-                        if (!showSessionSetup) {
-                            showSessionSetup = true
-                        } else {
-                            onStartSession(
-                                GameSessionConfig(
-                                    type = selectedType,
-                                    totalQuestions = selectedCount,
-                                    difficulty = selectedDifficulty
-                                )
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Text(if (showSessionSetup) "Start session" else "Start")
+                tiles.forEach { tile ->
+                    HomeTileCard(
+                        tile = tile,
+                        calmMode = accessibilitySettings.calmMode,
+                        readingHelper = accessibilitySettings.readingHelper,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                if (tiles.size % 2 != 0) {
+                    androidx.compose.foundation.layout.Spacer(
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
@@ -508,369 +395,6 @@ private fun ResumeSessionCard(
                 text = "Continue from where you left off.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
-    }
-}
-
-@Composable
-fun InsightMetricChip(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        }
-    }
-}
-
-@Composable
-private fun WeeklyGoalCard(
-    progress: WeeklyGoalProgress,
-    calmMode: Boolean,
-    onStartTraining: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    progress.title
-                } else {
-                    "🎯 ${progress.title}"
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = "${progress.completedSessions} of ${progress.goalSessions} sessions completed",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Text(
-                text = progress.message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = "Progress",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-
-                    Text(
-                        text = "${progress.progressPercent}%",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-            }
-
-            Button(
-                onClick = onStartTraining,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(progress.actionLabel)
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecentActivityPreviewCard(
-    items: List<ActivityFeedItem>,
-    calmMode: Boolean,
-    onOpenActivity: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Recent activity"
-                } else {
-                    "📰 Recent activity"
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            if (items.isEmpty()) {
-                Text(
-                    text = "Complete a session to start building your activity timeline.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                items.take(3).forEach { item ->
-                    RecentActivityPreviewRow(item = item)
-                }
-            }
-
-            Button(
-                onClick = onOpenActivity,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("View all activity")
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecentActivityPreviewRow(
-    item: ActivityFeedItem
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Text(
-                text = item.icon,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Text(
-                text = "${item.message} • ${item.metadata}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun TrainingIdentityPreviewCard(
-    identity: TrainingIdentity,
-    calmMode: Boolean,
-    onOpenProfile: () -> Unit,
-    onOpenShareIdentity: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Training Identity"
-                } else {
-                    "🪪 Training Identity"
-                },
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = identity.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-
-                    Text(
-                        text = "Level ${identity.level} • ${identity.averageAccuracyText} average",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-
-                Surface(
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
-                ) {
-                    Text(
-                        text = "LV ${identity.level}",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
-
-            Text(
-                text = "${identity.mainStyleText} main style • ${identity.bestAreaText} best area",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onOpenProfile,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Profile")
-                }
-
-                Button(
-                    onClick = onOpenShareIdentity,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Share")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PersonalRecordsPreviewCard(
-    recordsSummary: TrainingRecordsSummary,
-    calmMode: Boolean,
-    onOpenRecords: () -> Unit
-) {
-    val primaryItems = recordsSummary.items.take(3)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Personal records"
-                } else {
-                    "🥇 Personal records"
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = recordsSummary.highlightMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            primaryItems.forEach { item ->
-                PersonalRecordPreviewRow(item = item)
-            }
-
-            Button(
-                onClick = onOpenRecords,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("View records")
-            }
-        }
-    }
-}
-
-@Composable
-private fun PersonalRecordPreviewRow(
-    item: com.app.neura.data.model.TrainingRecordItem
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Text(
-                text = item.icon,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Text(
-                text = "${item.value} • ${item.description}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
