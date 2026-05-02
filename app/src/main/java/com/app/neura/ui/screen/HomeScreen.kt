@@ -42,6 +42,7 @@ import com.app.neura.data.model.TrainingIdentity
 import com.app.neura.data.model.TrainingRecordsSummary
 import com.app.neura.data.model.TrainingPlanSummary
 import com.app.neura.data.model.WeeklyMissionsSummary
+import com.app.neura.data.model.MissionBadgesSummary
 
 private data class HomeTile(
     val title: String,
@@ -63,6 +64,7 @@ fun HomeScreen(
     trainingPlanSummary: TrainingPlanSummary,
     recentActivityItems: List<ActivityFeedItem>,
     weeklyMissionsSummary: WeeklyMissionsSummary,
+    missionBadgesSummary: MissionBadgesSummary,
     onOpenActivity: () -> Unit,
     onOpenShareIdentity: () -> Unit,
     onOpenRecords: () -> Unit,
@@ -70,6 +72,7 @@ fun HomeScreen(
     onCreateChallenge: () -> Unit,
     onOpenMyChallenges: () -> Unit,
     onOpenMissions: () -> Unit,
+    onOpenBadges: () -> Unit,
     onOpenTransfer: () -> Unit,
     onOpenMyPacks: () -> Unit,
     onOpenDiscover: () -> Unit,
@@ -110,13 +113,15 @@ fun HomeScreen(
     val settingsIcon = if (accessibilitySettings.calmMode) "Settings" else "⚙️"
     val planIcon = if (accessibilitySettings.calmMode) "Plan" else "🧭"
     val missionsIcon = if (accessibilitySettings.calmMode) "Missions" else "✅"
+    val badgesIcon = if (accessibilitySettings.calmMode) "Badges" else "🏅"
 
 
     val tiles = remember(
         dailyCompletedToday,
         userChallengeCount,
         accessibilitySettings.calmMode,
-        weeklyMissionsSummary.progressText
+        weeklyMissionsSummary.progressText,
+        missionBadgesSummary.progressText
     ) {
         listOf(
             HomeTile(
@@ -184,6 +189,12 @@ fun HomeScreen(
                 subtitle = weeklyMissionsSummary.progressText,
                 icon = missionsIcon,
                 onClick = onOpenMissions
+            ),
+            HomeTile(
+                title = "Badges",
+                subtitle = missionBadgesSummary.progressText,
+                icon = badgesIcon,
+                onClick = onOpenBadges
             ),
             HomeTile(
                 title = "Settings",
@@ -302,6 +313,12 @@ fun HomeScreen(
                             )
                         }
                     }
+                )
+
+                MissionBadgesPreviewCard(
+                    summary = missionBadgesSummary,
+                    calmMode = accessibilitySettings.calmMode,
+                    onOpenBadges = onOpenBadges
                 )
 
                 RecentActivityPreviewCard(
@@ -1272,6 +1289,101 @@ private fun WeeklyMissionPreviewRow(
                     "Done • ${mission.progressText}"
                 } else {
                     mission.progressText
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun MissionBadgesPreviewCard(
+    summary: MissionBadgesSummary,
+    calmMode: Boolean,
+    onOpenBadges: () -> Unit
+) {
+    val previewBadges = summary.badges.take(3)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = if (calmMode) {
+                    "Mission badges"
+                } else {
+                    "🏅 Mission badges"
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Text(
+                text = summary.progressText,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = summary.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            previewBadges.forEach { badge ->
+                MissionBadgePreviewRow(badge = badge)
+            }
+
+            Button(
+                onClick = onOpenBadges,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("View badges")
+            }
+        }
+    }
+}
+
+@Composable
+private fun MissionBadgePreviewRow(
+    badge: com.app.neura.data.model.MissionBadge
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Text(
+                text = if (badge.isUnlocked) badge.icon else "🔒",
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = badge.title,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Text(
+                text = if (badge.isUnlocked) {
+                    "Unlocked • ${badge.description}"
+                } else {
+                    "Locked • ${badge.unlockHint}"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant

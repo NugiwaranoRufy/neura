@@ -52,6 +52,7 @@ import com.app.neura.ui.screen.ShareTrainingIdentityScreen
 import com.app.neura.ui.screen.RecordsScreen
 import com.app.neura.ui.screen.TrainingPlanScreen
 import com.app.neura.ui.screen.MissionsScreen
+import com.app.neura.ui.screen.BadgesScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -229,6 +230,9 @@ class MainActivity : ComponentActivity() {
                             weeklyMissionsSummary = challengeViewModel.getWeeklyMissionsSummary(
                                 userProfile.weeklyGoalSessions
                             ),
+                            missionBadgesSummary = challengeViewModel.getMissionBadgesSummary(
+                                userProfile.weeklyGoalSessions
+                            ),
                             onOpenRecords = {
                                 navController.navigate(NeuraDestinations.Records.route)
                             },
@@ -237,6 +241,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenMissions = {
                                 navController.navigate(NeuraDestinations.Missions.route)
+                            },
+                            onOpenBadges = {
+                                navController.navigate(NeuraDestinations.Badges.route)
                             },
                             recentActivityItems = challengeViewModel.getActivityFeed(limit = 3),
                             onOpenActivity = {
@@ -715,6 +722,16 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable(NeuraDestinations.Badges.route) {
+                        BadgesScreen(
+                            badgesSummary = challengeViewModel.getMissionBadgesSummary(
+                                userProfile.weeklyGoalSessions
+                            ),
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
 
                     composable(
                         route = NeuraDestinations.AuthorDetails.route,
@@ -806,6 +823,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onOpenMissions = {
                                 navController.navigate(NeuraDestinations.Missions.route)
+                            },
+                            onOpenBadges = {
+                                navController.navigate(NeuraDestinations.Badges.route)
                             },
                             onOpenStats = {
                                 navController.navigate(NeuraDestinations.Stats.route)
