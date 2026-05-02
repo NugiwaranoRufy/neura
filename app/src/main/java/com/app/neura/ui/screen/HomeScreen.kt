@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,13 +42,13 @@ import com.app.neura.data.model.TrainingRecordsSummary
 import com.app.neura.data.model.TrainingPlanSummary
 import com.app.neura.data.model.WeeklyMissionsSummary
 import com.app.neura.data.model.MissionBadgesSummary
-
-private data class HomeTile(
-    val title: String,
-    val subtitle: String,
-    val icon: String,
-    val onClick: () -> Unit
-)
+import com.app.neura.ui.screen.home.HomeHeader
+import com.app.neura.ui.screen.home.HomeInsightCard
+import com.app.neura.ui.screen.home.HomeTile
+import com.app.neura.ui.screen.home.HomeTileCard
+import com.app.neura.ui.screen.home.MissionBadgesPreviewCard
+import com.app.neura.ui.screen.home.TrainingPlanPreviewCard
+import com.app.neura.ui.screen.home.WeeklyMissionsPreviewCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -117,19 +116,16 @@ fun HomeScreen(
 
 
     val tiles = remember(
-        dailyCompletedToday,
         userChallengeCount,
         accessibilitySettings.calmMode,
-        weeklyMissionsSummary.progressText,
-        missionBadgesSummary.progressText
+        onCreateChallenge,
+        onOpenMyChallenges,
+        onOpenMyPacks,
+        onOpenFavorites,
+        onOpenPlayLater,
+        onOpenSettings
     ) {
         listOf(
-            HomeTile(
-                title = if (dailyCompletedToday) "Daily done" else "Daily",
-                subtitle = "Today’s challenge",
-                icon = dailyIcon,
-                onClick = onStartDailyChallenge
-            ),
             HomeTile(
                 title = "Create",
                 subtitle = "New challenge",
@@ -149,12 +145,6 @@ fun HomeScreen(
                 onClick = onOpenMyPacks
             ),
             HomeTile(
-                title = "Discover",
-                subtitle = "Featured packs",
-                icon = discoverIcon,
-                onClick = onOpenDiscover
-            ),
-            HomeTile(
                 title = "Favorites",
                 subtitle = "Saved picks",
                 icon = favoritesIcon,
@@ -165,36 +155,6 @@ fun HomeScreen(
                 subtitle = "Queued packs",
                 icon = playLaterIcon,
                 onClick = onOpenPlayLater
-            ),
-            HomeTile(
-                title = "Activity",
-                subtitle = "Recent progress",
-                icon = activityIcon,
-                onClick = onOpenActivity
-            ),
-            HomeTile(
-                title = "Records",
-                subtitle = "Personal bests",
-                icon = recordsIcon,
-                onClick = onOpenRecords
-            ),
-            HomeTile(
-                title = "Plan",
-                subtitle = "Adaptive coach",
-                icon = planIcon,
-                onClick = onOpenTrainingPlan
-            ),
-            HomeTile(
-                title = "Missions",
-                subtitle = weeklyMissionsSummary.progressText,
-                icon = missionsIcon,
-                onClick = onOpenMissions
-            ),
-            HomeTile(
-                title = "Badges",
-                subtitle = missionBadgesSummary.progressText,
-                icon = badgesIcon,
-                onClick = onOpenBadges
             ),
             HomeTile(
                 title = "Settings",
@@ -253,7 +213,7 @@ fun HomeScreen(
                     }
                 )
 
-                WeeklyGoalCard(
+                /* WeeklyGoalCard(
                     progress = weeklyGoalProgress,
                     calmMode = accessibilitySettings.calmMode,
                     onStartTraining = {
@@ -278,7 +238,7 @@ fun HomeScreen(
                     recordsSummary = trainingRecordsSummary,
                     calmMode = accessibilitySettings.calmMode,
                     onOpenRecords = onOpenRecords
-                )
+                ) */
 
                 TrainingPlanPreviewCard(
                     plan = trainingPlanSummary,
@@ -321,11 +281,11 @@ fun HomeScreen(
                     onOpenBadges = onOpenBadges
                 )
 
-                RecentActivityPreviewCard(
+                /* RecentActivityPreviewCard(
                     items = recentActivityItems,
                     calmMode = accessibilitySettings.calmMode,
                     onOpenActivity = onOpenActivity
-                )
+                ) */
 
                 if (showSessionSetup) {
                     SessionSetupPanel(
@@ -392,119 +352,6 @@ fun HomeScreen(
                 ) {
                     Text(if (showSessionSetup) "Start session" else "Start")
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeHeader(
-    dailyCompletedToday: Boolean,
-    currentDailyStreak: Int,
-    calmMode: Boolean,
-    readingHelper: Boolean
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(if (readingHelper) 18.dp else 12.dp)
-        ) {
-            Text(
-                text = if (calmMode) "Neura" else "🧠 Neura",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
-            Text(
-                text = "Train your mind. Create challenges. Build your collection.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-
-            Surface(
-                shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
-            ) {
-                Text(
-                    text = if (dailyCompletedToday) {
-                        if (calmMode) {
-                            "Daily completed • Streak $currentDailyStreak"
-                        } else {
-                            "✅ Daily completed • 🔥 Streak $currentDailyStreak"
-                        }
-                    } else {
-                        if (calmMode) {
-                            "Daily not completed • Streak $currentDailyStreak"
-                        } else {
-                            "☀️ Daily waiting • 🔥 Streak $currentDailyStreak"
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HomeTileCard(
-    tile: HomeTile,
-    calmMode: Boolean,
-    readingHelper: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .height(if (readingHelper) 172.dp else 156.dp)
-            .clickable { tile.onClick() },
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Surface(
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Text(
-                    text = tile.icon,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    style = if (calmMode) {
-                        MaterialTheme.typography.labelLarge
-                    } else {
-                        MaterialTheme.typography.titleLarge
-                    }
-                )
-            }
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = tile.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2
-                )
-
-                Text(
-                    text = tile.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
     }
@@ -667,80 +514,7 @@ private fun ResumeSessionCard(
 }
 
 @Composable
-private fun HomeInsightCard(
-    insight: HomeInsight,
-    calmMode: Boolean,
-    onPrimaryAction: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Your next step"
-                } else {
-                    "✨ Your next step"
-                },
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-
-            Text(
-                text = insight.title,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-
-            Text(
-                text = insight.message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                InsightMetricChip(
-                    label = "Sessions",
-                    value = insight.totalSessions.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-
-                InsightMetricChip(
-                    label = "Average",
-                    value = insight.averageAccuracyText,
-                    modifier = Modifier.weight(1f)
-                )
-
-                InsightMetricChip(
-                    label = "Streak",
-                    value = "${insight.currentDailyStreak}d",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Button(
-                onClick = onPrimaryAction,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(insight.primaryActionLabel)
-            }
-        }
-    }
-}
-
-@Composable
-private fun InsightMetricChip(
+fun InsightMetricChip(
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -1095,296 +869,6 @@ private fun PersonalRecordPreviewRow(
 
             Text(
                 text = "${item.value} • ${item.description}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-@Composable
-private fun TrainingPlanPreviewCard(
-    plan: TrainingPlanSummary,
-    calmMode: Boolean,
-    onOpenTrainingPlan: () -> Unit,
-    onStartRecommended: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Training plan"
-                } else {
-                    "🧭 Training plan"
-                },
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
-            Text(
-                text = plan.title,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
-            Text(
-                text = plan.message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)
-            ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = "Focus area",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-
-                    Text(
-                        text = plan.focusAreaText,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onOpenTrainingPlan,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Open plan")
-                }
-
-                Button(
-                    onClick = onStartRecommended,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Start now")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun WeeklyMissionsPreviewCard(
-    summary: WeeklyMissionsSummary,
-    calmMode: Boolean,
-    onOpenMissions: () -> Unit,
-    onStartPrimaryMission: () -> Unit
-) {
-    val previewMissions = summary.missions.take(2)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Weekly missions"
-                } else {
-                    "✅ Weekly missions"
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = summary.progressText,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Text(
-                text = summary.message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            previewMissions.forEach { mission ->
-                WeeklyMissionPreviewRow(mission = mission)
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onOpenMissions,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("View")
-                }
-
-                Button(
-                    onClick = onStartPrimaryMission,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text("Start")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun WeeklyMissionPreviewRow(
-    mission: com.app.neura.data.model.WeeklyMission
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Text(
-                text = mission.icon,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = mission.title,
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Text(
-                text = if (mission.isCompleted) {
-                    "Done • ${mission.progressText}"
-                } else {
-                    mission.progressText
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun MissionBadgesPreviewCard(
-    summary: MissionBadgesSummary,
-    calmMode: Boolean,
-    onOpenBadges: () -> Unit
-) {
-    val previewBadges = summary.badges.take(3)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Text(
-                text = if (calmMode) {
-                    "Mission badges"
-                } else {
-                    "🏅 Mission badges"
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Text(
-                text = summary.progressText,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Text(
-                text = summary.message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            previewBadges.forEach { badge ->
-                MissionBadgePreviewRow(badge = badge)
-            }
-
-            Button(
-                onClick = onOpenBadges,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text("View badges")
-            }
-        }
-    }
-}
-
-@Composable
-private fun MissionBadgePreviewRow(
-    badge: com.app.neura.data.model.MissionBadge
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Text(
-                text = if (badge.isUnlocked) badge.icon else "🔒",
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = badge.title,
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Text(
-                text = if (badge.isUnlocked) {
-                    "Unlocked • ${badge.description}"
-                } else {
-                    "Locked • ${badge.unlockHint}"
-                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

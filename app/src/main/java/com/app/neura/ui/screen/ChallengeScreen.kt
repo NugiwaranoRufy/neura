@@ -1,5 +1,7 @@
 package com.app.neura.ui.screen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,9 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,13 +24,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.app.neura.data.model.ChallengeType
-import com.app.neura.viewmodel.ChallengeViewModel
 import com.app.neura.data.model.AccessibilitySettings
+import com.app.neura.data.model.ChallengeType
 import com.app.neura.ui.component.EmptyStateCard
 import com.app.neura.ui.component.SecondaryActionButton
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
+import com.app.neura.viewmodel.ChallengeViewModel
 
 @Composable
 fun ChallengeScreen(
@@ -162,12 +160,6 @@ fun ChallengeScreen(
                             MaterialTheme.colorScheme.error,
                         animationSpec = tween(400),
                         label = "resultColor"
-                    )
-
-                    Text(
-                        text = if (uiState.isCorrect) "Correct" else "Not correct",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = resultColor
                     )
 
                     Text(
