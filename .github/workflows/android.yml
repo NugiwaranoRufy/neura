@@ -1,13 +1,13 @@
 name: Android Debug Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
+  build-debug-apk:
     name: Build debug APK
     runs-on: ubuntu-latest
 
@@ -19,9 +19,12 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
 
-      - name: Make Gradle executable
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
       - name: Build debug APK
@@ -32,3 +35,4 @@ jobs:
         with:
           name: neura-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

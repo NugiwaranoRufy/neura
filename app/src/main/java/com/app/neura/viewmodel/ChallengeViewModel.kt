@@ -48,6 +48,8 @@ import com.app.neura.data.model.MissionBadgesSummary
 import com.app.neura.ui.util.buildMissionBadgesSummary
 import com.app.neura.data.model.BadgeUnlockSummary
 import com.app.neura.ui.util.buildBadgeUnlockSummary
+import com.app.neura.data.model.PostSessionCoachSummary
+import com.app.neura.ui.util.buildPostSessionCoachSummary
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -670,6 +672,15 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         return buildBadgeUnlockSummary(
             latestResult = getLatestSessionResult(),
             badgesSummary = getMissionBadgesSummary(weeklyGoalSessions)
+        )
+    }
+
+    fun getPostSessionCoachSummary(
+        weeklyGoalSessions: Int
+    ): PostSessionCoachSummary {
+        return buildPostSessionCoachSummary(
+            latestResult = getLatestSessionResult(),
+            trainingPlanSummary = getTrainingPlanSummary(weeklyGoalSessions)
         )
     }
 
