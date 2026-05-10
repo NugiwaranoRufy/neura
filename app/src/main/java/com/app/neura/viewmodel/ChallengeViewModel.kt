@@ -48,8 +48,6 @@ import com.app.neura.data.model.MissionBadgesSummary
 import com.app.neura.ui.util.buildMissionBadgesSummary
 import com.app.neura.data.model.BadgeUnlockSummary
 import com.app.neura.ui.util.buildBadgeUnlockSummary
-import com.app.neura.data.model.HomeSmartSummary
-import com.app.neura.ui.util.buildHomeSmartSummary
 
 data class ChallengeUiState(
     val currentChallenge: Challenge? = null,
@@ -209,20 +207,6 @@ class ChallengeViewModel(application: Application) : AndroidViewModel(applicatio
         )
 
         return false
-    }
-
-    fun getHomeSmartSummary(
-        weeklyGoalSessions: Int
-    ): HomeSmartSummary {
-        val trainingPlan = getTrainingPlanSummary(weeklyGoalSessions)
-        val weeklyMissions = getWeeklyMissionsSummary(weeklyGoalSessions)
-
-        return sessionHistory.buildHomeSmartSummary(
-            hasOngoingSession = hasOngoingSession,
-            dailyCompletedToday = isDailyCompletedToday(),
-            trainingPlanSummary = trainingPlan,
-            weeklyMissionsSummary = weeklyMissions
-        )
     }
 
     fun saveCompletedSessionBeforeExit() {
